@@ -5,18 +5,9 @@
         <a class="navbar-brand" href="#">game theory website</a>
       </div>
     </nav>
-    <game-selector></game-selector>
+    <router-view></router-view>
   </div>
 </template>
-
-<script>
-import GameSelector from './components/GameSelector/GameSelector.vue';
-export default {
-  components: {
-    GameSelector
-  }
-};
-</script>
 
 <style lang="scss">
 #app {

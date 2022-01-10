@@ -11,7 +11,7 @@
 <script>
 import GameCard from "./GameCard.vue"
 
-import Seki from "./GameData/Seki"
+import GameData from "./GameData"
 
 export default {
     components: {
@@ -19,9 +19,7 @@ export default {
     },
     data() {
       return {
-          games: [
-            Seki,
-          ]
+          games: GameData.games
         }
     },
 };
