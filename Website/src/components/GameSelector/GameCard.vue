@@ -67,9 +67,12 @@ export default {
       this.$refs["config_modal"].show()
     },
     startGame() {
-      console.log(//this.$$refs["game_settings_component"].getInternalGameName(),
+      console.log(
         this.$refs["game_settings_component"].getSettings())
-    }
+      //TODO make a request to find a uuid
+      const uuid = "2398-3231-2313-43567"
+      this.$router.push({path: "play/" + uuid})
+    },
   },
 }
 </script>

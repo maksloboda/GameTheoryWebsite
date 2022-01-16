@@ -1,5 +1,6 @@
 import SekiInfo from "./SekiInfo.vue"
 import SekiSettings from "./SekiSettings.vue"
+import SekiInterface from "./SekiInterface.vue"
 
 export default {
   getInfoComponent() {
@@ -7,6 +8,9 @@ export default {
   },
   getSettingsComponent() {
     return SekiSettings
+  },
+  getInterfaceComponent() {
+    return SekiInterface
   },
   getInternalGameName() {
     return "seki"
