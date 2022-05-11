@@ -1,0 +1,36 @@
+# Opaque types used by the games
+scalar GameState
+scalar PlayerToken
+scalar GameEvent
+
+# Infomation about the game
+type GameInfo {
+  id: ID!
+  # Amount of players in the game rightnow
+  player_count: Int!
+  game_name: String!
+  # Amount of made turns
+  event_clock: Int!
+  # Opaque game state
+  state: GameState!
+}
+
+type Query {
+  gameInfo(id: ID!): GameInfo
+}
+
+input GameCreateRequest {
+  game_name: String!
+  start_state: GameState!
+}
+
+type Mutation {
+  createGame(create_request: GameCreateRequest!): ID
+  joinGame(id: ID!): PlayerToken
+  # Adds event to the game
+  addEvent(id: ID!, token: PlayerToken!, event: GameEvent!): Boolean
+}
+
+type Subscription {
+  subcribeGame(id: ID!): GameInfo
+}
