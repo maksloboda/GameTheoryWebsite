@@ -1,26 +1,26 @@
 <template>
-  <div class="container mt-2">
-    <div class="row">
-      <div class="col-sm-4" v-for="game in games" :key="game.getCardName">
-        <game-card :game_object="game"></game-card>
-      </div>
+  <b-row>
+    <div class="col-sm-6">
+      <b-card title="Создать игру">
+          <create-game></create-game>
+      </b-card>
     </div>
-  </div>
+    <div class="col-sm-6">
+      <b-card title="Поключиться к лобби">
+          <join-game></join-game>
+      </b-card>
+    </div>
+  </b-row>
 </template>
 
 <script>
-import GameCard from "./GameCard.vue"
-
-import GameData from "./GameData"
+import CreateGame from "./CreateGame.vue"
+import JoinGame from "./JoinGame.vue"
 
 export default {
     components: {
-      GameCard,
-    },
-    data() {
-      return {
-          games: GameData.games
-        }
-    },
+      CreateGame,
+      JoinGame
+    }
 };
 </script>
