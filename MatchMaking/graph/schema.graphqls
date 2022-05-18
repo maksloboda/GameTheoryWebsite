@@ -1,0 +1,36 @@
+# Opaque types used by the games
+scalar GameState
+# Something that changes the state of the game
+scalar GameEvent
+# Used to verify authenticity of the player
+scalar PlayerToken
+# Used to identify player (while/black in chess etc.)
+scalar PlayerIdentifier
+
+# Infomation about the game
+type GameInfo {
+  id: ID!
+  # Players in the game
+  players_joined: [PlayerIdentifier!]!
+  game_name: String!
+  # Amount of events
+  event_clock: Int!
+  # Opaque game state
+  state: GameState!
+}
+
+type Query {
+  gameInfo(id: ID!): GameInfo
+}
+
+type Mutation {
+  createGame(game_name: String!, start_state: GameState!): ID
+  # Tries to join game id as player pid
+  joinGame(id: ID!, pid: PlayerIdentifier!): PlayerToken!
+  # Adds event to the game
+  addEvent(id: ID!, token: PlayerToken!, event: GameEvent!): Boolean
+}
+
+type Subscription {
+  subcribeGame(id: ID!): GameInfo
+}
