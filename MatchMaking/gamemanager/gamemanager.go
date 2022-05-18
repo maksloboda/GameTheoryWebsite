@@ -166,8 +166,13 @@ func AddEvent(game_id string, player_token, move string) error {
 }
 
 func SubscribeGame(id string) (<-chan *model.GameInfo, error) {
-	ch := make(chan *model.GameInfo)
+	ch := make(chan *model.GameInfo, 1)
 	sub := (*redis_client).Subscribe(getGameKey(id))
+	current, err := GetGameInfo(id)
+	if err != nil {
+		panic(err)
+	}
+	ch <- current
 	go func() {
 		defer sub.Close()
 		channel := sub.Channel()
