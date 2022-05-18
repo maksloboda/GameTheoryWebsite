@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"matchmaking/dummygame"
+
 	"matchmaking/graph/model"
-	"strconv"
+	"matchmaking/seki"
 	"sync"
 	"time"
 
@@ -25,12 +25,12 @@ func SetRedisClient(client *redis.UniversalClient) {
 }
 
 // Creates a game and returns the id of the game
-func CreateGame(create_request model.GameCreateRequest) (string, error) {
+func CreateGame(game_name string, start_state string) (string, error) {
 	// TODO find a way to make an extendible game creation pipeline
-	if create_request.GameName != "dummy" {
+	if game_name != "seki" {
 		return "", errors.New("Invalid game type")
 	}
-	if !dummygame.IsStateValid(create_request.StartState) {
+	if !seki.IsStateValid(start_state) {
 		return "", errors.New("Invalid game state")
 	}
 
@@ -40,10 +40,11 @@ func CreateGame(create_request model.GameCreateRequest) (string, error) {
 	key := getGameKey(new_id)
 
 	new_game_state := &model.GameInfo{
-		GameName:    create_request.GameName,
-		State:       create_request.StartState,
-		PlayerCount: 0,
-		EventClock:  0,
+		ID:            new_id,
+		PlayersJoined: make([]string, 0),
+		GameName:      game_name,
+		EventClock:    0,
+		State:         start_state,
 	}
 
 	op := func(transaction *redis.Tx) error {
@@ -119,21 +120,18 @@ func GetGameInfo(id string) (*model.GameInfo, error) {
 
 // Tries to add a player to the game
 // Returns a token
-func AddPlayer(id string) (string, error) {
+func AddPlayer(id string, pid string) (string, error) {
 	token := ""
 	op := func(transaction *redis.Tx) error {
 		game_ptr, get_err := getGameInfoImpl(id, transaction)
 		if get_err != nil {
 			return get_err
 		}
-
-		if game_ptr.PlayerCount >= 2 {
-			return errors.New("Game is full")
+		var err error
+		token, err = seki.JoinGame(game_ptr, pid)
+		if err != nil {
+			return err
 		}
-		current_player_id := game_ptr.PlayerCount
-		game_ptr.PlayerCount++
-		// TODO give JWT
-		token = strconv.FormatUint(uint64(current_player_id), 10)
 		set_err := setGameInfoImpl(id, game_ptr, transaction)
 		if set_err != nil {
 			return set_err
@@ -151,7 +149,7 @@ func AddEvent(game_id string, player_token, move string) error {
 		if get_err != nil {
 			return get_err
 		}
-		state, move_error := dummygame.AddEvent(player_token, game_ptr, move)
+		state, move_error := seki.AddEvent(player_token, game_ptr, move)
 		if move_error != nil {
 			return move_error
 		}

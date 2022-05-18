@@ -46,17 +46,17 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	GameInfo struct {
-		EventClock  func(childComplexity int) int
-		GameName    func(childComplexity int) int
-		ID          func(childComplexity int) int
-		PlayerCount func(childComplexity int) int
-		State       func(childComplexity int) int
+		EventClock    func(childComplexity int) int
+		GameName      func(childComplexity int) int
+		ID            func(childComplexity int) int
+		PlayersJoined func(childComplexity int) int
+		State         func(childComplexity int) int
 	}
 
 	Mutation struct {
 		AddEvent   func(childComplexity int, id string, token string, event string) int
-		CreateGame func(childComplexity int, createRequest model.GameCreateRequest) int
-		JoinGame   func(childComplexity int, id string) int
+		CreateGame func(childComplexity int, gameName string, startState string) int
+		JoinGame   func(childComplexity int, id string, pid string) int
 	}
 
 	Query struct {
@@ -69,8 +69,8 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	CreateGame(ctx context.Context, createRequest model.GameCreateRequest) (*string, error)
-	JoinGame(ctx context.Context, id string) (*string, error)
+	CreateGame(ctx context.Context, gameName string, startState string) (*string, error)
+	JoinGame(ctx context.Context, id string, pid string) (string, error)
 	AddEvent(ctx context.Context, id string, token string, event string) (*bool, error)
 }
 type QueryResolver interface {
@@ -116,12 +116,12 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.GameInfo.ID(childComplexity), true
 
-	case "GameInfo.player_count":
-		if e.complexity.GameInfo.PlayerCount == nil {
+	case "GameInfo.players_joined":
+		if e.complexity.GameInfo.PlayersJoined == nil {
 			break
 		}
 
-		return e.complexity.GameInfo.PlayerCount(childComplexity), true
+		return e.complexity.GameInfo.PlayersJoined(childComplexity), true
 
 	case "GameInfo.state":
 		if e.complexity.GameInfo.State == nil {
@@ -152,7 +152,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateGame(childComplexity, args["create_request"].(model.GameCreateRequest)), true
+		return e.complexity.Mutation.CreateGame(childComplexity, args["game_name"].(string), args["start_state"].(string)), true
 
 	case "Mutation.joinGame":
 		if e.complexity.Mutation.JoinGame == nil {
@@ -164,7 +164,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.JoinGame(childComplexity, args["id"].(string)), true
+		return e.complexity.Mutation.JoinGame(childComplexity, args["id"].(string), args["pid"].(string)), true
 
 	case "Query.gameInfo":
 		if e.complexity.Query.GameInfo == nil {
@@ -197,9 +197,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
 	ec := executionContext{rc, e}
-	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
-		ec.unmarshalInputGameCreateRequest,
-	)
+	inputUnmarshalMap := graphql.BuildUnmarshalerMap()
 	first := true
 
 	switch rc.Operation.Operation {
@@ -278,16 +276,20 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 var sources = []*ast.Source{
 	{Name: "graph/schema.graphqls", Input: `# Opaque types used by the games
 scalar GameState
-scalar PlayerToken
+# Something that changes the state of the game
 scalar GameEvent
+# Used to verify authenticity of the player
+scalar PlayerToken
+# Used to identify player (while/black in chess etc.)
+scalar PlayerIdentifier
 
 # Infomation about the game
 type GameInfo {
   id: ID!
-  # Amount of players in the game rightnow
-  player_count: Int!
+  # Players in the game
+  players_joined: [PlayerIdentifier!]!
   game_name: String!
-  # Amount of made turns
+  # Amount of events
   event_clock: Int!
   # Opaque game state
   state: GameState!
@@ -297,14 +299,10 @@ type Query {
   gameInfo(id: ID!): GameInfo
 }
 
-input GameCreateRequest {
-  game_name: String!
-  start_state: GameState!
-}
-
 type Mutation {
-  createGame(create_request: GameCreateRequest!): ID
-  joinGame(id: ID!): PlayerToken
+  createGame(game_name: String!, start_state: GameState!): ID
+  # Tries to join game id as player pid
+  joinGame(id: ID!, pid: PlayerIdentifier!): PlayerToken!
   # Adds event to the game
   addEvent(id: ID!, token: PlayerToken!, event: GameEvent!): Boolean
 }
@@ -355,15 +353,24 @@ func (ec *executionContext) field_Mutation_addEvent_args(ctx context.Context, ra
 func (ec *executionContext) field_Mutation_createGame_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.GameCreateRequest
-	if tmp, ok := rawArgs["create_request"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("create_request"))
-		arg0, err = ec.unmarshalNGameCreateRequest2matchmakingᚋgraphᚋmodelᚐGameCreateRequest(ctx, tmp)
+	var arg0 string
+	if tmp, ok := rawArgs["game_name"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("game_name"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["create_request"] = arg0
+	args["game_name"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["start_state"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("start_state"))
+		arg1, err = ec.unmarshalNGameState2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["start_state"] = arg1
 	return args, nil
 }
 
@@ -379,6 +386,15 @@ func (ec *executionContext) field_Mutation_joinGame_args(ctx context.Context, ra
 		}
 	}
 	args["id"] = arg0
+	var arg1 string
+	if tmp, ok := rawArgs["pid"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("pid"))
+		arg1, err = ec.unmarshalNPlayerIdentifier2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["pid"] = arg1
 	return args, nil
 }
 
@@ -509,8 +525,8 @@ func (ec *executionContext) fieldContext_GameInfo_id(ctx context.Context, field 
 	return fc, nil
 }
 
-func (ec *executionContext) _GameInfo_player_count(ctx context.Context, field graphql.CollectedField, obj *model.GameInfo) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_GameInfo_player_count(ctx, field)
+func (ec *executionContext) _GameInfo_players_joined(ctx context.Context, field graphql.CollectedField, obj *model.GameInfo) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GameInfo_players_joined(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -523,7 +539,7 @@ func (ec *executionContext) _GameInfo_player_count(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.PlayerCount, nil
+		return obj.PlayersJoined, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -535,19 +551,19 @@ func (ec *executionContext) _GameInfo_player_count(ctx context.Context, field gr
 		}
 		return graphql.Null
 	}
-	res := resTmp.(int)
+	res := resTmp.([]string)
 	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
+	return ec.marshalNPlayerIdentifier2ᚕstringᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_GameInfo_player_count(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_GameInfo_players_joined(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "GameInfo",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
+			return nil, errors.New("field of type PlayerIdentifier does not have child fields")
 		},
 	}
 	return fc, nil
@@ -699,7 +715,7 @@ func (ec *executionContext) _Mutation_createGame(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateGame(rctx, fc.Args["create_request"].(model.GameCreateRequest))
+		return ec.resolvers.Mutation().CreateGame(rctx, fc.Args["game_name"].(string), fc.Args["start_state"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -751,18 +767,21 @@ func (ec *executionContext) _Mutation_joinGame(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().JoinGame(rctx, fc.Args["id"].(string))
+		return ec.resolvers.Mutation().JoinGame(rctx, fc.Args["id"].(string), fc.Args["pid"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
 		return graphql.Null
 	}
 	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
 		return graphql.Null
 	}
-	res := resTmp.(*string)
+	res := resTmp.(string)
 	fc.Result = res
-	return ec.marshalOPlayerToken2ᚖstring(ctx, field.Selections, res)
+	return ec.marshalNPlayerToken2string(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_joinGame(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -879,8 +898,8 @@ func (ec *executionContext) fieldContext_Query_gameInfo(ctx context.Context, fie
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_GameInfo_id(ctx, field)
-			case "player_count":
-				return ec.fieldContext_GameInfo_player_count(ctx, field)
+			case "players_joined":
+				return ec.fieldContext_GameInfo_players_joined(ctx, field)
 			case "game_name":
 				return ec.fieldContext_GameInfo_game_name(ctx, field)
 			case "event_clock":
@@ -1082,8 +1101,8 @@ func (ec *executionContext) fieldContext_Subscription_subcribeGame(ctx context.C
 			switch field.Name {
 			case "id":
 				return ec.fieldContext_GameInfo_id(ctx, field)
-			case "player_count":
-				return ec.fieldContext_GameInfo_player_count(ctx, field)
+			case "players_joined":
+				return ec.fieldContext_GameInfo_players_joined(ctx, field)
 			case "game_name":
 				return ec.fieldContext_GameInfo_game_name(ctx, field)
 			case "event_clock":
@@ -2881,37 +2900,6 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(ctx context.Conte
 
 // region    **************************** input.gotpl *****************************
 
-func (ec *executionContext) unmarshalInputGameCreateRequest(ctx context.Context, obj interface{}) (model.GameCreateRequest, error) {
-	var it model.GameCreateRequest
-	asMap := map[string]interface{}{}
-	for k, v := range obj.(map[string]interface{}) {
-		asMap[k] = v
-	}
-
-	for k, v := range asMap {
-		switch k {
-		case "game_name":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("game_name"))
-			it.GameName, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		case "start_state":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("start_state"))
-			it.StartState, err = ec.unmarshalNGameState2string(ctx, v)
-			if err != nil {
-				return it, err
-			}
-		}
-	}
-
-	return it, nil
-}
-
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -2937,9 +2925,9 @@ func (ec *executionContext) _GameInfo(ctx context.Context, sel ast.SelectionSet,
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "player_count":
+		case "players_joined":
 
-			out.Values[i] = ec._GameInfo_player_count(ctx, field, obj)
+			out.Values[i] = ec._GameInfo_players_joined(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++
@@ -3007,6 +2995,9 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 				return ec._Mutation_joinGame(ctx, field)
 			})
 
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		case "addEvent":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -3439,11 +3430,6 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 	return res
 }
 
-func (ec *executionContext) unmarshalNGameCreateRequest2matchmakingᚋgraphᚋmodelᚐGameCreateRequest(ctx context.Context, v interface{}) (model.GameCreateRequest, error) {
-	res, err := ec.unmarshalInputGameCreateRequest(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
-}
-
 func (ec *executionContext) unmarshalNGameEvent2string(ctx context.Context, v interface{}) (string, error) {
 	res, err := graphql.UnmarshalString(v)
 	return res, graphql.ErrorOnPath(ctx, err)
@@ -3502,6 +3488,53 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) unmarshalNPlayerIdentifier2string(ctx context.Context, v interface{}) (string, error) {
+	res, err := graphql.UnmarshalString(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNPlayerIdentifier2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
+	res := graphql.MarshalString(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
+}
+
+func (ec *executionContext) unmarshalNPlayerIdentifier2ᚕstringᚄ(ctx context.Context, v interface{}) ([]string, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]string, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNPlayerIdentifier2string(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) marshalNPlayerIdentifier2ᚕstringᚄ(ctx context.Context, sel ast.SelectionSet, v []string) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	for i := range v {
+		ret[i] = ec.marshalNPlayerIdentifier2string(ctx, sel, v[i])
+	}
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) unmarshalNPlayerToken2string(ctx context.Context, v interface{}) (string, error) {
@@ -3833,22 +3866,6 @@ func (ec *executionContext) marshalOID2ᚖstring(ctx context.Context, sel ast.Se
 		return graphql.Null
 	}
 	res := graphql.MarshalID(*v)
-	return res
-}
-
-func (ec *executionContext) unmarshalOPlayerToken2ᚖstring(ctx context.Context, v interface{}) (*string, error) {
-	if v == nil {
-		return nil, nil
-	}
-	res, err := graphql.UnmarshalString(v)
-	return &res, graphql.ErrorOnPath(ctx, err)
-}
-
-func (ec *executionContext) marshalOPlayerToken2ᚖstring(ctx context.Context, sel ast.SelectionSet, v *string) graphql.Marshaler {
-	if v == nil {
-		return graphql.Null
-	}
-	res := graphql.MarshalString(*v)
 	return res
 }
 

@@ -13,14 +13,14 @@ import (
 	"github.com/go-redis/redis"
 )
 
-func (r *mutationResolver) CreateGame(ctx context.Context, createRequest model.GameCreateRequest) (*string, error) {
-	id, err := gamemanager.CreateGame(createRequest)
+func (r *mutationResolver) CreateGame(ctx context.Context, gameName string, startState string) (*string, error) {
+	id, err := gamemanager.CreateGame(gameName, startState)
 	return &id, err
 }
 
-func (r *mutationResolver) JoinGame(ctx context.Context, id string) (*string, error) {
-	token, err := gamemanager.AddPlayer(id)
-	return &token, err
+func (r *mutationResolver) JoinGame(ctx context.Context, id string, pid string) (string, error) {
+	token, err := gamemanager.AddPlayer(id, pid)
+	return token, err
 }
 
 func (r *mutationResolver) AddEvent(ctx context.Context, id string, token string, event string) (*bool, error) {

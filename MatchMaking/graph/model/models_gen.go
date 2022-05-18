@@ -2,15 +2,10 @@
 
 package model
 
-type GameCreateRequest struct {
-	GameName   string `json:"game_name"`
-	StartState string `json:"start_state"`
-}
-
 type GameInfo struct {
-	ID          string `json:"id"`
-	PlayerCount int    `json:"player_count"`
-	GameName    string `json:"game_name"`
-	EventClock  int    `json:"event_clock"`
-	State       string `json:"state"`
+	ID            string   `json:"id"`
+	PlayersJoined []string `json:"players_joined"`
+	GameName      string   `json:"game_name"`
+	EventClock    int      `json:"event_clock"`
+	State         string   `json:"state"`
 }
