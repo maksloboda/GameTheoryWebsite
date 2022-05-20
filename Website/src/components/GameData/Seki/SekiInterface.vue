@@ -2,17 +2,17 @@
   <b-container v-if="game_state != null">
     <div class="container mt-2">
       <b-card class="text-center" title="Seki">
-        <div class="bg-secondary mt-2">
-          <b-row class="my-1" v-for="row in game_state.table">
-            <b-col sm="1" v-for="cell in row">
+        <div class="bg-secondary mt-2"> 
+          <b-row class="my-1" v-for="row in game_state.field">
+            <b-col v-for="cell in row" sm="1">
               <b-button 
                 :disabled="!is_active" 
-                @click="makeMove({type:'dec', pos:cell.pos})"
+                @click="makeMoveInterface({type:'dec', pos:cell.pos})"
               >{{ cell.value }}</b-button>
             </b-col>
           </b-row>
         </div>
-        <b-button :disabled="!is_active" @click="makeMove({type:'pass'})" variant="danger">Pass</b-button>
+        <b-button :disabled="!is_active" @click="makeMoveInterface({type:'pass'})" variant="danger">Pass</b-button>
       </b-card>
     </div>
   </b-container>
@@ -24,6 +24,8 @@
 </template>
 
 <script>
+
+import Seki from "./"
 
 export default {
   mounted() {
@@ -55,21 +57,15 @@ export default {
      * Called when local player makes a move
      * @param move move that was made made
      */
-    makeMove(move) {
+    makeMoveInterface(move) {
       this.$emit("move", move);
-      console.log(this.game_state);
     },
     /**
      * applies move to the current state
      * @param move move that needs to be applied
      */
-    applyMove(move) {
-      if (move.type == 'pass') {
-        console.log("Pass");
-      }
-      if (move.type == 'dec') {
-        this.game_state.table[move.pos.y][move.pos.x].value -= 1;
-      }
+    applyMoveInterface(move) {
+      this.game_state = Seki.applyMove(this.game_state, move);
     }
   }
 }
