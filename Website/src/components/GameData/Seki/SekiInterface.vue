@@ -43,7 +43,6 @@ export default {
      * @param state new game state
      */
     setState(state) {
-      console.log(state);
       this.game_state = state
     },
     /**

@@ -1,15 +1,17 @@
 <template>
   <b-container>
-    <div v-if="game_component != null">
-    <component
-      :is="game_component"
-      ref="game_instance"
-      @component_ready="onGameComponentSpawned"
-      @move="onMoveMade"
-    ></component>
-    <b-button @click="leaveGame" variant="danger">Leave game</b-button>
+    <div v-if="this.$apollo.loading">
+      Loading...
     </div>
-    <div v-else>Loading game</div>
+    <div v-else>
+      <component
+        :is="game_component"
+        ref="game_instance"
+        @component_ready="onGameComponentSpawned"
+        @move="onMoveMade"
+      ></component>
+      <b-button @click="leaveGame" variant="danger">Leave game</b-button>
+    </div>
   </b-container>
 </template>
 
@@ -18,39 +20,13 @@
 import GameData from "./GameData"
 
 import { GET_GAME_INFO_QUERY } from '../constants/graphql'
-import { useQuery } from "@vue/apollo-composable"
 
 export default {
   mounted() {
     console.log("Game mounted")
 
-    const id = this.$route.params.game_uid;
-    const { game_info, loading, error } = this.getGameInfo(id);
-    console.log("Game info", id, game_info, loading, error)
-
-    this.game_name = "seki"
-
-    this.game_state = {
-      field: [
-        [ {pos: {y:0, x:0}, value:3},  {pos: {y:0, x:1}, value:3},  {pos: {y:0, x:2}, value:3},  {pos: {y:0, x:3}, value:3}],
-        [ {pos: {y:1, x:0}, value:3},  {pos: {y:1, x:1}, value:3},  {pos: {y:1, x:2}, value:3},  {pos: {y:1, x:3}, value:3}],
-        [ {pos: {y:2, x:0}, value:3},  {pos: {y:2, x:1}, value:3},  {pos: {y:2, x:2}, value:3},  {pos: {y:2, x:3}, value:3}],
-        [ {pos: {y:3, x:0}, value:3},  {pos: {y:3, x:1}, value:3},  {pos: {y:3, x:2}, value:3},  {pos: {y:3, x:3}, value:3}]
-      ],
-      width: 4,
-      height: 4
-    }
-
-    this.ga
+    this.getGameInfo();
     
-    for (const i of GameData.games) {
-      if (i.getInternalGameName() == this.game_name) {
-        this.game_object = i
-        this.game_component = i.getInterfaceComponent()
-        console.log(this.game_component)
-        break
-      }
-    }
     console.log("Component spawned") 
   },
 
@@ -60,10 +36,31 @@ export default {
       game_component: null,
       game_state: null,
       game_name: "",
-
-      skipGameInfoQuery: true,
+      skipQuery: true,
+      gameInfo: null,
     }
   },
+
+  apollo: {
+    gameInfo: {
+      query: GET_GAME_INFO_QUERY,
+      variables() {
+        return {
+          game_id: this.$route.params.game_uid
+        }
+      },
+      // Disable the query
+      skip() {
+        return this.skipQuery
+      },
+      result ({ data, loading, networkStatus }) {
+        this.updateGame(data.gameInfo)
+      },
+      error (error) {
+        console.log("Game not found", error)
+      }
+    }
+  }, 
 
   methods: {
     /**
@@ -80,6 +77,7 @@ export default {
      */
 
     onMoveMade(move) {
+      this.getGameInfo(this.$route.params.game_uid);
       console.log("Move performed:", move)
 
       if (this.game_object.isMoveValid(this.game_state, move)) {
@@ -96,15 +94,24 @@ export default {
       this.$router.push({path: "/"})
     },
 
-    getGameInfo(id) {
-      const { game_info, loading, error } = useQuery(
-        GET_GAME_INFO_QUERY,
-        {
-          id: id,
-        }
-      )
+    getGameInfo() {
+      this.$apollo.queries.gameInfo.skip = false
+      this.$apollo.queries.gameInfo.refetch()
+    },
 
-      return { game_info, loading, error }
+    updateGame(game_info) {
+      this.game_name = game_info.game_name
+
+      for (const game of GameData.games) {
+        if (game.getInternalGameName() == this.game_name) {
+          this.game_object = game
+          this.game_component = game.getInterfaceComponent()
+          console.log(this.game_component)
+          break
+        }
+      }
+      
+      this.game_state = this.game_object.updateGameState(game_info.state)
     }
   },
 }

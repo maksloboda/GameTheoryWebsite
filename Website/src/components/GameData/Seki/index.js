@@ -18,6 +18,29 @@ export default {
   getCardGameName() {
     return "Секи"
   },
+  updateGameState(state) {
+    const new_state =  {
+      field: [],
+      width: state.width,
+      height: state.height
+    }
+
+    let c = 0
+
+    for (let i = 0; i < state.height; ++i) {
+      new_state.field.push([])
+      for (let j = 0; j < state.width; ++j) {
+        new_state.field[i].push(
+          {
+            value: state.flattened_field[c++],
+            pos: { x: j, y: i }
+          }
+        )
+      }
+    }
+
+    return new_state
+  },
   isMoveValid(game_state, move) {
     if (move.type == "dec") {
       if (game_state == null || move == null) {

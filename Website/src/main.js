@@ -32,16 +32,17 @@ const router = new VueRouter({
   ],
 })
 
+import VueApollo from 'vue-apollo'
 import { ApolloClient } from 'apollo-client'
 import { createHttpLink } from 'apollo-link-http'
 import { InMemoryCache } from 'apollo-cache-inmemory'
-import { provideApolloClient } from "@vue/apollo-composable";
-import VueApollo from 'vue-apollo'
+
+Vue.use(VueApollo)
 
 // HTTP connection to the API
 const httpLink = createHttpLink({
   // You should use an absolute URL here
-  uri: 'http://localhost:3020/graphql',
+  uri: 'http://localhost:4000/graphql',
 })
 
 // Cache implementation
@@ -57,7 +58,6 @@ const apolloProvider = new VueApollo({
   defaultClient: apolloClient,
 })
 
-provideApolloClient(apolloClient)
 
 let app = new Vue({
   render: h => h(App),
