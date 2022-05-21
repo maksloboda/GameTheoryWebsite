@@ -126,7 +126,7 @@ export default {
           game_id: this.$route.params.game_uid,
         },
       }).then((response) =>  {
-          this.updateGame(response.data.gameInfo)
+          this.updateGame(response.data.subcribeGame)
         }
       ).catch((response) => {
           console.log("Error", response.error)
@@ -140,7 +140,13 @@ export default {
         variables: {
           game_id: this.$route.params.game_uid,
         },
-      })
+      }).then((response) =>  {
+          this.updateGame(response.data.gameInfo)
+        }
+      ).catch((response) => {
+          console.log("Error", response.error)
+        }
+      )
     },
 
     async sendMove(move) {
