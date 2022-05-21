@@ -1,2 +1,2 @@
-export const FIRST_PLAYER = 1
-export const SECOND_PLAYER = 2
+export const FIRST_PLAYER = "R"
+export const SECOND_PLAYER = "C"

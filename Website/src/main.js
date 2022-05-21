@@ -47,12 +47,12 @@ import { PORT } from "./constants/network"
 // HTTP connection to the API
 const httpLink = createHttpLink({
   // You should use an absolute URL here
-  uri: `http://localhost:${PORT}/graphql`,
+  uri: `http://localhost:${PORT}/query`,
 })
 
 // Create the subscription websocket link
 const wsLink = new WebSocketLink({
-  uri: `ws://localhost:${PORT}/graphql`,
+  uri: `ws://localhost:${PORT}/query`,
   options: {
     reconnect: true,
   },

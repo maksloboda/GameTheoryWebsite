@@ -157,7 +157,7 @@ export default {
         variables: {
           game_id: this.$route.params.game_uid,
           player_token: this.player_token,
-          event: this.game_object.makeMoveEvent(move),
+          event: JSON.stringify(this.game_object.makeMoveEvent(move)),
         },
       }).then((response) =>  {
           console.log(response)
@@ -184,7 +184,7 @@ export default {
         }
       }
       
-      this.game_state = this.game_object.updateGameState(game_info.state)
+      this.game_state = this.game_object.updateGameState(JSON.parse(game_info.state))
     }
   },
 }

@@ -29,12 +29,12 @@ export default {
   },
   methods: {
     async createGame(game_name, start_state) {
-      console.log("Create game", game_name, start_state)
+      console.log("Create game", game_name, JSON.stringify(start_state))
       await this.$apollo.mutate({
         mutation: CREATE_GAME_MUTATION,
         variables: {
           game_name: game_name,
-          start_state: start_state,
+          start_state: JSON.stringify(start_state),
         },
       }).then((response) =>  {          
           this.$router.push({path: "play/" + response.data.createGame})

@@ -21,8 +21,8 @@ export default {
   },
   makeMoveEvent(move) {
     const event ={
-      x: move.pos.x,
-      y: move.pos.y
+      X: move.pos.x,
+      Y: move.pos.y
     }
     console.log(event)
     return event
@@ -30,18 +30,18 @@ export default {
   updateGameState(state) {
     const new_state =  {
       field: [],
-      width: state.width,
-      height: state.height
+      width: state.Width,
+      height: state.Height
     }
 
     let c = 0
 
-    for (let i = 0; i < state.height; ++i) {
+    for (let i = 0; i < state.Height; ++i) {
       new_state.field.push([])
-      for (let j = 0; j < state.width; ++j) {
+      for (let j = 0; j < state.Width; ++j) {
         new_state.field[i].push(
           {
-            value: state.flattened_field[c++],
+            value: state.FlattenedField[c++],
             pos: { x: j, y: i }
           }
         )
@@ -84,10 +84,10 @@ export default {
   },
   initStateFromSettings(settings) {
     return {
-      current_player: FIRST_PLAYER,
-      width: settings.field_width,
-      height: settings.field_height,
-      flattened_field: settings.field,
+      CurrentPlayer: FIRST_PLAYER,
+      Width: settings.field_width,
+      Height: settings.field_height,
+      FlattenedField: settings.field,
     }
   }
 }
