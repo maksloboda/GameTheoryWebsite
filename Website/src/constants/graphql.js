@@ -30,7 +30,13 @@ export const ADD_EVENT_MUTATION = gql`
   }
 `
 export const GAME_SUBSCRIPTION = gql`
-  mutation GameSubscription($game_id: ID!) {
-    subcribeGame(id: $game_id)
+  subscription  GameSubscription($game_id: ID!) {
+    subcribeGame(id: $game_id) {
+      id
+      players_joined
+      game_name
+      event_clock
+      state
+    }
   }
 `

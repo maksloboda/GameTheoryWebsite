@@ -50,6 +50,7 @@ export default {
     console.log("Game mounted")
 
     await this.getGameInfo();
+    await this.subscribeGame(this.updateGame);
     console.log("Component spawned") 
   },
 
@@ -96,7 +97,7 @@ export default {
     },
 
     async joinGame(pid) {
-      this.$apollo.mutate({
+      await this.$apollo.mutate({
         mutation: JOIN_GAME_MUTATION,
         variables: {
           game_id: this.$route.params.game_uid,
@@ -135,24 +136,8 @@ export default {
         }
       )
     },
-
-    async subscribeGame() {
-      this.$apollo.subscribe( {
-        query: GAME_SUBSCRIPTION,
-        variables: {
-          game_id: this.$route.params.game_uid,
-        },
-      }).then((response) =>  {
-          this.updateGame(response.data.gameInfo)
-        }
-      ).catch((response) => {
-          console.log("Subscribe error", response)
-        }
-      )
-    },
-
     async sendMove(move) {
-      this.$apollo.mutate({
+      await this.$apollo.mutate({
         mutation: ADD_EVENT_MUTATION,
         variables: {
           game_id: this.$route.params.game_uid,
@@ -184,8 +169,28 @@ export default {
         }
       }
       
-      this.game_state = this.game_object.updateGameState(JSON.parse(game_info.state))
-    }
+      this.game_state = await this.game_object.updateGameState(JSON.parse(game_info.state))
+      this.$refs["game_instance"].setState(this.game_state)
+      console.log(game_info.state, this.game_state)
+    },
+
+    async subscribeGame(next_callback) {
+      await this.$apollo.subscribe( {
+        query: GAME_SUBSCRIPTION,
+        variables: {
+          game_id: this.$route.params.game_uid,
+        },
+      }).subscribe({
+        next(result) {
+          console.log("DEBUG", result.data.subcribeGame)
+          next_callback(result.data.subcribeGame)
+        },
+        error(err) {
+          console.log("Subscription error", err)
+        }
+      })
+    },
+
   },
 }
 </script>
