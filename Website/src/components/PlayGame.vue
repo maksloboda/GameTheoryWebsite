@@ -10,23 +10,46 @@
         @component_ready="onGameComponentSpawned"
         @move="onMoveMade"
       ></component>
-      <b-button @click="leaveGame" variant="danger">Leave game</b-button>
+      <b-card>
+        Player token: {{ this.player_token }}
+      </b-card>
+      <div v-if="this.player_token == null || this.player_token == 0">
+        <b-button @click="joinGame(first_plaier_id)" variant="warning">Join as First</b-button>
+        <b-button @click="joinGame(second_plaier_id)" variant="warning">Join as Second</b-button>
+      </div>
+      <div v-else>
+        <b-button @click="leaveGame" variant="danger">Leave game</b-button>
+      </div>
     </div>
+    
+    <b-modal ref="placeTakenError">
+      This player ID is already taken!
+    </b-modal>
+    <b-modal ref="joinError">
+      Join error
+    </b-modal>
   </b-container>
 </template>
 
 <script>
 
 import GameData from "./GameData"
+import {
+  FIRST_PLAYER,
+  SECOND_PLAYER } from "../constants/players.js"
 
-import { GET_GAME_INFO_QUERY } from '../constants/graphql'
+import { 
+  GET_GAME_INFO_QUERY,
+  JOIN_GAME_MUTATION,
+  ADD_EVENT_MUTATION,
+  GAME_SUBSCRIPTION,
+} from '../constants/graphql'
 
 export default {
-  mounted() {
+  async mounted() {
     console.log("Game mounted")
 
-    this.getGameInfo();
-    
+    await this.getGameInfo();
     console.log("Component spawned") 
   },
 
@@ -36,31 +59,11 @@ export default {
       game_component: null,
       game_state: null,
       game_name: "",
-      skipQuery: true,
-      gameInfo: null,
+      player_token: null,
+      first_plaier_id: FIRST_PLAYER,
+      second_plaier_id: SECOND_PLAYER,
     }
   },
-
-  apollo: {
-    gameInfo: {
-      query: GET_GAME_INFO_QUERY,
-      variables() {
-        return {
-          game_id: this.$route.params.game_uid
-        }
-      },
-      // Disable the query
-      skip() {
-        return this.skipQuery
-      },
-      result ({ data, loading, networkStatus }) {
-        this.updateGame(data.gameInfo)
-      },
-      error (error) {
-        console.log("Game not found", error)
-      }
-    }
-  }, 
 
   methods: {
     /**
@@ -69,23 +72,21 @@ export default {
 
     onGameComponentSpawned() {
       this.$refs["game_instance"].setState(this.game_state)
-      this.$refs["game_instance"].setIsActive(true)
+      this.$refs["game_instance"].setIsActive(false)
     },
     /**
      * Handles local player making a move
      * @param move opaque game state
      */
 
-    onMoveMade(move) {
+    async onMoveMade(move) {
       this.getGameInfo(this.$route.params.game_uid);
       console.log("Move performed:", move)
 
       if (this.game_object.isMoveValid(this.game_state, move)) {
         this.$refs["game_instance"].setIsActive(false)
-        setTimeout(() => {
-          this.$refs["game_instance"].applyMoveInterface(move)
-          this.$refs["game_instance"].setIsActive(true)
-        }, 1000)
+        await this.sendMove(move);
+        this.$refs["game_instance"].setIsActive(true)
       }
     },
 
@@ -94,19 +95,83 @@ export default {
       this.$router.push({path: "/"})
     },
 
-    getGameInfo() {
-      this.$apollo.queries.gameInfo.skip = false
-      this.$apollo.queries.gameInfo.refetch()
+    async joinGame(pid) {
+      this.$apollo.mutate({
+        mutation: JOIN_GAME_MUTATION,
+        variables: {
+          game_id: this.$route.params.game_uid,
+          player_id: pid
+        },
+      }).then((response) =>  {
+          console.log(response)
+          this.player_token = response.data.joinGame
+          if (this.player_token == null) {
+            this.$refs["joinError"].show();
+          } else if (this.player_token == 0) {
+            this.$refs["placeTakenError"].show();
+          } else {
+            this.$refs["game_instance"].setIsActive(true) 
+          }
+        }
+      ).catch((response) => {
+          console.log("Join game error", response.error)
+        }
+      )
     },
 
-    updateGame(game_info) {
+    async getGameInfo() {
+      this.$apollo.query({
+        query: GET_GAME_INFO_QUERY,
+        variables: {
+          game_id: this.$route.params.game_uid,
+        },
+      }).then((response) =>  {
+          this.updateGame(response.data.gameInfo)
+        }
+      ).catch((response) => {
+          console.log("Error", response.error)
+        }
+      )
+    },
+
+    async subscribeGame() {
+      this.$apollo.subscribe( {
+        query: GAME_SUBSCRIPTION,
+        variables: {
+          game_id: this.$route.params.game_uid,
+        },
+      })
+    },
+
+    async sendMove(move) {
+      this.$apollo.mutate({
+        mutation: ADD_EVENT_MUTATION,
+        variables: {
+          game_id: this.$route.params.game_uid,
+          player_token: this.player_token,
+          event: this.game_object.makeMoveEvent(move),
+        },
+      }).then((response) =>  {
+          console.log(response)
+          if (response.data.addEvent == false) {
+            console.log("Bad Move")
+          } else {
+            console.log("Good Move")
+          }
+        }
+      ).catch((response) => {
+          console.log("Add event", response.error)
+        }
+      )
+    },
+
+    async updateGame(game_info) {
       this.game_name = game_info.game_name
 
       for (const game of GameData.games) {
         if (game.getInternalGameName() == this.game_name) {
           this.game_object = game
           this.game_component = game.getInterfaceComponent()
-          console.log(this.game_component)
           break
         }
       }

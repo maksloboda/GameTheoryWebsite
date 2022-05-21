@@ -12,7 +12,7 @@
             </b-col>
           </b-row>
         </div>
-        <b-button :disabled="!is_active" @click="makeMoveInterface({type:'pass'})" variant="danger">Pass</b-button>
+        <b-button :disabled="!is_active" @click="makeMoveInterface({type:'pass', pos:{x: 0, y:0}})" variant="danger">Pass</b-button>
       </b-card>
     </div>
   </b-container>

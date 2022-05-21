@@ -14,8 +14,9 @@
 <script>
 import GameCard from "./GameCard.vue"
 import GameData from "./../GameData"
-
-import { useQuery } from '@vue/apollo-composable'
+import { 
+  CREATE_GAME_MUTATION
+} from '../../constants/graphql'
 
 export default {
   components: {
@@ -27,14 +28,21 @@ export default {
       }
   },
   methods: {
-    createGame(settings) {
-      //TODO make a request to find a uuid
-
-      const uuid = "2398-3231-2313-43567"
-      this.$router.push({path: "play/" + uuid})
-    },
-
-    async getGameInfoQuery() {
+    async createGame(game_name, start_state) {
+      console.log("Create game", game_name, start_state)
+      this.$apollo.mutate({
+        mutation: CREATE_GAME_MUTATION,
+        variables: {
+          game_name: game_name,
+          start_state: start_state,
+        },
+      }).then((response) =>  {          
+          this.$router.push({path: "play/" + response.data.createGame})
+        }
+      ).catch((response) => {
+          console.log("Error", response)
+        }
+      )
     },
   },
 };

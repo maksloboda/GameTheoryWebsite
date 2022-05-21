@@ -1,6 +1,7 @@
 import SekiInfo from "./SekiInfo.vue"
 import SekiSettings from "./SekiSettings.vue"
 import SekiInterface from "./SekiInterface.vue"
+import { FIRST_PLAYER } from "../../../constants/players"
 
 export default {
   getInfoComponent() {
@@ -17,6 +18,14 @@ export default {
   },
   getCardGameName() {
     return "Секи"
+  },
+  makeMoveEvent(move) {
+    const event ={
+      x: move.pos.x,
+      y: move.pos.y
+    }
+    console.log(event)
+    return event
   },
   updateGameState(state) {
     const new_state =  {
@@ -72,5 +81,13 @@ export default {
     }
 
     return game_state
+  },
+  initStateFromSettings(settings) {
+    return {
+      current_player: FIRST_PLAYER,
+      width: settings.field_width,
+      height: settings.field_height,
+      flattened_field: settings.field,
+    }
   }
 }
