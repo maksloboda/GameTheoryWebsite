@@ -114,22 +114,24 @@ export default {
           }
         }
       ).catch((response) => {
-          console.log("Join game error", response.error)
+          console.log("Join game error", response)
         }
       )
     },
 
     async getGameInfo() {
-      this.$apollo.query({
+      console.log("GetGameInfo()") 
+      await this.$apollo.query({
         query: GET_GAME_INFO_QUERY,
         variables: {
           game_id: this.$route.params.game_uid,
         },
       }).then((response) =>  {
-          this.updateGame(response.data.subcribeGame)
+          console.log(response)
+          this.updateGame(response.data.gameInfo)
         }
       ).catch((response) => {
-          console.log("Error", response.error)
+          console.log("Get info error", response)
         }
       )
     },
@@ -144,7 +146,7 @@ export default {
           this.updateGame(response.data.gameInfo)
         }
       ).catch((response) => {
-          console.log("Error", response.error)
+          console.log("Subscribe error", response)
         }
       )
     },
@@ -166,7 +168,7 @@ export default {
           }
         }
       ).catch((response) => {
-          console.log("Add event", response.error)
+          console.log("Add event error", response)
         }
       )
     },

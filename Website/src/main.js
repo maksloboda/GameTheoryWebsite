@@ -43,15 +43,16 @@ import { getMainDefinition } from 'apollo-utilities'
 
 Vue.use(VueApollo)
 
+import { PORT } from "./constants/network"
 // HTTP connection to the API
 const httpLink = createHttpLink({
   // You should use an absolute URL here
-  uri: 'http://localhost:4000/graphql',
+  uri: `http://localhost:${PORT}/graphql`,
 })
 
 // Create the subscription websocket link
 const wsLink = new WebSocketLink({
-  uri: 'ws://localhost:4000/subscriptions',
+  uri: `ws://localhost:${PORT}/graphql`,
   options: {
     reconnect: true,
   },
@@ -68,14 +69,12 @@ const terminatingLink  = split(
   httpLink
 )
 
-const link = ApolloLink.from([terminatingLink]);
-
 // Cache implementation
 const cache = new InMemoryCache()
 
 // Create the apollo client
 const apolloClient = new ApolloClient({
-  link: httpLink,
+  link: ApolloLink.from([terminatingLink]),
   cache,
 })
 
