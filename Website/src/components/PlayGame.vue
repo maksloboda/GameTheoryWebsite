@@ -45,9 +45,6 @@
 <script>
 
 import GameData from "./GameData"
-import {
-  FIRST_PLAYER,
-  SECOND_PLAYER } from "../constants/players.js"
 
 import { 
   GET_GAME_INFO_QUERY,
@@ -58,11 +55,8 @@ import {
 
 export default {
   async mounted() {
-    console.log("Game mounted")
-
     await this.getGameInfo();
     await this.subscribeGame(this.updateGame);
-    console.log("Component spawned") 
   },
 
   data() {
@@ -137,7 +131,6 @@ export default {
           game_id: this.$route.params.game_uid,
         },
       }).then((response) =>  {
-          console.log(response)
           this.updateGame(response.data.gameInfo)
         }
       ).catch((response) => {
@@ -182,7 +175,6 @@ export default {
       this.$refs["game_instance"].setState(this.game_state)
 
       this.players_joined = game_info.players_joined
-      console.log(this.player_id, this.game_state.current_player)
 
       if (this.game_state.current_player == this.player_id) {
         this.$refs["game_instance"].setIsActive(true)

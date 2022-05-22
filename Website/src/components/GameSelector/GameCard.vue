@@ -82,8 +82,6 @@ export default {
       this.$emit("createGame", 
         this.game_object.getInternalGameName(), 
         this.game_object.initStateFromSettings(settings));
-
-      console.log(settings)
     },
   },
 }

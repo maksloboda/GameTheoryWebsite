@@ -29,7 +29,6 @@ export default {
   },
   methods: {
     async createGame(game_name, start_state) {
-      console.log("Create game", game_name, JSON.stringify(start_state))
       await this.$apollo.mutate({
         mutation: CREATE_GAME_MUTATION,
         variables: {
@@ -40,7 +39,7 @@ export default {
           this.$router.push({path: "play/" + response.data.createGame})
         }
       ).catch((response) => {
-          console.log("Error", response)
+          console.error("Create game error", response)
         }
       )
     },
