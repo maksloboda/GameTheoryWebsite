@@ -1,7 +1,9 @@
 import SekiInfo from "./SekiInfo.vue"
 import SekiSettings from "./SekiSettings.vue"
 import SekiInterface from "./SekiInterface.vue"
-import { FIRST_PLAYER } from "../../../constants/players"
+
+export const FIRST_PLAYER_ID = "R"
+export const SECOND_PLAYER_ID = "C"
 
 export default {
   getInfoComponent() {
@@ -31,7 +33,8 @@ export default {
     const new_state =  {
       field: [],
       width: state.Width,
-      height: state.Height
+      height: state.Height,
+      current_player: state.CurrentPlayer
     }
 
     let c = 0
@@ -84,10 +87,12 @@ export default {
   },
   initStateFromSettings(settings) {
     return {
-      CurrentPlayer: FIRST_PLAYER,
+      CurrentPlayer: FIRST_PLAYER_ID,
       Width: settings.field_width,
       Height: settings.field_height,
       FlattenedField: settings.field,
     }
-  }
+  },
+  first_player_id: FIRST_PLAYER_ID,
+  second_player_id: SECOND_PLAYER_ID
 }

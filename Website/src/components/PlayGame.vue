@@ -13,13 +13,24 @@
       <b-card>
         Player token: {{ this.player_token }}
       </b-card>
-      <div v-if="this.player_token == null || this.player_token == 0">
-        <b-button @click="joinGame(first_plaier_id)" variant="warning">Join as First</b-button>
-        <b-button @click="joinGame(second_plaier_id)" variant="warning">Join as Second</b-button>
+      <div 
+        v-if="this.player_token == null || 
+              this.player_token == 0"
+      >
+        <b-button 
+          @click="joinGame(game_object.first_player_id)" 
+          variant="warning"
+          ref="join_first_button"
+          :disabled="players_joined.includes(game_object.first_player_id)"
+        >Join as First</b-button>
+        <b-button 
+          @click="joinGame(game_object.second_player_id)" 
+          variant="warning"
+          ref="join_second_button" 
+          :disabled="players_joined.includes(game_object.second_player_id)"
+        >Join as Second</b-button>
       </div>
-      <div v-else>
-        <b-button @click="leaveGame" variant="danger">Leave game</b-button>
-      </div>
+      <b-button @click="leaveGame" variant="danger">Leave game</b-button>
     </div>
     
     <b-modal ref="placeTakenError">
@@ -61,8 +72,9 @@ export default {
       game_state: null,
       game_name: "",
       player_token: null,
-      first_plaier_id: FIRST_PLAYER,
-      second_plaier_id: SECOND_PLAYER,
+      players_joined: [],
+      player_id: "",
+      current_player: ""
     }
   },
 
@@ -85,9 +97,7 @@ export default {
       console.log("Move performed:", move)
 
       if (this.game_object.isMoveValid(this.game_state, move)) {
-        this.$refs["game_instance"].setIsActive(false)
         await this.sendMove(move);
-        this.$refs["game_instance"].setIsActive(true)
       }
     },
 
@@ -97,6 +107,7 @@ export default {
     },
 
     async joinGame(pid) {
+      this.player_id = pid
       await this.$apollo.mutate({
         mutation: JOIN_GAME_MUTATION,
         variables: {
@@ -106,12 +117,11 @@ export default {
       }).then((response) =>  {
           console.log(response)
           this.player_token = response.data.joinGame
+
           if (this.player_token == null) {
             this.$refs["joinError"].show();
           } else if (this.player_token == 0) {
             this.$refs["placeTakenError"].show();
-          } else {
-            this.$refs["game_instance"].setIsActive(true) 
           }
         }
       ).catch((response) => {
@@ -121,7 +131,6 @@ export default {
     },
 
     async getGameInfo() {
-      console.log("GetGameInfo()") 
       await this.$apollo.query({
         query: GET_GAME_INFO_QUERY,
         variables: {
@@ -158,7 +167,7 @@ export default {
       )
     },
 
-    async updateGame(game_info) {
+    updateGame(game_info) {
       this.game_name = game_info.game_name
 
       for (const game of GameData.games) {
@@ -169,9 +178,18 @@ export default {
         }
       }
       
-      this.game_state = await this.game_object.updateGameState(JSON.parse(game_info.state))
+      this.game_state = this.game_object.updateGameState(JSON.parse(game_info.state))
       this.$refs["game_instance"].setState(this.game_state)
-      console.log(game_info.state, this.game_state)
+
+      this.players_joined = game_info.players_joined
+      console.log(this.player_id, this.game_state.current_player)
+
+      if (this.game_state.current_player == this.player_id) {
+        this.$refs["game_instance"].setIsActive(true)
+      } else {
+        this.$refs["game_instance"].setIsActive(false)
+      }
+
     },
 
     async subscribeGame(next_callback) {
@@ -182,7 +200,6 @@ export default {
         },
       }).subscribe({
         next(result) {
-          console.log("DEBUG", result.data.subcribeGame)
           next_callback(result.data.subcribeGame)
         },
         error(err) {

@@ -54,7 +54,6 @@
       <b-card>
         <b-row v-for="i in Array(minMax(field_height, 1, 10)).keys()">
           <b-col v-for="j in Array(minMax(field_width, 1, 10)).keys()">
-            field[{{i * field_width + j }}] = {{ field[ i * field_width + j ] }} :
             <b-form-input
               v-model="field[i * field_width + j]"
               type='number'
@@ -78,9 +77,17 @@ select.form-control {
 </style>
 
 <script>
+import {
+  FIRST_PLAYER_ID,
+  SECOND_PLAYER_ID
+} from "./"
+
+
 export default {
   data() {
     return {
+      first_player_id: FIRST_PLAYER_ID,
+      second_player_id: SECOND_PLAYER_ID,
       pass_options: [],
       field_width: 4,
       field_height: 4,
