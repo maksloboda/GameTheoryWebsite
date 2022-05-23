@@ -28,8 +28,13 @@
      <component :is="game_object.getInfoComponent()"></component>
   </b-modal>
 
-  <b-modal ref='config_modal' hide-footer :title="game_object.getCardGameName()">
-    <component :is="game_object.getSettingsComponent()"
+  <b-modal 
+    ref='config_modal'
+    hide-footer 
+    size="xl"
+    :title="game_object.getCardGameName()">
+    <component 
+      :is="game_object.getSettingsComponent()"
       ref="game_settings_component"
     ></component>
     <b-button variant="primary" class="mt-2" @click="startGame">Начать игру</b-button>
@@ -45,17 +50,23 @@ export default {
     "game_object": {
       default: {
         getInfoComponent() {
-          return null
+          return null;
         },
         getSettingsComponent() {
-          return null
+          return null;
         },
         getInternalGameName() {
-          return "unknown"
+          return "unknown";
         },
         getCardGameName() {
-          return "unknown"
-        }
+          return "unknown";
+        },
+        initStateFromSettings() {
+          return null;
+        },
+        isMovePossible(game_state, move) {
+          return false;
+        },
       }
     }
   },
@@ -67,11 +78,10 @@ export default {
       this.$refs["config_modal"].show()
     },
     startGame() {
-      console.log(
-        this.$refs["game_settings_component"].getSettings())
-      //TODO make a request to find a uuid
-      const uuid = "2398-3231-2313-43567"
-      this.$router.push({path: "play/" + uuid})
+      const settings = this.$refs["game_settings_component"].getSettings()
+      this.$emit("createGame", 
+        this.game_object.getInternalGameName(), 
+        this.game_object.initStateFromSettings(settings));
     },
   },
 }
