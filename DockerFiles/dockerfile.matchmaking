@@ -1,0 +1,15 @@
+From golang:1.18.2-buster
+
+RUN mkdir /MatchMaking
+
+COPY MatchMaking/ /MatchMaking/
+
+WORKDIR /MatchMaking
+
+RUN go build server.go
+
+From ubuntu:latest
+
+Copy --from=0 /MatchMaking/server /server
+
+CMD ["/server"]

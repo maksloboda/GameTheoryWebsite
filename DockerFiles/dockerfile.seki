@@ -1,0 +1,36 @@
+FROM python:slim-buster
+# Builds seki code
+
+RUN mkdir /Seki
+
+COPY Seki/ /Seki/
+
+WORKDIR /Seki
+
+RUN pip3 install scons
+
+RUN apt update && apt install -y build-essential
+
+RUN scons
+
+FROM python:slim-buster
+# Creates the actual service
+
+# Copy the needed files
+COPY --from=0 /Seki/bin/prog /bin/seki
+
+RUN mkdir /Worker
+
+COPY Worker/ /Worker/
+
+WORKDIR /Worker
+
+# Install dependencies
+RUN pip3 install pika
+
+# Set environment
+ENV EXEC_PATH=/bin/seki
+ENV GAME_NAME=seki
+
+CMD ["bash", "./run_fullservice.sh"]
+
