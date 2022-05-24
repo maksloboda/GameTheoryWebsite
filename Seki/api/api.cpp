@@ -56,7 +56,11 @@ namespace nlohmann {
 
       for(size_t y = 0; y < uheight; ++y) {
         for(size_t x = 0; x < uwidth; ++x) {
-          field_data[y][x] = flat_field_data[x + y * uwidth];
+          auto value = flat_field_data[x + y * uwidth];
+          if (value < 0) {
+            throw std::runtime_error("Negative items are not allowed");
+          }
+          field_data[y][x] = value;
         }
       }
       return core::GameState(
@@ -132,11 +136,12 @@ std::string call_with_json(R (*f)(Args...), nlohmann::json &from) {
   return nlohmann::json(result).dump();
 }
 
-bool is_start_state_valid(core::GameState state) {
+bool is_start_state_valid(std::string enc_state) {
+  auto state = nlohmann::json::parse(enc_state).get<core::GameState>();
   return !state.is_terminal();
 }
 
-std::string join_game(GameInfo info, std::string pid) {
+GameInfo join_game(GameInfo info, std::string pid) {
   auto &pj = info.players_joined;
   if (std::find(pj.begin(), pj.end(), pid) != pj.end()) {
     throw std::runtime_error("Player is already in the game");
@@ -144,7 +149,7 @@ std::string join_game(GameInfo info, std::string pid) {
   if (pid != "R" && pid != "C") {
     throw std::runtime_error("No such player");
   }
-  return pid;
+  return info;
 }
 
 GameInfo add_event(GameInfo gi, std::string pid, std::string mv_enc) {

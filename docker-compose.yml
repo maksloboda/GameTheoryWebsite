@@ -29,7 +29,7 @@ services:
     environment:
       - PORT=8080
       - REDIS_URL=redis:6379
-      - RABBITMQ_URL=rabbitmq:5672
+      - RABBITMQ_URL=amqp://rabbitmq
     build:
       context: .
       dockerfile: DockerFiles/dockerfile.matchmaking
