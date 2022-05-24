@@ -1,0 +1,55 @@
+version: '3'
+services:
+  redis:
+    build:
+      context: .
+      dockerfile: DockerFiles/dockerfile.redis
+    restart: on-failure
+    volumes:
+      - redis-data:/data
+    ports:
+      - '6379:6379'
+    networks:
+      - shared-network
+  rabbitmq:
+    build:
+      context: .
+      dockerfile: DockerFiles/dockerfile.rabbitmq
+    restart: on-failure
+    ports:
+      - '15672:15672'
+      - '5672:5672'
+    networks:
+      - shared-network
+  matchmaking:
+    depends_on:
+      - redis
+      - rabbitmq
+    restart: on-failure
+    environment:
+      - PORT=8080
+      - REDIS_URL=redis:6379
+      - RABBITMQ_URL=amqp://rabbitmq
+    build:
+      context: .
+      dockerfile: DockerFiles/dockerfile.matchmaking
+    ports:
+      - '8080:8080'
+    networks:
+      - shared-network
+  seki:
+    depends_on:
+      - rabbitmq
+    restart: on-failure
+    environment:
+      - RABBITMQ_URL=rabbitmq
+    build:
+      context: .
+      dockerfile: DockerFiles/dockerfile.seki
+    networks:
+      - shared-network
+networks:
+  shared-network:
+volumes:
+  redis-data:
+    driver: local

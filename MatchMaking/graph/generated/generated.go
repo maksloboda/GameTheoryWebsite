@@ -49,8 +49,11 @@ type ComplexityRoot struct {
 		EventClock    func(childComplexity int) int
 		GameName      func(childComplexity int) int
 		ID            func(childComplexity int) int
+		IsFinished    func(childComplexity int) int
+		IsReady       func(childComplexity int) int
 		PlayersJoined func(childComplexity int) int
 		State         func(childComplexity int) int
+		Winner        func(childComplexity int) int
 	}
 
 	Mutation struct {
@@ -116,6 +119,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.GameInfo.ID(childComplexity), true
 
+	case "GameInfo.is_finished":
+		if e.complexity.GameInfo.IsFinished == nil {
+			break
+		}
+
+		return e.complexity.GameInfo.IsFinished(childComplexity), true
+
+	case "GameInfo.is_ready":
+		if e.complexity.GameInfo.IsReady == nil {
+			break
+		}
+
+		return e.complexity.GameInfo.IsReady(childComplexity), true
+
 	case "GameInfo.players_joined":
 		if e.complexity.GameInfo.PlayersJoined == nil {
 			break
@@ -129,6 +146,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.GameInfo.State(childComplexity), true
+
+	case "GameInfo.winner":
+		if e.complexity.GameInfo.Winner == nil {
+			break
+		}
+
+		return e.complexity.GameInfo.Winner(childComplexity), true
 
 	case "Mutation.addEvent":
 		if e.complexity.Mutation.AddEvent == nil {
@@ -293,6 +317,9 @@ type GameInfo {
   event_clock: Int!
   # Opaque game state
   state: GameState!
+  is_ready: Boolean!
+  is_finished: Boolean!
+  winner: PlayerIdentifier!
 }
 
 type Query {
@@ -701,6 +728,138 @@ func (ec *executionContext) fieldContext_GameInfo_state(ctx context.Context, fie
 	return fc, nil
 }
 
+func (ec *executionContext) _GameInfo_is_ready(ctx context.Context, field graphql.CollectedField, obj *model.GameInfo) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GameInfo_is_ready(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IsReady, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GameInfo_is_ready(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GameInfo",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GameInfo_is_finished(ctx context.Context, field graphql.CollectedField, obj *model.GameInfo) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GameInfo_is_finished(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.IsFinished, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GameInfo_is_finished(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GameInfo",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _GameInfo_winner(ctx context.Context, field graphql.CollectedField, obj *model.GameInfo) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GameInfo_winner(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Winner, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNPlayerIdentifier2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GameInfo_winner(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GameInfo",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type PlayerIdentifier does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_createGame(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_createGame(ctx, field)
 	if err != nil {
@@ -906,6 +1065,12 @@ func (ec *executionContext) fieldContext_Query_gameInfo(ctx context.Context, fie
 				return ec.fieldContext_GameInfo_event_clock(ctx, field)
 			case "state":
 				return ec.fieldContext_GameInfo_state(ctx, field)
+			case "is_ready":
+				return ec.fieldContext_GameInfo_is_ready(ctx, field)
+			case "is_finished":
+				return ec.fieldContext_GameInfo_is_finished(ctx, field)
+			case "winner":
+				return ec.fieldContext_GameInfo_winner(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type GameInfo", field.Name)
 		},
@@ -1109,6 +1274,12 @@ func (ec *executionContext) fieldContext_Subscription_subcribeGame(ctx context.C
 				return ec.fieldContext_GameInfo_event_clock(ctx, field)
 			case "state":
 				return ec.fieldContext_GameInfo_state(ctx, field)
+			case "is_ready":
+				return ec.fieldContext_GameInfo_is_ready(ctx, field)
+			case "is_finished":
+				return ec.fieldContext_GameInfo_is_finished(ctx, field)
+			case "winner":
+				return ec.fieldContext_GameInfo_winner(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type GameInfo", field.Name)
 		},
@@ -2949,6 +3120,27 @@ func (ec *executionContext) _GameInfo(ctx context.Context, sel ast.SelectionSet,
 		case "state":
 
 			out.Values[i] = ec._GameInfo_state(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "is_ready":
+
+			out.Values[i] = ec._GameInfo_is_ready(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "is_finished":
+
+			out.Values[i] = ec._GameInfo_is_finished(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "winner":
+
+			out.Values[i] = ec._GameInfo_winner(ctx, field, obj)
 
 			if out.Values[i] == graphql.Null {
 				invalids++

@@ -8,4 +8,7 @@ type GameInfo struct {
 	GameName      string   `json:"game_name"`
 	EventClock    int      `json:"event_clock"`
 	State         string   `json:"state"`
+	IsReady       bool     `json:"is_ready"`
+	IsFinished    bool     `json:"is_finished"`
+	Winner        string   `json:"winner"`
 }

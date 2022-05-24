@@ -15,6 +15,7 @@ import (
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/go-redis/redis"
 	"github.com/gorilla/websocket"
+	"github.com/streadway/amqp"
 )
 
 const defaultPort = "8080"
@@ -52,6 +53,13 @@ func main() {
 		panic(err)
 	}
 
+	rabbitmq_url := os.Getenv("RABBITMQ_URL")
+	rabbitmq_client, err := amqp.Dial(rabbitmq_url)
+	if err != nil {
+		panic(err)
+	}
+
+	gamemanager.SetAMQPConnection(rabbitmq_client)
 	gamemanager.SetRedisClient(redis_client)
 	graph.SetRedisClient(redis_client)
 

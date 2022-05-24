@@ -6,15 +6,16 @@ import (
 	"fmt"
 
 	"matchmaking/graph/model"
-	"matchmaking/seki"
 	"sync"
 	"time"
 
 	"github.com/go-redis/redis"
 	"github.com/google/uuid"
+	"github.com/streadway/amqp"
 )
 
 var redis_client *redis.UniversalClient
+var amqp_connection *amqp.Connection
 
 // var next_id uint64 = 1
 var storage map[string]*model.GameInfo = make(map[string]*model.GameInfo)
@@ -24,14 +25,82 @@ func SetRedisClient(client *redis.UniversalClient) {
 	redis_client = client
 }
 
+func SetAMQPConnection(conn *amqp.Connection) {
+	amqp_connection = conn
+}
+
+type remoteCallResult struct {
+	ErrorText *string `json:"error"`
+	Result    string  `json:"result"`
+}
+
+func RemoteCall(game string, method string, args []interface{},
+	result *remoteCallResult) error {
+	ch, chan_err := amqp_connection.Channel()
+	if chan_err != nil {
+		return chan_err
+	}
+
+	query_id := uuid.New().String()
+
+	responce_q, resp_q_error := ch.QueueDeclare("resp_"+query_id, false, true,
+		false, false, nil)
+
+	if resp_q_error != nil {
+		return resp_q_error
+	}
+
+	payload := map[string]interface{}{
+		"method": method,
+		"params": args,
+		"id":     query_id,
+	}
+
+	encoded_payload, enc_err := json.Marshal(payload)
+	if enc_err != nil {
+		return enc_err
+	}
+
+	message := amqp.Publishing{
+		Body: encoded_payload,
+	}
+
+	pub_err := ch.Publish("", "func_"+game+"_"+method, true, false, message)
+	if pub_err != nil {
+		return pub_err
+	}
+
+	msgs, msg_error := ch.Consume(responce_q.Name, query_id, true, false, false, false,
+		nil)
+	if msg_error != nil {
+		return msg_error
+	}
+
+	responce := <-msgs
+
+	ch.Cancel(query_id, false)
+
+	err := json.Unmarshal(responce.Body, result)
+	if err != nil {
+		return err
+	}
+	if result.ErrorText != nil {
+		return errors.New(*result.ErrorText)
+	}
+	return nil
+}
+
 // Creates a game and returns the id of the game
 func CreateGame(game_name string, start_state string) (string, error) {
 	// TODO find a way to make an extendible game creation pipeline
-	if game_name != "seki" {
-		return "", errors.New("Invalid game type")
-	}
-	if !seki.IsStateValid(start_state) {
-		return "", errors.New("Invalid game state")
+
+	rcr := remoteCallResult{}
+
+	rcr_err := RemoteCall(game_name, "isStartStateValid",
+		[]interface{}{start_state}, &rcr)
+
+	if rcr_err != nil {
+		return "", rcr_err
 	}
 
 	// TODO deadline
@@ -45,6 +114,9 @@ func CreateGame(game_name string, start_state string) (string, error) {
 		GameName:      game_name,
 		EventClock:    0,
 		State:         start_state,
+		IsReady:       false,
+		IsFinished:    false,
+		Winner:        "",
 	}
 
 	op := func(transaction *redis.Tx) error {
@@ -127,11 +199,27 @@ func AddPlayer(id string, pid string) (string, error) {
 		if get_err != nil {
 			return get_err
 		}
-		var err error
-		token, err = seki.JoinGame(game_ptr, pid)
-		if err != nil {
-			return err
+
+		rcr := remoteCallResult{}
+
+		rcr_err := RemoteCall(game_ptr.GameName, "joinGame",
+			[]interface{}{game_ptr, pid}, &rcr)
+
+		if rcr_err != nil {
+			return rcr_err
 		}
+
+		token = pid
+
+		parse_err := json.Unmarshal([]byte(rcr.Result), game_ptr)
+
+		if parse_err != nil {
+			return parse_err
+		}
+
+		game_ptr.EventClock += 1
+		game_ptr.PlayersJoined = append(game_ptr.PlayersJoined, pid)
+
 		set_err := setGameInfoImpl(id, game_ptr, transaction)
 		if set_err != nil {
 			return set_err
@@ -149,12 +237,25 @@ func AddEvent(game_id string, player_token, move string) error {
 		if get_err != nil {
 			return get_err
 		}
-		state, move_error := seki.AddEvent(player_token, game_ptr, move)
-		if move_error != nil {
-			return move_error
+
+		pid := player_token
+
+		rcr := remoteCallResult{}
+
+		rcr_err := RemoteCall(game_ptr.GameName, "addEvent",
+			[]interface{}{game_ptr, pid, move}, &rcr)
+
+		if rcr_err != nil {
+			return rcr_err
 		}
+
+		parse_err := json.Unmarshal([]byte(rcr.Result), game_ptr)
+
+		if parse_err != nil {
+			return parse_err
+		}
+
 		game_ptr.EventClock += 1
-		game_ptr.State = state
 		set_err := setGameInfoImpl(game_id, game_ptr, transaction)
 		if set_err != nil {
 			return set_err
