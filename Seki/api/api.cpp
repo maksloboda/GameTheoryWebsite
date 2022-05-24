@@ -97,7 +97,11 @@ struct GameInfo {
   std::string game_name;
   int event_clock;
   std::string state;
-  NLOHMANN_DEFINE_TYPE_INTRUSIVE(GameInfo, id, players_joined, game_name, event_clock, state)
+  bool is_ready;
+  bool is_finished;
+  std::string winner;
+  NLOHMANN_DEFINE_TYPE_INTRUSIVE(GameInfo, id, players_joined, game_name,
+      event_clock, state, is_ready, is_finished, winner)
 };
 
 template<typename T, size_t idx, size_t total>
@@ -149,6 +153,12 @@ GameInfo join_game(GameInfo info, std::string pid) {
   if (pid != "R" && pid != "C") {
     throw std::runtime_error("No such player");
   }
+
+  // The second player is joining
+  if (pj.size() == 1) {
+    info.is_ready = true;
+  }
+
   return info;
 }
 
@@ -168,7 +178,24 @@ GameInfo add_event(GameInfo gi, std::string pid, std::string mv_enc) {
     if (it != moves.end()) {
       state.apply_move(mv);
       gi.state = nlohmann::json(state).dump();
-      gi.event_clock += 1;
+      if (state.is_terminal()) {
+        gi.is_finished = true;
+        switch (state.get_status())
+        {
+        case core::GameState::Status::R_won:
+          gi.winner = "R";
+          break;
+        case core::GameState::Status::C_won:
+          gi.winner = "C";
+          break;
+        case core::GameState::Status::Draw:
+          gi.winner = "";
+        break;
+        default:
+          assert(false);
+        }
+        
+      }
       return gi;
     } else {
       throw std::runtime_error("Invalid move");  

@@ -114,6 +114,9 @@ func CreateGame(game_name string, start_state string) (string, error) {
 		GameName:      game_name,
 		EventClock:    0,
 		State:         start_state,
+		IsReady:       false,
+		IsFinished:    false,
+		Winner:        "",
 	}
 
 	op := func(transaction *redis.Tx) error {

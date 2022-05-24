@@ -164,6 +164,42 @@ int GameState::get_pass_count() const {
   return pass_count;
 }
 
+float seki_eval_func(const GameState &state) {
+
+  // Draw in case of double pass
+  if (state.get_pass_count() == 2) {
+    return 0.0;
+  }
+
+  bool r_won = false;
+  auto f = state.get_field();
+
+  if (f.has_zero_col() and f.has_zero_row()) {
+    r_won = !state.get_is_r();
+  } else if (f.has_zero_row()) {
+    r_won = true;
+  } else {
+    r_won = false;
+  }
+  float value = r_won ? -1 : 1;
+  return value / state.get_depth();
+}
+
+GameState::Status GameState::get_status() const {
+  // TODO dseki
+  if (!is_terminal()) {
+    return Status::Ongoing;
+  }
+  float v = seki_eval_func(*this);
+  if (v < 0) {
+    return Status::R_won;
+  } else if (v > 0) {
+    return Status::C_won;
+  } else {
+    return Status::Draw;
+  }
+}
+
 void GameState::apply_move(const Move &m) {
   if (!m.is_pass) {
     field.add(m.x, m.y, -1);
@@ -188,27 +224,6 @@ ostream &operator<< (ostream &s, const Field &f) {
     s << "\n";
   }
   return s;
-}
-
-float seki_eval_func(const GameState &state) {
-
-  // Draw in case of double pass
-  if (state.get_pass_count() == 2) {
-    return 0.0;
-  }
-
-  bool r_won = false;
-  auto f = state.get_field();
-
-  if (f.has_zero_col() and f.has_zero_row()) {
-    r_won = !state.get_is_r();
-  } else if (f.has_zero_row()) {
-    r_won = true;
-  } else {
-    r_won = false;
-  }
-  float value = r_won ? -1 : 1;
-  return value / state.get_depth();
 }
 
 float dseki_eval_func(const GameState &state) {

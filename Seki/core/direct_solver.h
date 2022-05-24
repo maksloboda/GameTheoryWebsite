@@ -86,6 +86,15 @@ public:
 
   bool is_terminal() const;
 
+  enum Status {
+    Ongoing,
+    R_won,
+    C_won,
+    Draw,
+  };
+
+  Status get_status() const;
+
   std::vector<Move> get_moves() const;
 };
 

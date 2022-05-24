@@ -17,6 +17,9 @@ type GameInfo {
   event_clock: Int!
   # Opaque game state
   state: GameState!
+  is_ready: Boolean!
+  is_finished: Boolean!
+  winner: PlayerIdentifier!
 }
 
 type Query {
