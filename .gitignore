@@ -6,3 +6,7 @@ npm-debug.log
 dist/
 TestServer/
 apollo-server-example/
+Seki/.sconsign.dblite
+Seki/bin/prog
+*.o
+MatchMaking/workspace.code-workspace
