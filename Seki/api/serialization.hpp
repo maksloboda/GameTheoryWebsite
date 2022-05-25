@@ -54,6 +54,8 @@ namespace nlohmann {
         throw std::runtime_error("Invalid pass type");
       }
 
+      int passcount = state.get_pass_count();
+
       json = nlohmann::json({
         {"CurrentPlayer", current_player},
         {"Width", field_width},
@@ -61,6 +63,7 @@ namespace nlohmann {
         {"FlattenedField", v},
         {"Type", *type},
         {"Pp", *passtype},
+        {"PassCount", passcount},
       });
     }
 
@@ -120,12 +123,19 @@ namespace nlohmann {
         throw std::runtime_error("Invalid pass type");
       }
 
-      return core::GameState(
+      auto result = core::GameState(
         core::Field(field_data),
         is_r,
         1,
         *type,
         *pass);
+
+      auto passcount = api::detail::get_key_or_default<int>(json, "PassCount", 0);
+      if (passcount >= 0 && passcount <= 2) {
+        result.set_pass_count(passcount);
+        return result;
+      }
+      throw std::runtime_error("Pass count must be in [0, 2]");
     }
   };
 

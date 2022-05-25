@@ -87,6 +87,7 @@ public:
   const Field &get_field() const;
   bool get_is_r() const;
   int get_depth() const;
+  void set_pass_count(int p_pass_count) { pass_count = p_pass_count; }
   int get_pass_count() const;
 
   void apply_move(const Move &m);

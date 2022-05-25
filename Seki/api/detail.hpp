@@ -1,6 +1,19 @@
 #ifndef DETAIL_H
 #define DETAIL_H
 namespace api::detail {
+
+template<typename T>
+T get_key_or_default(const nlohmann::json &j, std::string key, T fallback) {
+  const nlohmann::json *taken = nullptr;
+  try {
+    taken = &j.at(key);
+  } catch (...) {}
+  if (taken != nullptr) {
+    return taken->get<T>();
+  }
+  return fallback;
+}
+
 template<typename T, typename U, size_t N>
 std::optional<U> match(std::array<T, N> from, std::array<U, N> to, T what) {
   auto it = std::find(from.begin(), from.end(), what);

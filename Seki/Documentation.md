@@ -22,7 +22,9 @@ This part of the project provides code for variations of game Seki.
    int[] FlattenedField
    GameType Type
    PassPolicy Pp
+   int PassCount
    }
+   Note: Do not specify PassCount
 
 ## Available methods
 
