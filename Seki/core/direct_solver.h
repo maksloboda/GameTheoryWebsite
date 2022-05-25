@@ -65,6 +65,11 @@ enum PassType {
   ANY_PASS = 3,
 };
 
+enum SekiType {
+  SEKI = 0,
+  DSEKI,
+};
+
 // Stores everything needed for the current state of the game
 class GameState {
 private:
@@ -72,17 +77,22 @@ private:
   bool is_r;
   int depth;
   int pass_count;
-  PassType pass_policy;
+  const SekiType type;
+  const PassType pass_policy;
 public:
 
-  GameState(Field field, bool is_r, int depth, PassType pass_policy);
+  GameState(Field field, bool is_r, int depth, SekiType p_type,
+      PassType p_pass_policy);
 
   const Field &get_field() const;
   bool get_is_r() const;
   int get_depth() const;
+  void set_pass_count(int p_pass_count) { pass_count = p_pass_count; }
   int get_pass_count() const;
 
   void apply_move(const Move &m);
+
+  float get_value() const;
 
   bool is_terminal() const;
 
@@ -95,32 +105,22 @@ public:
 
   Status get_status() const;
 
+  SekiType get_type() const { return type; }
+  PassType get_passtype() const { return pass_policy; }
+
   std::vector<Move> get_moves() const;
 };
-
-enum SekiType {
-  SEKI = 0,
-  DSEKI,
-};
-
-// Prototype of the evalutaion function for the end game state
-typedef float (*eval_function_t)(const GameState &);
 
 // Class that solves the game
 class SekiSolver {
 private:
   GameState state;
-  SekiType game_type;
-  PassType pass_policy;
-  eval_function_t eval_function;
 public:
 
   // Amount of states that were looked at on the last call of find optimal
   int unrolled;
 
-  SekiSolver(const std::vector<std::vector<int>> &matrix, SekiType type, 
-      PassType pass_policy,
-      bool is_r);
+  SekiSolver(GameState p_state);
 
   void apply_move(Move m);
 
