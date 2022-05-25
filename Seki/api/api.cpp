@@ -1,5 +1,6 @@
 #include <iostream>
 #include <api/json.hpp>
+#include <api/detail.hpp>
 #include <tuple>
 #include <functional>
 #include <core/core.h>
@@ -21,11 +22,34 @@ namespace nlohmann {
         }
       }
 
+      auto type = api::detail::match<core::SekiType, std::string, 2>(
+        {core::SekiType::SEKI, core::SekiType::DSEKI},
+        {"seki", "dseki"},
+        state.get_type());
+      
+      if (!type) {
+        throw std::runtime_error("Invalid game type");
+      }
+
+      auto passtype = api::detail::match<core::PassType, std::string, 4>(
+        {
+          core::PassType::R_PASS, core::PassType::C_PASS,
+          core::PassType::ANY_PASS, core::PassType::NO_PASS,
+        },
+        {"R", "C", "RC", ""},
+        state.get_passtype());
+
+      if (!passtype) {
+        throw std::runtime_error("Invalid pass type");
+      }
+
       json = nlohmann::json({
         {"CurrentPlayer", current_player},
         {"Width", field_width},
         {"Height", field_height},
         {"FlattenedField", v},
+        {"Type", *type},
+        {"Pp", *passtype},
       });
     }
 
@@ -63,12 +87,34 @@ namespace nlohmann {
           field_data[y][x] = value;
         }
       }
+
+      auto type = api::detail::match<std::string, core::SekiType, 2>(
+        {"seki", "dseki"},
+        {core::SekiType::SEKI, core::SekiType::DSEKI},
+        json.at("Type").get<std::string>());
+      
+      if (!type) {
+        throw std::runtime_error("Invalid game type");
+      }
+
+      auto pass = api::detail::match<std::string, core::PassType, 4>(
+        {"R", "C", "RC", ""},
+        {
+          core::PassType::R_PASS, core::PassType::C_PASS,
+          core::PassType::ANY_PASS, core::PassType::NO_PASS,
+        },
+        json.at("Pp").get<std::string>());
+
+      if (!pass) {
+        throw std::runtime_error("Invalid pass type");
+      }
+
       return core::GameState(
         core::Field(field_data),
         is_r,
         1,
-        core::SekiType::SEKI,
-        core::PassType::NO_PASS);
+        *type,
+        *pass);
     }
   };
 
@@ -77,13 +123,16 @@ namespace nlohmann {
     static core::Move from_json(const nlohmann::json &json) {
       int x = json.at("X").get<int>();
       int y = json.at("Y").get<int>();
-      return core::Move(0, x, y);
+      auto result = core::Move(0, x, y);
+      result.is_pass = json.at("IsPass").get<bool>();
+      return result;
     }
 
     static void to_json(nlohmann::json &json, const core::Move &m) {
       json = nlohmann::json({
         {"X", m.x},
         {"Y", m.y},
+        {"IsPass", m.is_pass},
       });
     }
   };
@@ -104,42 +153,6 @@ struct GameInfo {
   NLOHMANN_DEFINE_TYPE_INTRUSIVE(GameInfo, id, players_joined, game_name,
       event_clock, state, is_ready, is_finished, winner)
 };
-
-template<typename T, size_t idx, size_t total>
-std::tuple<> convert_all_json(T &tuple, nlohmann::json &src_array) {
-  static_assert(idx == total);
-  return std::make_tuple();
-}
-
-template<typename T, size_t idx, size_t total, typename Arg, typename... Args>
-std::tuple<Arg, Args...> convert_all_json(T &tuple, nlohmann::json &src_array) {
-
-  Arg target = src_array[idx].get<Arg>();
-
-  return std::tuple_cat(std::make_tuple(std::move(target)),
-    convert_all_json<T, idx + 1, total, Args...>(tuple, src_array));
-
-}
-
-template<typename R, typename... Args>
-std::string call_with_json(R (*f)(Args...), nlohmann::json &from) {
-  constexpr size_t arg_count = sizeof...(Args);
-  if (!from.is_array()) {
-    throw std::runtime_error("Malformed call");
-  }
-  if (from.size() != arg_count) {
-    std::stringstream ss;
-    ss << "Missing arguments, expected " << arg_count << " got " << from.size();
-    throw std::runtime_error(ss.str());
-  }
-
-  std::tuple<Args...> decoded_args = convert_all_json
-    <decltype(decoded_args), 0, arg_count, Args...>(decoded_args, from);
-
-  R result = std::apply(f, decoded_args);
-
-  return nlohmann::json(result).dump();
-}
 
 bool is_start_state_valid(std::string enc_state) {
   auto state = nlohmann::json::parse(enc_state).get<core::GameState>();
@@ -193,7 +206,7 @@ GameInfo add_event(GameInfo gi, std::string pid, std::string mv_enc) {
           gi.winner = "";
         break;
         default:
-          assert(false);
+          throw std::runtime_error("Status is broken");
         }
         
       }
@@ -211,11 +224,11 @@ std::string call_function(std::string details) {
   auto method = json.at("method").get<std::string>();
   auto params = json.at("params");
   if (method == "isStartStateValid") {
-    return call_with_json(is_start_state_valid, params);
+    return detail::call_with_json(is_start_state_valid, params);
   } else if (method == "joinGame") {
-    return call_with_json(join_game, params);
+    return detail::call_with_json(join_game, params);
   } else if (method == "addEvent") {
-    return call_with_json(add_event, params);
+    return detail::call_with_json(add_event, params);
   }
   return method;
 }

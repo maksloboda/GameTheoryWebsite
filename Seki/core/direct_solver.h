@@ -104,6 +104,9 @@ public:
 
   Status get_status() const;
 
+  SekiType get_type() const { return type; }
+  PassType get_passtype() const { return pass_policy; }
+
   std::vector<Move> get_moves() const;
 };
 
