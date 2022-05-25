@@ -67,6 +67,7 @@ namespace nlohmann {
         core::Field(field_data),
         is_r,
         1,
+        core::SekiType::SEKI,
         core::PassType::NO_PASS);
     }
   };

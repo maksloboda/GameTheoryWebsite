@@ -2,6 +2,7 @@
 
 #include <numeric>
 #include <algorithm>
+#include <assert.h>
 
 using namespace std;
 
@@ -144,9 +145,10 @@ vector<Move> GameState::get_moves() const {
   return moves;
 }
 
-GameState::GameState(Field field, bool is_r, int depth, PassType pass_policy)
+GameState::GameState(Field field, bool is_r, int depth, SekiType p_type,
+    PassType p_pass_policy)
     : field(field), is_r(is_r), depth(depth), pass_count(0),
-    pass_policy(pass_policy) {}
+    type(p_type), pass_policy(p_pass_policy) {}
 
 const Field &GameState::get_field() const {
   return field;
@@ -185,12 +187,33 @@ float seki_eval_func(const GameState &state) {
   return value / state.get_depth();
 }
 
+float dseki_eval_func(const GameState &state) {
+  auto f = state.get_field();
+  if (f.has_zero_col() and f.has_zero_row()) {
+    return 0;
+  }
+  return seki_eval_func(state);
+}
+
+float GameState::get_value() const {
+  switch (type) {
+  case SekiType::SEKI:
+    return seki_eval_func(*this);
+    break;
+  case SekiType::DSEKI:
+    return dseki_eval_func(*this);
+    break;
+  default:
+    assert(false);
+  }
+}
+
 GameState::Status GameState::get_status() const {
   // TODO dseki
   if (!is_terminal()) {
     return Status::Ongoing;
   }
-  float v = seki_eval_func(*this);
+  float v = get_value();
   if (v < 0) {
     return Status::R_won;
   } else if (v > 0) {
@@ -215,7 +238,6 @@ bool GameState::is_terminal() const {
   return field.has_zero_col() or field.has_zero_row() or pass_count == 2;
 }
 
-
 ostream &operator<< (ostream &s, const Field &f) {
   for (int i = 0; i < f.shape[0]; ++i) {
     for (int j = 0; j < f.shape[1]; ++j) {
@@ -224,14 +246,6 @@ ostream &operator<< (ostream &s, const Field &f) {
     s << "\n";
   }
   return s;
-}
-
-float dseki_eval_func(const GameState &state) {
-  auto f = state.get_field();
-  if (f.has_zero_col() and f.has_zero_row()) {
-    return 0;
-  }
-  return seki_eval_func(state);
 }
 
 float get_guarantee(const GameState &state) {
@@ -243,24 +257,9 @@ float get_guarantee(const GameState &state) {
   }
 }
 
-SekiSolver::SekiSolver(const vector<vector<int>> &matrix, SekiType type,
-    PassType pass_policy,
-    bool is_r)
-    : state(Field(matrix), is_r, 1, pass_policy), game_type(type),
-    pass_policy(pass_policy) {
+SekiSolver::SekiSolver(GameState p_state)
+    : state(p_state) {
   unrolled = 0;
-  switch (type)
-  {
-  case SekiType::SEKI:
-    eval_function = seki_eval_func;
-    break;
-  case SekiType::DSEKI:
-    eval_function = dseki_eval_func;
-    break;
-  default:
-    throw new runtime_error("Invalid seki type");
-    break;
-  }
 }
 
 void SekiSolver::apply_move(Move m) {
@@ -270,7 +269,7 @@ void SekiSolver::apply_move(Move m) {
 Move SekiSolver::_find_optimal_impl(const GameState &state,
     Move alpha, Move beta) {
   if (state.is_terminal()) {
-    float fv = eval_function(state);
+    float fv = state.get_value();
     return Move(fv, 0, 0);
   }
  
