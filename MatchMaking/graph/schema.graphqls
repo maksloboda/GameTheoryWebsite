@@ -24,6 +24,7 @@ type GameInfo {
 
 type Query {
   gameInfo(id: ID!): GameInfo
+  findOptimalMove(id: ID!): GameEvent!
 }
 
 type Mutation {

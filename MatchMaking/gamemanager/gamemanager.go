@@ -291,3 +291,20 @@ func SubscribeGame(id string) (<-chan *model.GameInfo, error) {
 	}()
 	return ch, nil
 }
+
+func FindOptimal(id string) (string, error) {
+	game_ptr, err := GetGameInfo(id)
+	if err != nil {
+		return "", err
+	}
+	rcr := remoteCallResult{}
+
+	rcr_err := RemoteCall(game_ptr.GameName, "findOptimalMove",
+		[]interface{}{game_ptr}, &rcr)
+
+	if rcr_err != nil {
+		return "", rcr_err
+	}
+
+	return rcr.Result, nil
+}

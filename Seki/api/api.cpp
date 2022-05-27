@@ -30,6 +30,12 @@ GameInfo join_game(GameInfo info, std::string pid) {
   return info;
 }
 
+core::Move find_optimal_move(GameInfo gi) {
+  auto state = nlohmann::json::parse(gi.state).get<core::GameState>();
+  auto solver = core::SekiSolver(state);
+  return solver.find_optimal();
+}
+
 GameInfo add_event(GameInfo gi, std::string pid, std::string mv_enc) {
   if (gi.players_joined.size() != 2) {
     throw std::runtime_error("Game must be full");
@@ -81,6 +87,8 @@ std::string call_function(std::string details) {
     return detail::call_with_json(join_game, params);
   } else if (method == "addEvent") {
     return detail::call_with_json(add_event, params);
+  } else if (method == "findOptimalMove") {
+    return detail::call_with_json(find_optimal_move, params);
   }
   return method;
 }
