@@ -34,6 +34,10 @@ func (r *queryResolver) GameInfo(ctx context.Context, id string) (*model.GameInf
 	return game_info, err
 }
 
+func (r *queryResolver) FindOptimalMove(ctx context.Context, id string) (string, error) {
+	return gamemanager.FindOptimal(id)
+}
+
 func (r *subscriptionResolver) SubcribeGame(ctx context.Context, id string) (<-chan *model.GameInfo, error) {
 	return gamemanager.SubscribeGame(id)
 }

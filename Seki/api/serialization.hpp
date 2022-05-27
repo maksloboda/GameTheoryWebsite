@@ -154,6 +154,7 @@ namespace nlohmann {
         {"X", m.x},
         {"Y", m.y},
         {"IsPass", m.is_pass},
+        {"Value", m.value},
       });
     }
   };
