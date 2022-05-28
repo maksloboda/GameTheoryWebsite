@@ -24,17 +24,25 @@ export default {
   makeMoveEvent(move) {
     const event ={
       X: move.pos.x,
-      Y: move.pos.y
+      Y: move.pos.y,
+      IsPass: false
+    }
+    if (move.type == "pass") {
+      event.IsPass = true;
     }
     console.log(event)
     return event
   },
+
   updateGameState(state) {
     const new_state =  {
       field: [],
       width: state.Width,
       height: state.Height,
-      current_player: state.CurrentPlayer
+      current_player: state.CurrentPlayer,
+      game_type: state.Type,
+      pass_options: { "R": 0, "C": 0 },
+      pass_count: state.PassCount,
     }
 
     let c = 0
@@ -49,6 +57,14 @@ export default {
           }
         )
       }
+    }
+
+    if (state.Pp == FIRST_PLAYER_ID) {
+      new_state.pass_options = { "R": 1, "C": 0 }
+    } else if (state.Pp == SECOND_PLAYER_ID) {
+      new_state.pass_options = { "R": 0, "C": 1 }
+    } else if (state.Pp == FIRST_PLAYER_ID + SECOND_PLAYER_ID) {
+      new_state.pass_options =  { "R": 1, "C": 1 }
     }
 
     return new_state
@@ -86,13 +102,21 @@ export default {
     return game_state
   },
   initStateFromSettings(settings) {
+    let tmp_pass = ""
+    if (settings.pass_options.length == 2) {
+      tmp_pass = "RC"
+    } else if (settings.pass_options.length == 1) {
+      tmp_pass = settings.pass_options[0]
+    }
     return {
       CurrentPlayer: FIRST_PLAYER_ID,
       Width: settings.field_width,
       Height: settings.field_height,
       FlattenedField: settings.field,
+      Type: settings.game_type,
+      Pp: tmp_pass,
     }
   },
   first_player_id: FIRST_PLAYER_ID,
-  second_player_id: SECOND_PLAYER_ID
+  second_player_id: SECOND_PLAYER_ID,
 }
