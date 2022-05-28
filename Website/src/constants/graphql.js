@@ -8,6 +8,9 @@ export const GET_GAME_INFO_QUERY = gql`
       game_name
       event_clock
       state
+      is_ready
+      is_finished
+      winner
     }
   }
 `
@@ -37,6 +40,9 @@ export const GAME_SUBSCRIPTION = gql`
       game_name
       event_clock
       state
+      is_ready
+      is_finished
+      winner
     }
   }
 `

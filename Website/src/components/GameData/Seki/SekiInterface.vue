@@ -11,9 +11,9 @@
               >{{ cell.value }}</b-button>
             </b-col>
           </b-row>
-        </div>
+        </div> 
         <b-button 
-          :disabled="!is_active" 
+          :disabled="!is_active || !pass_enabled" 
           @click="makeMoveInterface({type:'pass', pos:{x: 0, y:0}})" 
           variant="danger"
         >Pass</b-button>
@@ -29,6 +29,7 @@
 
 <script>
 
+import { throwServerError } from "apollo-link-http-common"
 import Seki from "./"
 
 export default {
@@ -39,6 +40,7 @@ export default {
     return {
       game_state: null,
       is_active: false,
+      pass_enabled: true,
     }
   },
   methods: {
@@ -46,8 +48,12 @@ export default {
      * Updates the current game state
      * @param state new game state
      */
-    setState(state) {
+    setState(state, player_id) {
       this.game_state = state
+      console.log(state, player_id, state.pass_options[player_id])
+      if (state.pass_options[player_id] == 0) {
+        this.pass_enabled = false
+      }
     },
     /**
      * Sets current players ability to make a turn

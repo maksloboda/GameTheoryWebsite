@@ -29,6 +29,7 @@ export default {
   },
   methods: {
     async createGame(game_name, start_state) {
+      console.log("Start state:", start_state)
       await this.$apollo.mutate({
         mutation: CREATE_GAME_MUTATION,
         variables: {
