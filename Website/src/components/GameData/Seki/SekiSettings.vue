@@ -1,24 +1,48 @@
 <template>
   <div>
     <b-form>
-      <b-form-group 
-        id="pass_options"
-        label="Pass options:"
-      >
-        <b-form-checkbox-group
-          v-model="pass_options"
-          id="checkboxes-4"
-        >
-          <b-row>
-              <b-col sm="6">
-                <b-form-checkbox value="R">R can pass</b-form-checkbox>
-              </b-col>
-              <b-col sm="6">
-                <b-form-checkbox value="C">C can pass</b-form-checkbox>
-              </b-col>
-          </b-row>
-        </b-form-checkbox-group>
-      </b-form-group>
+      <b-row>
+        <b-col>
+          <b-form-group label="Game type">
+            <b-form-radio-group
+              id="game-type-radio"
+              v-model="game_type"
+            >
+            <b-form-radio value="seki">Seki</b-form-radio>
+            <b-form-radio value="dseki">D-Seki</b-form-radio>
+          </b-form-radio-group>
+          </b-form-group>
+        </b-col>
+        
+        <b-col>
+          <b-form-group 
+            id="pass_options"
+            label="Pass options:"
+          >
+            <b-form-checkbox-group
+              v-model="pass_options"
+              id="checkboxes-4"
+            >
+              <b-form-checkbox :value="FIRST_PLAYER_ID" >R can pass</b-form-checkbox>
+              <b-form-checkbox :value="SECOND_PLAYER_ID" >C can pass</b-form-checkbox>
+            </b-form-checkbox-group>
+          </b-form-group>
+        </b-col>
+
+        
+        <b-col>
+          <b-form-group label="First player">
+            <b-form-radio-group
+              id="first-player-radio"
+              v-model="first_player"
+            >
+            <b-form-radio :value="FIRST_PLAYER_ID">R</b-form-radio>
+            <b-form-radio :value="SECOND_PLAYER_ID">C</b-form-radio>
+          </b-form-radio-group>
+          </b-form-group>
+        </b-col>
+      </b-row>
+
       <b-row>
         <b-col sm="6">
           <b-form-group 
@@ -86,9 +110,11 @@ import {
 export default {
   data() {
     return {
-      first_player_id: FIRST_PLAYER_ID,
-      second_player_id: SECOND_PLAYER_ID,
+      FIRST_PLAYER_ID: FIRST_PLAYER_ID,
+      SECOND_PLAYER_ID: SECOND_PLAYER_ID,
       pass_options: [],
+      first_player: FIRST_PLAYER_ID,
+      game_type: "seki",
       field_width: 4,
       field_height: 4,
       field: Array(100).fill(1) 
@@ -107,11 +133,12 @@ export default {
         }
       }
       return {
-          pass_options: this.pass_options,
-          field_width: w,
-          field_height: h,
-          field: f
-        };
+        game_type: this.game_type,
+        pass_options: this.pass_options,
+        field_width: w,
+        field_height: h,
+        field: f
+      };
     },
     minMax(val, min, max) {
       if (parseInt(val) < min) { return min; }

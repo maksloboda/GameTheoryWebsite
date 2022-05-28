@@ -22,13 +22,13 @@
           variant="warning"
           ref="join_first_button"
           :disabled="players_joined.includes(game_object.first_player_id)"
-        >Join as First</b-button>
+        >Join as {{game_object.first_player_id}}</b-button>
         <b-button 
           @click="joinGame(game_object.second_player_id)" 
           variant="warning"
           ref="join_second_button" 
           :disabled="players_joined.includes(game_object.second_player_id)"
-        >Join as Second</b-button>
+        >Join as {{game_object.second_player_id}}</b-button>
       </div>
       <b-button @click="leaveGame" variant="danger">Leave game</b-button>
     </div>
@@ -36,22 +36,36 @@
     <b-modal ref="placeTakenError">
       This player ID is already taken!
     </b-modal>
+
     <b-modal ref="joinError">
       Join error
+    </b-modal>
+
+    
+    <b-modal ref="victoryModal">
+      You won!
+    </b-modal>
+
+    <b-modal ref="drawModal">
+      Draw!
+    </b-modal>
+
+    <b-modal ref="defeatModal">
+      You lost
     </b-modal>
   </b-container>
 </template>
 
 <script>
 
-import GameData from "./GameData"
+import GameData from "./../GameData"
 
 import { 
   GET_GAME_INFO_QUERY,
   JOIN_GAME_MUTATION,
   ADD_EVENT_MUTATION,
   GAME_SUBSCRIPTION,
-} from '../constants/graphql'
+} from '../../constants/graphql'
 
 export default {
   async mounted() {
@@ -65,10 +79,14 @@ export default {
       game_component: null,
       game_state: null,
       game_name: "",
+
       player_token: null,
-      players_joined: [],
       player_id: "",
-      current_player: ""
+      players_joined: [],
+      current_player: "",
+
+      is_finished: false,
+      is_ready: false,
     }
   },
 
@@ -78,7 +96,7 @@ export default {
      */
 
     onGameComponentSpawned() {
-      this.$refs["game_instance"].setState(this.game_state)
+      this.$refs["game_instance"].setState(this.game_state, this.player_id)
       this.$refs["game_instance"].setIsActive(false)
     },
     /**
@@ -134,7 +152,7 @@ export default {
           this.updateGame(response.data.gameInfo)
         }
       ).catch((response) => {
-          console.log("Get info error", response)
+          console.error("Get info error", response)
         }
       )
     },
@@ -162,7 +180,7 @@ export default {
 
     updateGame(game_info) {
       this.game_name = game_info.game_name
-
+      // Update game object
       for (const game of GameData.games) {
         if (game.getInternalGameName() == this.game_name) {
           this.game_object = game
@@ -171,17 +189,48 @@ export default {
         }
       }
       
+      // --- Update state ---
+      // Position
       this.game_state = this.game_object.updateGameState(JSON.parse(game_info.state))
-      this.$refs["game_instance"].setState(this.game_state)
+      console.log("Update:", game_info, this.game_state);
+      this.$refs["game_instance"].setState(this.game_state, this.player_id)
 
+      // Players
       this.players_joined = game_info.players_joined
 
-      if (this.game_state.current_player == this.player_id) {
+      this.is_ready = game_info.is_ready
+
+      // Block interface
+      if (this.game_state.current_player == this.player_id && 
+          this.is_ready && !this.is_finished) {
         this.$refs["game_instance"].setIsActive(true)
       } else {
         this.$refs["game_instance"].setIsActive(false)
       }
 
+      if (!this.is_finished && game_info.is_finished) {
+        this.is_finished = true
+        
+        if (game_info.winner == this.player_id) {
+          this.gameEndVictory()
+        } else if (game_info.winner == "") {
+          this.gameEndDraw()
+        } else {
+          this.gameEndDefeat()
+        }
+      }
+    },
+
+    gameEndVictory() {
+      this.$refs["victoryModal"].show();
+    },
+
+    gameEndDraw() {
+      this.$refs["drawModal"].show();
+    },
+
+    gameEndDefeat() {
+      this.$refs["defeatModal"].show();
     },
 
     async subscribeGame(next_callback) {

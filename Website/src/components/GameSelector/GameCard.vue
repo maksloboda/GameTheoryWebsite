@@ -79,6 +79,7 @@ export default {
     },
     startGame() {
       const settings = this.$refs["game_settings_component"].getSettings()
+      console.log("Settings:", settings)
       this.$emit("createGame", 
         this.game_object.getInternalGameName(), 
         this.game_object.initStateFromSettings(settings));

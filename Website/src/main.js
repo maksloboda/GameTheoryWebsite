@@ -14,7 +14,7 @@ Vue.use(BootstrapVueIcons)
 Vue.use(VueRouter)
 
 import GameSelector from './components/GameSelector/GameSelector.vue';
-import PlayGame from './components/PlayGame.vue';
+import PlayGame from './components/PlayGame/PlayGame.vue';
 
 const router = new VueRouter({
   mode: "history",
@@ -28,7 +28,7 @@ const router = new VueRouter({
       path: "/play/:game_uid",
       name: "play-page",
       component: PlayGame,
-    },
+    }
   ],
 })
 
