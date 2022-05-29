@@ -117,7 +117,7 @@ export default {
       tmp_pass = settings.pass_options[0]
     }
     return {
-      CurrentPlayer: FIRST_PLAYER_ID,
+      CurrentPlayer: settings.first_move,
       Width: settings.field_width,
       Height: settings.field_height,
       FlattenedField: settings.field,

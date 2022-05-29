@@ -135,6 +135,7 @@ export default {
         }
       }
       return {
+        first_move: this.first_player,
         game_type: this.game_type,
         pass_options: this.pass_options,
         field_width: w,
