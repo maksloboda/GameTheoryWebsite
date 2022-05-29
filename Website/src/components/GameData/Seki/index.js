@@ -21,6 +21,13 @@ export default {
   getCardGameName() {
     return "Секи"
   },
+  getInterfaceGameName(game_type) {
+    if (game_type == "seki") {
+      return "Seki"
+    } else if (game_type == "dseki") {
+      return "D-Seki"
+    }
+  },
   makeMoveEvent(move) {
     const event ={
       X: move.pos.x,
