@@ -4,6 +4,7 @@ import SekiInterface from "./SekiInterface.vue"
 
 export const FIRST_PLAYER_ID = "R"
 export const SECOND_PLAYER_ID = "C"
+export const MAX_FIELD_SIZE = 6
 
 export default {
   getInfoComponent() {
