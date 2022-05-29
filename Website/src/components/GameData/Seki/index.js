@@ -4,6 +4,7 @@ import SekiInterface from "./SekiInterface.vue"
 
 export const FIRST_PLAYER_ID = "R"
 export const SECOND_PLAYER_ID = "C"
+export const MAX_FIELD_SIZE = 6
 
 export default {
   getInfoComponent() {
@@ -20,6 +21,13 @@ export default {
   },
   getCardGameName() {
     return "Секи"
+  },
+  getInterfaceGameName(game_type) {
+    if (game_type == "seki") {
+      return "Seki"
+    } else if (game_type == "dseki") {
+      return "D-Seki"
+    }
   },
   makeMoveEvent(move) {
     const event ={

@@ -23,8 +23,8 @@
               v-model="pass_options"
               id="checkboxes-4"
             >
-              <b-form-checkbox :value="FIRST_PLAYER_ID" >R can pass</b-form-checkbox>
-              <b-form-checkbox :value="SECOND_PLAYER_ID" >C can pass</b-form-checkbox>
+              <b-form-checkbox :value="FIRST_PLAYER_ID">R can pass</b-form-checkbox>
+              <b-form-checkbox :value="SECOND_PLAYER_ID">C can pass</b-form-checkbox>
             </b-form-checkbox-group>
           </b-form-group>
         </b-col>
@@ -54,7 +54,7 @@
                 id="field-width"
                 type="number"
                 min="1"
-                max="10"
+                :max="MAX_FIELD_SIZE"
               >
               </b-form-input>
           </b-form-group>
@@ -69,15 +69,15 @@
               id="field_height"
               type='number'
               min="1"
-              max="10"
+              :max="MAX_FIELD_SIZE"
             >
             </b-form-input>
           </b-form-group>
         </b-col>
       </b-row>
       <b-card>
-        <b-row v-for="i in Array(minMax(field_height, 1, 10)).keys()">
-          <b-col v-for="j in Array(minMax(field_width, 1, 10)).keys()">
+        <b-row v-for="i in Array(minMax(field_height, 1, MAX_FIELD_SIZE)).keys()">
+          <b-col v-for="j in Array(minMax(field_width, 1, MAX_FIELD_SIZE)).keys()">
             <b-form-input
               v-model="field[i * field_width + j]"
               type='number'
@@ -103,7 +103,8 @@ select.form-control {
 <script>
 import {
   FIRST_PLAYER_ID,
-  SECOND_PLAYER_ID
+  SECOND_PLAYER_ID,
+  MAX_FIELD_SIZE
 } from "./"
 
 
@@ -117,13 +118,14 @@ export default {
       game_type: "seki",
       field_width: 4,
       field_height: 4,
-      field: Array(100).fill(1) 
+      field: Array(MAX_FIELD_SIZE * MAX_FIELD_SIZE).fill(1),
+      MAX_FIELD_SIZE: MAX_FIELD_SIZE
     }
   },
   methods: {
     getSettings() {
-      let w = this.minMax(this.field_width, 1, 10)
-      let h = this.minMax(this.field_height, 1, 10)
+      let w = this.minMax(this.field_width, 1, MAX_FIELD_SIZE)
+      let h = this.minMax(this.field_height, 1, MAX_FIELD_SIZE)
       let f = Array(w * h)
 
       let c = 0;
