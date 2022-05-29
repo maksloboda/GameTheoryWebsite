@@ -149,16 +149,11 @@ export default {
     },
 
     copyURL() {
-      window.getSelection()
       try {
         navigator.clipboard.writeText(window.location.href);
       } catch (err) {
         alert('Unable to copy link, try manually');
       }
-
-      /* unselect the range */
-      testingCodeToCopy.setAttribute('type', 'hidden')
-      window.getSelection().removeAllRanges()
     },
     
     leaveGame() {
@@ -215,9 +210,7 @@ export default {
       }).then((response) =>  {
           console.log(response)
           if (response.data.addEvent == false) {
-            console.log("Bad Move")
-          } else {
-            console.log("Good Move")
+            console.log("Illegal Move")
           }
         }
       ).catch((response) => {
@@ -249,17 +242,17 @@ export default {
 
       this.is_ready = game_info.is_ready
 
+      if (!this.is_finished && game_info.is_finished) {
+        this.is_finished = true
+        this.winner = game_info.winner
+      }
+
       // Block interface
       if (this.game_state.current_player == this.player_id && 
           this.is_ready && !this.is_finished) {
         this.$refs["game_instance"].setIsActive(true)
       } else {
         this.$refs["game_instance"].setIsActive(false)
-      }
-
-      if (!this.is_finished && game_info.is_finished) {
-        this.is_finished = true
-        this.winner = game_info.winner
       }
     },
 
