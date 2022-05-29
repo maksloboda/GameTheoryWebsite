@@ -8,16 +8,28 @@
     <div v-else>
       <div class="container mt-2">
         <b-card class="text-center" :title="game_name">
-          <div class="bg-secondary mt-2"> 
-            <b-row class="my-1" v-for="row in game_state.field">
-              <b-col v-for="cell in row" sm="1">
+          <b-row 
+            class="justify-content-md-center"
+            v-for="row in game_state.field"
+          >
+            <b-col 
+              class="bg-secondary mx-0 px-0"
+              md="auto"
+              v-for="cell in row"
+            >
+              <div
+                
+              >
                 <b-button 
+                  class="cell"
+                  size="lg"
+                  squared 
                   :disabled="!is_active" 
                   @click="makeMoveInterface({type:'dec', pos:cell.pos})"
                 >{{ cell.value }}</b-button>
-              </b-col>
-            </b-row>
-          </div> 
+              </div>
+            </b-col>
+          </b-row>
           <b-button 
             v-if="pass_enabled" 
             :disabled="!is_active"
@@ -29,6 +41,13 @@
     </div>
   </b-container>
 </template>
+
+<style>
+  .cell {
+    width:70px;
+    height:70px;
+  }
+</style>
 
 <script>
 
