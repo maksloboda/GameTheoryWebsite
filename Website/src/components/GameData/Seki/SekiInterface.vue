@@ -17,17 +17,13 @@
               md="auto"
               v-for="cell in row"
             >
-              <div
-                
-              >
-                <b-button 
-                  class="cell"
-                  size="lg"
-                  squared 
-                  :disabled="!is_active" 
-                  @click="makeMoveInterface({type:'dec', pos:cell.pos})"
-                >{{ cell.value }}</b-button>
-              </div>
+              <b-button 
+                class="cell"
+                size="lg"
+                squared 
+                :disabled="!is_active" 
+                @click="makeMoveInterface({type:'dec', pos:cell.pos})"
+              >{{ cell.value }}</b-button>
             </b-col>
           </b-row>
           <b-button 
