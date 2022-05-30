@@ -18,6 +18,17 @@
           </b-form-group>
         </b-col>
         <b-col>
+          <b-form-group label="Game type">
+            <b-form-radio-group
+              id="game-type-radio"
+              v-model="game_type"
+            >
+            <b-form-radio value="singlesuit">Дурак</b-form-radio>
+            <b-form-radio value="d-singlesuit">D-Дурак</b-form-radio>
+          </b-form-radio-group>
+          </b-form-group>
+        </b-col>
+        <b-col>
           <b-form-group label="First player">
             <b-form-radio-group
               id="first-player-radio"
