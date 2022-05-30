@@ -153,11 +153,7 @@ export default {
         is_ready: false,
         is_finished: false,
       },
-      game_mode_options: [
-          { text: this.$t('message.PlayGame.AgainstHuman'), value: MODE_VS_HUMAN },
-          { text: this.$t('message.PlayGame.AgaintComputer'), value: MODE_VS_COMP },
-          { text: this.$t('message.PlayGame.Spectator'), value: MODE_SPECTATE }
-      ],
+      
       game_mode: MODE_VS_HUMAN, // vs human/comp/spectate
 
       player_tokens: [null, null], // vs human - one token, other modes - two
@@ -218,6 +214,12 @@ export default {
     is_finished() { return this.game_info.is_finished },
     is_ready() { return this.game_info.is_ready },
     winner() { return this.game_info.winner },
+    game_mode_options() { return [
+        { text: this.$t('message.PlayGame.AgainstHuman'), value: MODE_VS_HUMAN },
+        { text: this.$t('message.PlayGame.AgainstComputer'), value: MODE_VS_COMP },
+        { text: this.$t('message.PlayGame.Spectator'), value: MODE_SPECTATE }
+      ]
+    },
   },
 
   methods: {
