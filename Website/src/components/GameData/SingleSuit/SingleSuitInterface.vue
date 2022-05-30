@@ -1,8 +1,8 @@
 <template>
   <b-container v-if="game_state != null">
     <div class="container mt-2">
-      <b-card class="text-center" title="Seki">
-        <div class="bg-secondary mt-2"> 
+      <b-card class="text-center" title="SingleSuit">
+        <div class="bg-secondary mt-2">
           <b-row class="my-1" v-for="row in game_state.field">
             <b-col v-for="cell in row" sm="1">
               <b-button 
@@ -22,14 +22,14 @@
   </b-container>
   <b-container v-else>
     <center>
-      Seki state is null
+      SingleSuit state is null
     </center>
   </b-container>
 </template>
 
 <script>
 
-import Seki from "./"
+import SingleSuit from "."
 
 export default {
   mounted() {
@@ -68,7 +68,7 @@ export default {
      * @param move move that needs to be applied
      */
     applyMoveInterface(move) {
-      this.game_state = Seki.applyMove(this.game_state, move);
+      this.game_state = SingleSuit.applyMove(this.game_state, move);
     }
   }
 }
