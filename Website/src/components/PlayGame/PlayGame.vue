@@ -8,11 +8,11 @@
           Awaiting players...
         </div>
         <div v-else-if="!is_finished">
-          <div v-if="game_state.current_player == player_id">
-            {{ game_state.current_player }} is current player - Your turn
+          <div v-if="current_player == player_id">
+            {{ current_player }} is current player - Your turn
           </div>
           <div v-else>
-            {{ game_state.current_player }} is current player - Opponent's turn
+            {{ current_player }} is current player - Opponent's turn
           </div>
         </div>
         <div v-else-if="is_finished">
@@ -34,35 +34,60 @@
         </b-button>
       </b-col>
     </b-row></b-card>
-    
-    <b-row 
-        v-if="this.players_joined.length != 2 && 
-              (this.player_token == null || this.player_token == 0 )" 
-      >
-      <b-col><b-button 
+    <b-card
+        class="mt-2" 
+        v-if="!client_joined && !is_ready"
+      ><b-row>
+      <b-form-group><b-form-radio-group
         class="w-100"
-        @click="joinGame(game_object.first_player_id)" 
-        variant="warning"
-        ref="join_first_button"
-        :disabled="players_joined.includes(game_object.first_player_id)"
-      >
-        <b> Join as {{game_object.first_player_id}} </b>
-        <span v-if="game_state.current_player == game_object.first_player_id"> - First move</span>
-        <span v-if="game_state.pass_options[game_object.first_player_id]"> - Can pass</span>
-      </b-button></b-col>
-      <b-col><b-button 
-        class="w-100"
-        @click="joinGame(game_object.second_player_id)" 
-        variant="warning"
-        ref="join_second_button" 
-        :disabled="players_joined.includes(game_object.second_player_id)"
-      >
-        <b> Join as {{game_object.second_player_id}} </b>
-        <span v-if="game_state.current_player == game_object.second_player_id"> - First move</span>
-        <span v-if="game_state.pass_options[game_object.second_player_id]"> - Can pass</span>
-      </b-button></b-col>
+        button-variant="outline-primary"
+        id="btn-radios-1"
+        v-model="game_mode"
+        :options="game_mode_options"
+        buttons
+      ></b-form-radio-group></b-form-group>
     </b-row>
-
+    <br>
+    <div>
+      <b-row v-if="game_mode != MODE_SPECTATE">
+        <b-col sm="6"><b-button 
+          class="w-100"
+          @click="joinLobby(FIRST_PLAYER_ID)" 
+          variant="warning"
+          ref="join_first_button"
+          :disabled="players_joined.includes(FIRST_PLAYER_ID)"
+        >
+          <b> Join as {{FIRST_PLAYER_ID}} </b>
+          <span v-if="current_player == FIRST_PLAYER_ID"> - First move</span>
+          <span v-if="pass_options[FIRST_PLAYER_ID]"> - Can pass</span>
+        </b-button></b-col>
+        <b-col sm="6"><b-button 
+          class="w-100"
+          @click="joinLobby(SECOND_PLAYER_ID)" 
+          variant="warning"
+          ref="join_second_button" 
+          :disabled="players_joined.includes(SECOND_PLAYER_ID)"
+        >
+          <b> Join as {{SECOND_PLAYER_ID}} </b>
+          <span v-if="current_player == SECOND_PLAYER_ID"> - First move</span>
+          <span v-if="pass_options[SECOND_PLAYER_ID]"> - Can pass</span>
+        </b-button></b-col>
+      </b-row>
+      <b-button 
+          v-else
+          class="w-100"
+          @click="joinLobby(null)" 
+          variant="warning"
+          ref="join_first_button"
+          :disabled="players_joined.includes(FIRST_PLAYER_ID)"
+        >
+          <b>Start: </b>
+          <span> <b>{{current_player}}</b> moves first</span>
+          <span v-if="pass_options[FIRST_PLAYER_ID]">, <b>{{FIRST_PLAYER_ID}}</b> can pass</span>
+          <span v-if="pass_options[SECOND_PLAYER_ID]">, <b>{{SECOND_PLAYER_ID}}</b> can pass</span>
+        </b-button>
+    </div>
+    </b-card>
     <div v-if="this.$apollo.loading">
       Loading...
     </div>
@@ -74,18 +99,23 @@
         @move="onMoveMade"
       ></component>
       <br>
-      <b-card>
-        <b-button sm="6" @click="leaveGame" variant="outline-danger">Leave game</b-button>
+      
+      <b-card v-if="is_ready">
+        <b-button 
+          v-if="game_mode != MODE_VS_HUMAN"
+          :disabled="current_player == player_id"
+          @click="makeBotMove"
+          variant="outline-danger"
+        >
+          Make move
+        </b-button>
+
+        <b-button 
+          @click="leaveGame" 
+          variant="outline-danger"
+        >Leave game</b-button>
       </b-card>
     </div>
-    
-    <b-modal ref="placeTakenError">
-      This player ID is already taken!
-    </b-modal>
-
-    <b-modal ref="joinError">
-      Join error
-    </b-modal>
   </b-container>
 </template>
 
@@ -95,10 +125,18 @@ import GameData from "./../GameData"
 
 import { 
   GET_GAME_INFO_QUERY,
+  FIND_OPTIMAL_MOVE_QUERY,
   JOIN_GAME_MUTATION,
   ADD_EVENT_MUTATION,
   GAME_SUBSCRIPTION,
 } from '../../constants/graphql'
+
+import {
+  MODE_VS_COMP,
+  MODE_VS_HUMAN,
+  MODE_SPECTATE,
+} from "../../constants/constants"
+import { FIRST_PLAYER_ID, SECOND_PLAYER_ID } from "../GameData/Seki";
 
 export default {
   async mounted() {
@@ -108,21 +146,64 @@ export default {
 
   data() {
     return {
+      game_state: null,
       game_object: null,
       game_component: null,
-      game_state: null,
-      game_name: "", // Internal game name
-      game_type: "seki",
+      game_info: {
+        is_ready: false,
+        is_finished: false,
+      },
+      game_mode_options: [
+          { text: 'Against human', value: MODE_VS_HUMAN },
+          { text: 'Against computer', value: MODE_VS_COMP },
+          { text: 'Spectator', value: MODE_SPECTATE }
+      ],
+      game_mode: MODE_VS_HUMAN, // vs human/comp/spectate
 
-      player_token: null,
+      player_tokens: [null, null], // vs human - one token, other modes - two
       player_id: "",
-      players_joined: [],
-      current_player: "",
+      
+      client_joined: false,
 
-      is_finished: false,
-      is_ready: false,
-      winner: "",
+      MODE_VS_HUMAN: MODE_VS_HUMAN, 
+      MODE_SPECTATE: MODE_SPECTATE, 
     }
+  },
+
+  computed: {
+    player_token: { 
+      get() { return this.player_tokens[0]; },
+      set(token) { 
+        this.player_tokens[0] = token; 
+      },
+    },
+    bot_token: { 
+      get() { return this.player_tokens[1]; },
+      set(token) { this.player_tokens[1] = token; },
+    },
+    current_player() { return this.game_state.current_player },
+    current_token() { // Only works with spectator mode or when you play as first!
+      if (this.current_player == this.FIRST_PLAYER_ID) {
+        return this.player_tokens[0]
+      } else {
+        return this.player_tokens[1]
+      }
+    },
+    
+    FIRST_PLAYER_ID() { return this.game_object.FIRST_PLAYER_ID },
+    SECOND_PLAYER_ID() { return this.game_object.SECOND_PLAYER_ID },
+
+    game_id() { return this.$route.params.game_uid },
+
+    game_type() { return this.game_state.game_type },
+    pass_options() { return this.game_state.pass_options },
+
+    game_name() { return this.game_info.game_name },
+
+    players_joined() { return this.game_info.players_joined },
+    is_finished() { return this.game_info.is_finished },
+    is_ready() { return this.game_info.is_ready },
+    winner() { return this.game_info.winner },
   },
 
   methods: {
@@ -140,11 +221,32 @@ export default {
      */
 
     async onMoveMade(move) {
-      this.getGameInfo(this.$route.params.game_uid);
+      this.getGameInfo(this.game_id);
       console.log("Move performed:", move)
 
       if (this.game_object.isMoveValid(this.game_state, move)) {
-        await this.sendMove(move);
+        await this.sendMove(move, this.player_token);
+      }
+    },
+
+    async joinLobby(pid) {
+      console.log(this.game_mode)
+      if (this.game_mode == MODE_SPECTATE) {
+        this.player_tokens[0] = await this.joinGame(FIRST_PLAYER_ID)
+        this.player_tokens[1] = await this.joinGame(SECOND_PLAYER_ID)
+      } else {
+        this.player_tokens[0] = await this.joinGame(pid)
+        this.player_id = pid
+        if (this.player_tokens[0] != 0) {
+          this.client_joined = 1
+        }
+        if (this.game_mode != MODE_VS_HUMAN) {
+          let bot_pid = FIRST_PLAYER_ID
+          if (pid == FIRST_PLAYER_ID) { 
+            bot_pid = SECOND_PLAYER_ID
+          }
+          thisp.layer_tokens[1] = await this.joinGame(bot_pid)
+        }
       }
     },
 
@@ -162,34 +264,28 @@ export default {
     },
 
     async joinGame(pid) {
-      this.player_id = pid
+      let player_token = null;
       await this.$apollo.mutate({
         mutation: JOIN_GAME_MUTATION,
         variables: {
-          game_id: this.$route.params.game_uid,
+          game_id: this.game_id,
           player_id: pid
         },
       }).then((response) =>  {
-          console.log(response)
-          this.player_token = response.data.joinGame
-
-          if (this.player_token == null) {
-            this.$refs["joinError"].show();
-          } else if (this.player_token == 0) {
-            this.$refs["placeTakenError"].show();
-          }
+          player_token = response.data.joinGame
         }
       ).catch((response) => {
           console.log("Join game error", response)
         }
       )
+      return player_token
     },
 
     async getGameInfo() {
       await this.$apollo.query({
         query: GET_GAME_INFO_QUERY,
         variables: {
-          game_id: this.$route.params.game_uid,
+          game_id: this.game_id,
         },
       }).then((response) =>  {
           this.updateGame(response.data.gameInfo)
@@ -199,16 +295,16 @@ export default {
         }
       )
     },
-    async sendMove(move) {
+
+    async sendMove(move, player_token) {
       await this.$apollo.mutate({
         mutation: ADD_EVENT_MUTATION,
         variables: {
-          game_id: this.$route.params.game_uid,
-          player_token: this.player_token,
+          game_id: this.game_id,
+          player_token: player_token,
           event: JSON.stringify(this.game_object.makeMoveEvent(move)),
         },
       }).then((response) =>  {
-          console.log(response)
           if (response.data.addEvent == false) {
             console.log("Illegal Move")
           }
@@ -220,7 +316,8 @@ export default {
     },
 
     updateGame(game_info) {
-      this.game_name = game_info.game_name
+      this.game_info = game_info
+
       // Update game object
       for (const game of GameData.games) {
         if (game.getInternalGameName() == this.game_name) {
@@ -233,22 +330,12 @@ export default {
       // --- Update state ---
       // Position
       this.game_state = this.game_object.updateGameState(JSON.parse(game_info.state))
-      this.game_type = this.game_state.game_type
-      console.log("Update:", game_info, this.game_state, this.player_id);
       this.$refs["game_instance"].setState(this.game_state, this.game_type, this.player_id)
 
       // Players
-      this.players_joined = game_info.players_joined
-
-      this.is_ready = game_info.is_ready
-
-      if (!this.is_finished && game_info.is_finished) {
-        this.is_finished = true
-        this.winner = game_info.winner
-      }
 
       // Block interface
-      if (this.game_state.current_player == this.player_id && 
+      if (this.current_player == this.player_id && 
           this.is_ready && !this.is_finished) {
         this.$refs["game_instance"].setIsActive(true)
       } else {
@@ -260,7 +347,7 @@ export default {
       await this.$apollo.subscribe( {
         query: GAME_SUBSCRIPTION,
         variables: {
-          game_id: this.$route.params.game_uid,
+          game_id: this.game_id,
         },
       }).subscribe({
         next(result) {
@@ -272,6 +359,29 @@ export default {
       })
     },
 
+    async makeBotMove() {
+      const best_move = await this.findOptimalMove();
+      console.log("makeBotMove:", best_move)
+      await this.sendMove(best_move, this.current_token)
+    },
+
+    async findOptimalMove() {
+      let optimal_move = null
+      await this.$apollo.query( {
+        query: FIND_OPTIMAL_MOVE_QUERY,
+        variables: {
+          game_id: this.game_id,
+        },
+      }).then((response) =>  {
+          console.log(response.data.findOptimalMove)
+          optimal_move = this.game_object.makeMoveFromEvent(JSON.parse(response.data.findOptimalMove))
+        }
+      ).catch((response) => {
+          console.error("Find optimal move error:", response)
+        }
+      )
+      return optimal_move
+    }
   },
 }
 </script>

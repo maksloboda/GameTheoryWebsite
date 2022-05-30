@@ -5,30 +5,54 @@
         Game state is null
       </center>
     </div>
-    <div v-else>
-      <div class="container mt-2">
-        <b-card class="text-center" :title="game_name">
-          <div class="bg-secondary mt-2"> 
-            <b-row class="my-1" v-for="row in game_state.field">
-              <b-col v-for="cell in row" sm="1">
+    <div v-else  class="container mt-2">
+      <b-card>
+        <b-row>
+          <b-col sm="2" id="game_info_panel">
+            <h3>
+              {{ game_name }}
+            </h3>
+          </b-col>
+          <b-col sm="8">
+            <b-row 
+              class="justify-content-md-center"
+              v-for="row in game_state.field"
+            >
+              <b-col 
+                class="bg-secondary mx-0 px-0"
+                md="auto"
+                v-for="cell in row"
+              >
                 <b-button 
+                  class="cell"
+                  size="lg"
+                  squared 
                   :disabled="!is_active" 
                   @click="makeMoveInterface({type:'dec', pos:cell.pos})"
                 >{{ cell.value }}</b-button>
               </b-col>
             </b-row>
-          </div> 
-          <b-button 
-            v-if="pass_enabled" 
-            :disabled="!is_active"
-            @click="makeMoveInterface({type:'pass', pos:{x: 0, y:0}})" 
-            variant="danger"
-          >Pass</b-button>
-        </b-card>
-      </div>
+          </b-col>
+          <b-col sm="2">
+            <b-button 
+              v-if="pass_enabled" 
+              :disabled="!is_active"
+              @click="makeMoveInterface({type:'pass', pos:{x: 0, y:0}})" 
+              variant="danger"
+            >Pass</b-button>
+          </b-col>
+        </b-row>
+      </b-card>
     </div>
   </b-container>
 </template>
+
+<style>
+  .cell {
+    width:65px;
+    height:65px;
+  }
+</style>
 
 <script>
 

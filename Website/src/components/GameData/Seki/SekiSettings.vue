@@ -42,47 +42,49 @@
           </b-form-group>
         </b-col>
       </b-row>
-
+      <br>
       <b-row>
-        <b-col sm="6">
-          <b-form-group 
-            id="field_width"
-            label="Field width:"
-          >            
-              <b-form-input
-                v-model="field_width"
-                id="field-width"
-                type="number"
-                min="1"
-                :max="MAX_FIELD_SIZE"
-              >
-              </b-form-input>
-          </b-form-group>
+        <b-col sm="2">
+          <label for="field-width">Field width:</label>
         </b-col>
-        <b-col sm="6">
-          <b-form-group 
+        <b-col sm="4">
+          <b-form-input
+            v-model="field_width"
+            id="field-width"
+            type="number"
+            min="1"
+            :max="MAX_FIELD_SIZE"
+          ></b-form-input>
+        </b-col>
+        <b-col sm="2">
+          <label for="field_height">Field height:</label>
+        </b-col>
+        <b-col sm="4">
+          <b-form-input
+            v-model="field_height"
             id="field_height"
-            label="Field height:"
-          >
-            <b-form-input
-              v-model="field_height"
-              id="field_height"
-              type='number'
-              min="1"
-              :max="MAX_FIELD_SIZE"
-            >
-            </b-form-input>
-          </b-form-group>
+            type='number'
+            min="1"
+            :max="MAX_FIELD_SIZE"
+          ></b-form-input>
         </b-col>
       </b-row>
+      <br>
       <b-card>
-        <b-row v-for="i in Array(minMax(field_height, 1, MAX_FIELD_SIZE)).keys()">
-          <b-col v-for="j in Array(minMax(field_width, 1, MAX_FIELD_SIZE)).keys()">
+        <b-row 
+          v-for="i in Array(minMax(field_height, 1, MAX_FIELD_SIZE)).keys()"
+          class="justify-content-md-center"
+        >
+          <b-col 
+            v-for="j in Array(minMax(field_width, 1, MAX_FIELD_SIZE)).keys()"
+            class="mx-0 px-0"
+            md="auto"
+          >
             <b-form-input
               v-model="field[i * field_width + j]"
               type='number'
               min="0"
-              max="100"
+              :max="MAX_CELL_VALUE"
               class="field_cell"
             > </b-form-input>
           </b-col>
@@ -93,10 +95,9 @@
 </template>
 
 <style>
-select.form-control {
-  -moz-appearance: none;
-   -webkit-appearance: none;
-   appearance: none;
+.field_cell {
+  width:70px;
+  height:70px;
 }
 </style>
 
@@ -104,7 +105,8 @@ select.form-control {
 import {
   FIRST_PLAYER_ID,
   SECOND_PLAYER_ID,
-  MAX_FIELD_SIZE
+  MAX_FIELD_SIZE,
+  MAX_CELL_VALUE
 } from "./"
 
 
@@ -119,7 +121,8 @@ export default {
       field_width: 4,
       field_height: 4,
       field: Array(MAX_FIELD_SIZE * MAX_FIELD_SIZE).fill(1),
-      MAX_FIELD_SIZE: MAX_FIELD_SIZE
+      MAX_FIELD_SIZE: MAX_FIELD_SIZE,
+      MAX_CELL_VALUE: MAX_CELL_VALUE,
     }
   },
   methods: {
@@ -135,6 +138,7 @@ export default {
         }
       }
       return {
+        first_move: this.first_player,
         game_type: this.game_type,
         pass_options: this.pass_options,
         field_width: w,

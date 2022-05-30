@@ -14,6 +14,11 @@ export const GET_GAME_INFO_QUERY = gql`
     }
   }
 `
+export const FIND_OPTIMAL_MOVE_QUERY = gql`
+  query FindOptimalMoveQuery($game_id: ID!) {
+    findOptimalMove(id: $game_id)
+  }
+`
 
 export const CREATE_GAME_MUTATION = gql`
   mutation CreateGameMutation($game_name: String!, $start_state: GameState!) {

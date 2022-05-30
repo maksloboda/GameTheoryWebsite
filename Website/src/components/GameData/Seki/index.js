@@ -5,6 +5,7 @@ import SekiInterface from "./SekiInterface.vue"
 export const FIRST_PLAYER_ID = "R"
 export const SECOND_PLAYER_ID = "C"
 export const MAX_FIELD_SIZE = 6
+export const MAX_CELL_VALUE = 99
 
 export default {
   getInfoComponent() {
@@ -29,6 +30,7 @@ export default {
       return "D-Seki"
     }
   },
+
   makeMoveEvent(move) {
     const event ={
       X: move.pos.x,
@@ -40,6 +42,21 @@ export default {
     }
     console.log(event)
     return event
+  },
+  
+  makeMoveFromEvent(event) {
+    if (event.IsPass) {
+      return {
+        type: "pass",
+        pos: { x: 0, y: 0},
+      }
+    }
+    else {
+      return {
+        type: "dec",
+        pos: { x: event.X, y: event.Y },
+      }
+    }
   },
 
   updateGameState(state) {
@@ -117,7 +134,7 @@ export default {
       tmp_pass = settings.pass_options[0]
     }
     return {
-      CurrentPlayer: FIRST_PLAYER_ID,
+      CurrentPlayer: settings.first_move,
       Width: settings.field_width,
       Height: settings.field_height,
       FlattenedField: settings.field,
@@ -125,6 +142,6 @@ export default {
       Pp: tmp_pass,
     }
   },
-  first_player_id: FIRST_PLAYER_ID,
-  second_player_id: SECOND_PLAYER_ID,
+  FIRST_PLAYER_ID: FIRST_PLAYER_ID,
+  SECOND_PLAYER_ID: SECOND_PLAYER_ID,
 }
