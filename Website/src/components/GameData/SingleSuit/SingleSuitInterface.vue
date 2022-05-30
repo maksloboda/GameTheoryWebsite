@@ -1,35 +1,37 @@
 <template>
-  <b-container v-if="game_state != null">
-    <div class="container mt-2">
-      <b-card class="text-center" title="SingleSuit">
-        <div class="bg-secondary mt-2">
-          <b-row class="my-1" v-for="row in game_state.field">
-            <b-col v-for="cell in row" sm="1">
-              <b-button 
-                :disabled="!is_active" 
-                @click="makeMoveInterface({type:'dec', pos:cell.pos})"
-              >{{ cell.value }}</b-button>
-            </b-col>
-          </b-row>
-        </div>
-        <b-button 
-          :disabled="!is_active" 
-          @click="makeMoveInterface({type:'pass', pos:{x: 0, y:0}})" 
-          variant="danger"
-        >Pass</b-button>
-      </b-card>
+  <b-container>
+    <div v-if="game_state === null">
+      <center>
+        Game state is null
+      </center>
     </div>
-  </b-container>
-  <b-container v-else>
-    <center>
-      SingleSuit state is null
-    </center>
+    <div v-else>
+      <div class="container mt-2">
+        <b-card class="text-center" :title="game_name">
+          <div class="bg-secondary mt-2"> 
+            <b-row class="my-1" v-for="c in game_state.first_player_set">
+                <b-button 
+                  :disabled="!is_active" 
+                  @click="makeMoveInterface({type:'move', card: c})"
+                >{{ c }}</b-button>
+            </b-row>
+
+            <b-row class="my-1" v-for="c in game_state.second_player_set">
+                <b-button 
+                  :disabled="!is_active" 
+                  @click="makeMoveInterface({type:'move', card: c})"
+                >{{ c }}</b-button>
+            </b-row>
+          </div>  
+        </b-card>
+      </div>
+    </div>
   </b-container>
 </template>
 
 <script>
 
-import SingleSuit from "."
+import SingleSuit from "./"
 
 export default {
   mounted() {
@@ -39,36 +41,24 @@ export default {
     return {
       game_state: null,
       is_active: false,
+      game_type: "singlesuit",
+      game_name: "SingleSuit",
     }
   },
   methods: {
-    /**
-     * Updates the current game state
-     * @param state new game state
-     */
-    setState(state) {
+    setState(state, game_type, player_id) {
       this.game_state = state
+      this.game_type = game_type
+      this.game_name = SingleSuit.getInterfaceGameName(game_type)
     },
-    /**
-     * Sets current players ability to make a turn
-     * @param {boolean} is_active true if player can make a turn
-     */
     setIsActive(is_active) {
       this.is_active = is_active
     },
-    /**
-     * Called when local player makes a move
-     * @param move move that was made made
-     */
     makeMoveInterface(move) {
       this.$emit("move", move);
     },
-    /**
-     * applies move to the current state
-     * @param move move that needs to be applied
-     */
     applyMoveInterface(move) {
-      this.game_state = SingleSuit.applyMove(this.game_state, move);
+      // this.game_state = SingleSuit.applyMove(this.game_state, move);
     }
   }
 }
