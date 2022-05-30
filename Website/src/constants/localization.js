@@ -46,6 +46,9 @@ export const messages = {
             Loading: 'Loading...',
             MakeMove: 'Make move',
             LeaveGame: 'Leave game',
+            AgainstComputer: 'Play against computer',
+            AgainstHuman: 'Play against human',
+            Spectator: 'Spectator mode',
         },
 
         SekiInfo: {
@@ -152,6 +155,9 @@ export const messages = {
             Loading: 'Загрузка...',
             MakeMove: 'Сделать ход',
             LeaveGame: 'Покинуть игру',
+            AgainstComputer: 'Игра против бота',
+            AgainstHuman: 'Против реального человека',
+            Spectator: 'Наблюдатель',
         },
         SekiInfo: {
           header: 'Правила семейства игр Секи',

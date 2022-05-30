@@ -154,9 +154,9 @@ export default {
         is_finished: false,
       },
       game_mode_options: [
-          { text: 'Against human', value: MODE_VS_HUMAN },
-          { text: 'Against computer', value: MODE_VS_COMP },
-          { text: 'Spectator', value: MODE_SPECTATE }
+          { text: this.$t('message.PlayGame.AgainstHuman'), value: MODE_VS_HUMAN },
+          { text: this.$t('message.PlayGame.AgaintComputer'), value: MODE_VS_COMP },
+          { text: this.$t('message.PlayGame.Spectator'), value: MODE_SPECTATE }
       ],
       game_mode: MODE_VS_HUMAN, // vs human/comp/spectate
 
