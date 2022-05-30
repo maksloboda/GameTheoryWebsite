@@ -5,7 +5,7 @@
         <b-col>
           <b-form-group 
             id="cards_number"
-            label="Cards number:"
+            :label="$t('message.SingleSuitSettings.CardNumber')"
           >            
               <b-form-input
                 v-model="cards_number"
@@ -18,18 +18,18 @@
           </b-form-group>
         </b-col>
         <b-col>
-          <b-form-group label="Game type">
+          <b-form-group :label="$t('message.SekiSettings.GameType')">
             <b-form-radio-group
               id="game-type-radio"
               v-model="game_type"
             >
-            <b-form-radio value="singlesuit">Дурак</b-form-radio>
-            <b-form-radio value="d-singlesuit">D-Дурак</b-form-radio>
+            <b-form-radio value="singlesuit">{{$t('message.SingleSuitSettings.Fool')}}</b-form-radio>
+            <b-form-radio value="d-singlesuit">{{$t('message.SingleSuitSettings.DFool')}}</b-form-radio>
           </b-form-radio-group>
           </b-form-group>
         </b-col>
         <b-col>
-          <b-form-group label="First player">
+          <b-form-group :label="$t('message.SingleSuitSettings.FirstPlayer')">
             <b-form-radio-group
               id="first-player-radio"
               v-model="first_player"
@@ -47,7 +47,7 @@
                 v-model="card_array[i]"
               >
                 <b-form-radio :value="1">A</b-form-radio>
-                {{i + 1}}-ая карта
+                {{i + 1}} {{$t('message.SingleSuitSettings.NthCard')}}
                 <b-form-radio :value="0">B</b-form-radio>
               </b-form-radio-group>
             </b-form-group>
