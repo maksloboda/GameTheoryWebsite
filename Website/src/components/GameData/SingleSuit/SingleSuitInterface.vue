@@ -1,31 +1,39 @@
 <template>
-  <b-container v-if="game_state != null">
-    <div class="container mt-2">
-      <b-card class="text-center" :title="$t('message.SingleSuitInterface.GameType')">
-        <div class="bg-secondary mt-2">
-          <b-row class="my-1" v-for="row in game_state.field">
-            <b-col v-for="cell in row" sm="1">
-              <b-button 
-                :disabled="!is_active" 
-                @click="makeMoveInterface({type:'dec', pos:cell.pos})"
-              >{{ cell.value }}</b-button>
-            </b-col>
-          </b-row>
-        </div>
-        <b-button 
-          :disabled="!is_active" 
-          @click="makeMoveInterface({type:'pass', pos:{x: 0, y:0}})" 
-          variant="danger"
-        >{{$t('message.SekiInterface.Pass')}}</b-button>
-      </b-card>
+  <b-container>
+    <div v-if="game_state === null">
+      <center>
+        {{$t('message.SingleSuitInterface.NullGameState')}}
+      </center>
+    </div>
+    <div v-else>
+      <div class="container mt-2">
+        <b-card class="text-center" :title="$t('message.SingleSuitInterface.GameType')">
+          <div class="mt-2"> 
+            <b-row class="my-1">
+              <b-col v-for="c in game_state.first_player_set">
+                <b-button 
+                  :disabled="!is_active" 
+                  @click="makeMoveInterface({type:'move', card: c})"
+                >{{ c }}</b-button>
+              </b-col>
+            </b-row>
+
+
+            <b-row class="my-1">
+              <b-col v-for="c in game_state.second_player_set">
+                <b-button 
+                  :disabled="!is_active" 
+                  @click="makeMoveInterface({type:'move', card: c})"
+                >{{ c }}</b-button>
+              </b-col>
+            </b-row>
+          </div>  
+        </b-card>
+      </div>
     </div>
   </b-container>
-  <b-container v-else>
-    <center>
-      {{$t('message.SingleSuitInterface.NullGameState')}}
-    </center>
-  </b-container>
 </template>
+
 
 <script>
 
