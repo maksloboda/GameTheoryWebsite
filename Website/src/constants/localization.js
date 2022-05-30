@@ -1,6 +1,7 @@
 export const messages = {
     en: {
       message: {
+        WebsiteName: 'Combinatory games website',
         SekiSettings: {
             PassOptions: 'Pass options',
             RPass: 'R can pass',
@@ -112,6 +113,7 @@ export const messages = {
     },
     ru: {
       message: {
+        WebsiteName: 'Сайт комбинаторных игр',
         SekiSettings: {
             PassOptions: 'Возможность пропуска хода',
             RPass: 'R может пропускать ход',

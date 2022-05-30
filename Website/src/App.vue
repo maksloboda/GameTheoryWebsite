@@ -4,7 +4,7 @@
       <div class="container-fluid">
         <b-row>
           <b-col sm="6">
-            <a class="navbar-brand" href="/">game theory website</a>
+            <a class="navbar-brand" href="/">{{$t('message.WebsiteName')}}</a>
           </b-col>
           <b-col sm="6">
             <b-button>
