@@ -21,7 +21,7 @@ export default {
     return "seki"
   },
   getCardGameName() {
-    return "Секи"
+    return "Seki"
   },
   getInterfaceGameName(game_type) {
     if (game_type == "seki") {

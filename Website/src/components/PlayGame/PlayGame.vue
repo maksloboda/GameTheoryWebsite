@@ -5,22 +5,22 @@
         ref="game_status"
       >
         <div v-if="!is_ready">
-          Awaiting players...
+          {{$t('message.PlayGame.WaitPlayers')}}
         </div>
         <div v-else-if="!is_finished">
           <div v-if="current_player == player_id">
-            {{ current_player }} is current player - Your turn
+            {{ current_player }} {{$t('message.PlayGame.YourTurn')}}
           </div>
           <div v-else>
-            {{ current_player }} is current player - Opponent's turn
+            {{ current_player }} {{$t('message.PlayGame.OpponentsTurn')}}
           </div>
         </div>
         <div v-else-if="is_finished">
           <div v-if="winner == ''">
-            Draw
+            {{$t('message.PlayGame.Draw')}}
           </div>
           <div v-else>
-            {{ winner }} is winner
+            {{ winner }} {{$t('message.PlayGame.IsWinner')}}
           </div>
         </div>
       </b-div></b-col>
@@ -30,7 +30,7 @@
           class="w-100"
           @click="copyURL"
         >
-          Copy link
+          {{$t('message.PlayGame.CopyLink')}}
         </b-button>
       </b-col>
     </b-row></b-card>
@@ -57,9 +57,9 @@
           ref="join_first_button"
           :disabled="players_joined.includes(FIRST_PLAYER_ID)"
         >
-          <b> Join as {{FIRST_PLAYER_ID}} </b>
-          <span v-if="current_player == FIRST_PLAYER_ID"> - First move</span>
-          <span v-if="pass_options[FIRST_PLAYER_ID]"> - Can pass</span>
+          <b> {{$t('message.PlayGame.JoinAs')}} {{FIRST_PLAYER_ID}} </b>
+          <span v-if="current_player == FIRST_PLAYER_ID"> - {{$t('message.PlayGame.FirstMove')}}</span>
+          <span v-if="pass_options[FIRST_PLAYER_ID]"> - {{$t('message.PlayGame.CanPass')}}</span>
         </b-button></b-col>
         <b-col sm="6"><b-button 
           class="w-100"
@@ -69,8 +69,8 @@
           :disabled="players_joined.includes(SECOND_PLAYER_ID)"
         >
           <b> Join as {{SECOND_PLAYER_ID}} </b>
-          <span v-if="current_player == SECOND_PLAYER_ID"> - First move</span>
-          <span v-if="pass_options[SECOND_PLAYER_ID]"> - Can pass</span>
+          <span v-if="current_player == SECOND_PLAYER_ID"> - {{$t('message.PlayGame.FirstMove')}}</span>
+          <span v-if="pass_options[SECOND_PLAYER_ID]"> - {{$t('message.PlayGame.CanPass')}}</span>
         </b-button></b-col>
       </b-row>
       <b-button 
@@ -83,13 +83,13 @@
         >
           <b>Start: </b>
           <span> <b>{{current_player}}</b> moves first</span>
-          <span v-if="pass_options[FIRST_PLAYER_ID]">, <b>{{FIRST_PLAYER_ID}}</b> can pass</span>
-          <span v-if="pass_options[SECOND_PLAYER_ID]">, <b>{{SECOND_PLAYER_ID}}</b> can pass</span>
+          <span v-if="pass_options[FIRST_PLAYER_ID]">, <b>{{FIRST_PLAYER_ID}}</b> {{$t('message.PlayGame.CanPass')}}</span>
+          <span v-if="pass_options[SECOND_PLAYER_ID]">, <b>{{SECOND_PLAYER_ID}}</b> {{$t('message.PlayGame.CanPass')}}</span>
         </b-button>
     </div>
     </b-card>
     <div v-if="this.$apollo.loading">
-      Loading...
+      {{$t('message.PlayGame.Loading')}}
     </div>
     <div v-else>
       <component
@@ -107,13 +107,13 @@
           @click="makeBotMove"
           variant="outline-danger"
         >
-          Make move
+          {{$t('message.PlayGame.MakeMove')}}
         </b-button>
 
         <b-button 
           @click="leaveGame" 
           variant="outline-danger"
-        >Leave game</b-button>
+        >{{$t('message.PlayGame.LeaveGame')}}</b-button>
       </b-card>
     </div>
   </b-container>

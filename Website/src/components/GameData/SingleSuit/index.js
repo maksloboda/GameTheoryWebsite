@@ -1,6 +1,7 @@
 import SingleSuitInfo from "./SingleSuitInfo.vue"
 import SingleSuitSettings from "./SingleSuitSettings.vue"
 import SingleSuitInterface from "./SingleSuitInterface.vue"
+import { messages } from "../../../constants/localization"
 
 export const FIRST_PLAYER_ID = "A"
 export const SECOND_PLAYER_ID = "B"
@@ -16,10 +17,10 @@ export default {
     return SingleSuitInterface
   },
   getInternalGameName() {
-    return "singlesuit"
+    return "SingleSuit"
   },
   getCardGameName() {
-    return "Одномастка"
+    return "SingleSuit"
   },
   makeMoveEvent(move) {
     const event = {

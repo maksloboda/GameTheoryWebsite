@@ -17,6 +17,36 @@ export const messages = {
             NthCard: '-th card',
             CardNumber: 'Number of cards',
         },
+        SekiInterface: {
+            NullGameStatus: 'Current game status is null',
+            Pass: 'Pass',
+        },
+        SingleSuitInterface: {
+            GameType: 'SingleSuit',
+            NullGameState: 'SingleSuit state is null',
+        },
+        GameSelector: {
+            CreateGame: 'Create a game',
+            ConnectToGame: 'Join the game',
+        },
+        JoinGame: {
+            LobbiesFound: 'Number of found lobbies:',
+        },
+        PlayGame: {
+            WaitPlayers: 'Awaiting Players...',
+            YourTurn: 'is current player - Your turn',
+            OpponentsTurn: 'is current player - Opponent`s turn',
+            Draw: 'Draw',
+            IsWinner: 'is winner',
+            CopyLink: 'Copy link',
+            JoinAs: 'Join As',
+            FirstMove: 'first move',
+            CanPass: 'can pass',
+            Start: 'Start:',
+            Loading: 'Loading...',
+            MakeMove: 'Make move',
+            LeaveGame: 'Leave game',
+        },
 
         SekiInfo: {
           header: 'Rules of game Seki',
@@ -92,6 +122,36 @@ export const messages = {
             SecondPlayer: 'Второй игрок',
             NthCard: '-ая карта',
             CardNumber: 'Число карт в раздаче',
+        },
+        SekiInterface: {
+            NullGameStatus: 'Текущее состояние игры неизвестно',
+            Pass: 'Пропуск хода',
+        },
+        SingleSuitInterface: {
+            GameType: 'Одномастка',
+            NullGameState: 'Состояние игры неизвестно',
+        },
+        GameSelector: {
+            CreateGame: 'Создать игру',
+            ConnectToGame: 'Подключиться к лобби',
+        },
+        JoinGame: {
+            LobbiesFound: 'Найдено лобби:',
+        },
+        PlayGame: {
+            WaitPlayers: 'Ожидание игроков...',
+            YourTurn: 'сейчас ваш ход',
+            OpponentsTurn: 'сейчас ход вашего противника',
+            Draw: 'Ничья',
+            IsWinner: 'выиграл',
+            CopyLink: 'Скопировать ссылку',
+            JoinAs: 'Присоединиться как',
+            FirstMove: 'Ходит первый',
+            CanPass: 'может пропустить ход',
+            Start: 'Запуск:',
+            Loading: 'Загрузка...',
+            MakeMove: 'Сделать ход',
+            LeaveGame: 'Покинуть игру',
         },
         SekiInfo: {
           header: 'Правила семейства игр Секи',

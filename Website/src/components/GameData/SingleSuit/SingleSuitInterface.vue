@@ -1,7 +1,7 @@
 <template>
   <b-container v-if="game_state != null">
     <div class="container mt-2">
-      <b-card class="text-center" title="SingleSuit">
+      <b-card class="text-center" :title="$t('message.SingleSuitInterface.GameType')">
         <div class="bg-secondary mt-2">
           <b-row class="my-1" v-for="row in game_state.field">
             <b-col v-for="cell in row" sm="1">
@@ -16,13 +16,13 @@
           :disabled="!is_active" 
           @click="makeMoveInterface({type:'pass', pos:{x: 0, y:0}})" 
           variant="danger"
-        >Pass</b-button>
+        >{{$t('message.SekiInterface.Pass')}}</b-button>
       </b-card>
     </div>
   </b-container>
   <b-container v-else>
     <center>
-      SingleSuit state is null
+      {{$t('message.SingleSuitInterface.NullGameState')}}
     </center>
   </b-container>
 </template>

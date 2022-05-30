@@ -2,7 +2,7 @@
   <b-container>
     <div v-if="game_state === null">
       <center>
-        Game state is null
+        {{$t('message.SekiInterface.NullGameState')}}
       </center>
     </div>
     <div v-else  class="container mt-2">
@@ -39,7 +39,7 @@
               :disabled="!is_active"
               @click="makeMoveInterface({type:'pass', pos:{x: 0, y:0}})" 
               variant="danger"
-            >Pass</b-button>
+            >{{$t('message.SekiInterface.Pass')}}</b-button>
           </b-col>
         </b-row>
       </b-card>

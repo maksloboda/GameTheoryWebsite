@@ -31,7 +31,7 @@
 
         
         <b-col>
-          <b-form-group label="First player">
+          <b-form-group :label="$t('message.SingleSuitSettings.FirstPlayer')">
             <b-form-radio-group
               id="first-player-radio"
               v-model="first_player"

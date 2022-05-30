@@ -1,12 +1,12 @@
 <template>
   <b-row>
     <div class="col-sm-6">
-      <b-card title="Создать игру">
+      <b-card :title="$t('message.GameSelector.CreateGame')">
           <create-game></create-game>
       </b-card>
     </div>
     <div class="col-sm-6">
-      <b-card title="Поключиться к лобби">
+      <b-card :title="$t('message.GameSelector.ConnectToGame')">
           <join-game></join-game>
       </b-card>
     </div>

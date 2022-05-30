@@ -3,7 +3,7 @@
     <b-row>
       <b-col sm="10">
         <p>
-          Найдено лобби: {{ lobbies.length }}
+          {{$t('message.JoinGame.LobbiesFound')}} {{ lobbies.length }}
         </p> 
       </b-col>
       <b-col sm="2">
