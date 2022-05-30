@@ -182,6 +182,13 @@ export default {
       set(token) { this.player_tokens[1] = token; },
     },
     current_player() { return this.game_state.current_player },
+    current_token() { // Only works with spectator mode or when you play as first!
+      if (this.current_player == this.FIRST_PLAYER_ID) {
+        return this.player_tokens[0]
+      } else {
+        return this.player_tokens[1]
+      }
+    },
     
     FIRST_PLAYER_ID() { return this.game_object.FIRST_PLAYER_ID },
     SECOND_PLAYER_ID() { return this.game_object.SECOND_PLAYER_ID },
@@ -223,19 +230,23 @@ export default {
     },
 
     async joinLobby(pid) {
-      this.player_tokens[0] = await this.joinGame(pid)
-      if (this.player_tokens[0] != 0) {
-        this.client_joined = 1
-      }
-      if (this.game_mode != MODE_SPECTATE) {
+      console.log(this.game_mode)
+      if (this.game_mode == MODE_SPECTATE) {
+        this.player_tokens[0] = await this.joinGame(FIRST_PLAYER_ID)
+        this.player_tokens[1] = await this.joinGame(SECOND_PLAYER_ID)
+      } else {
+        this.player_tokens[0] = await this.joinGame(pid)
         this.player_id = pid
-      }
-      if (this.game_mode != MODE_VS_HUMAN) {
-        let bot_pid = FIRST_PLAYER_ID
-        if (pid == FIRST_PLAYER_ID) { 
-          bot_pid = SECOND_PLAYER_ID
+        if (this.player_tokens[0] != 0) {
+          this.client_joined = 1
         }
-        this.player_tokens[1] = await this.joinGame(bot_pid)
+        if (this.game_mode != MODE_VS_HUMAN) {
+          let bot_pid = FIRST_PLAYER_ID
+          if (pid == FIRST_PLAYER_ID) { 
+            bot_pid = SECOND_PLAYER_ID
+          }
+          thisp.layer_tokens[1] = await this.joinGame(bot_pid)
+        }
       }
     },
 
@@ -319,7 +330,6 @@ export default {
       // --- Update state ---
       // Position
       this.game_state = this.game_object.updateGameState(JSON.parse(game_info.state))
-      console.log("Update:", game_info, this.game_state, this.player_id);
       this.$refs["game_instance"].setState(this.game_state, this.game_type, this.player_id)
 
       // Players
@@ -352,22 +362,25 @@ export default {
     async makeBotMove() {
       const best_move = await this.findOptimalMove();
       console.log("makeBotMove:", best_move)
-      await this.sendMove(best_move, this.player_tokens[1])
+      await this.sendMove(best_move, this.current_token)
     },
 
     async findOptimalMove() {
+      let optimal_move = null
       await this.$apollo.query( {
         query: FIND_OPTIMAL_MOVE_QUERY,
         variables: {
           game_id: this.game_id,
         },
       }).then((response) =>  {
-          return this.game_object.makeMoveFromEvent(JSON.parse(response.data.findOptimalMove))
+          console.log(response.data.findOptimalMove)
+          optimal_move = this.game_object.makeMoveFromEvent(JSON.parse(response.data.findOptimalMove))
         }
       ).catch((response) => {
           console.error("Find optimal move error:", response)
         }
       )
+      return optimal_move
     }
   },
 }

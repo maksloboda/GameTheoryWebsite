@@ -15,8 +15,8 @@ export const GET_GAME_INFO_QUERY = gql`
   }
 `
 export const FIND_OPTIMAL_MOVE_QUERY = gql`
-  query FindOptimalMoveQuery($id: ID!) {
-    findOptimalMove(id: $id)
+  query FindOptimalMoveQuery($game_id: ID!) {
+    findOptimalMove(id: $game_id)
   }
 `
 
