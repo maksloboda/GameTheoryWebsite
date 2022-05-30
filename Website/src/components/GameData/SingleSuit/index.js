@@ -17,7 +17,7 @@ export default {
     return SingleSuitInterface
   },
   getInternalGameName() {
-    return "SingleSuit"
+    return "singlesuit"
   },
   getCardGameName() {
     return "SingleSuit"
