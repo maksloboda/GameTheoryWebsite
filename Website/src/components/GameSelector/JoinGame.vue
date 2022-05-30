@@ -7,7 +7,7 @@
         </p> 
       </b-col>
       <b-col sm="2">
-          <b-button @click="getLobbies()" variant="success">Refresh</b-button>
+          <b-button @click="getLobbies()" variant="success">{{$t('message.JoinGame.Refresh')}}</b-button>
       </b-col>
     </b-row>
     <b-card v-for="lobby in lobbies">  
@@ -24,7 +24,7 @@
           {{ lobby.comment }}
         </b-col>
         <b-col sm="2">
-          <b-button @click="joinLobby(lobby.game_id)" variant="primary">Join</b-button>
+          <b-button @click="joinLobby(lobby.game_id)" variant="primary">{{$t('message.JoinGame.Join')}}</b-button>
         </b-col>
       </b-row>
     </b-card>
