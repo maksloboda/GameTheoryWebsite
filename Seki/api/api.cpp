@@ -47,7 +47,7 @@ GameInfo add_event(GameInfo gi, std::string pid, std::string mv_enc) {
     auto moves = state.get_moves();
     auto it = std::find_if(moves.begin(), moves.end(),
       [&mv](const core::Move &other) {
-        return other.x == mv.x && other.y == mv.y;
+        return other.x == mv.x && other.y == mv.y && other.is_pass == mv.is_pass;
       });
     if (it != moves.end()) {
       state.apply_move(mv);
