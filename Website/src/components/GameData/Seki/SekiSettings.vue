@@ -3,7 +3,7 @@
     <b-form>
       <b-row>
         <b-col>
-          <b-form-group label="Game type">
+          <b-form-group :label="$t('message.SekiSettings.GameType')">
             <b-form-radio-group
               id="game-type-radio"
               v-model="game_type"
@@ -17,14 +17,14 @@
         <b-col>
           <b-form-group 
             id="pass_options"
-            label="Pass options:"
+            :label="$t('message.SekiSettings.PassOptions')"
           >
             <b-form-checkbox-group
               v-model="pass_options"
               id="checkboxes-4"
             >
-              <b-form-checkbox :value="FIRST_PLAYER_ID">R can pass</b-form-checkbox>
-              <b-form-checkbox :value="SECOND_PLAYER_ID">C can pass</b-form-checkbox>
+              <b-form-checkbox :value="FIRST_PLAYER_ID">{{$t('message.SekiSettings.RPass')}}</b-form-checkbox>
+              <b-form-checkbox :value="SECOND_PLAYER_ID">{{$t('message.SekiSettings.CPass')}}</b-form-checkbox>
             </b-form-checkbox-group>
           </b-form-group>
         </b-col>
@@ -45,7 +45,7 @@
       <br>
       <b-row>
         <b-col sm="2">
-          <label for="field-width">Field width:</label>
+          <label for="field-width">{{$t('message.SekiSettings.FieldWidth')}}</label>
         </b-col>
         <b-col sm="4">
           <b-form-input
@@ -57,7 +57,7 @@
           ></b-form-input>
         </b-col>
         <b-col sm="2">
-          <label for="field_height">Field height:</label>
+          <label for="field_height">{{$t('message.SekiSettings.FieldHeight')}}</label>
         </b-col>
         <b-col sm="4">
           <b-form-input
