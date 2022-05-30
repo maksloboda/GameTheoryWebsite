@@ -31,6 +31,8 @@ export const messages = {
         },
         JoinGame: {
             LobbiesFound: 'Number of found lobbies:',
+            Refresh: 'Refresh',
+            Join: 'Join',
         },
         PlayGame: {
             WaitPlayers: 'Awaiting Players...',
@@ -140,6 +142,8 @@ export const messages = {
         },
         JoinGame: {
             LobbiesFound: 'Найдено лобби:',
+            Refresh: 'Обновить',
+            Join: 'Войти',
         },
         PlayGame: {
             WaitPlayers: 'Ожидание игроков...',
