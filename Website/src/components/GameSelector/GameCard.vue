@@ -37,7 +37,7 @@
       :is="game_object.getSettingsComponent()"
       ref="game_settings_component"
     ></component>
-    <b-button variant="primary" class="mt-2" @click="startGame">Начать игру</b-button>
+    <b-button variant="primary" class="mt-2" @click="startGame">{{$t('message.PlayGame.Start')}}</b-button>
   </b-modal>
 
 

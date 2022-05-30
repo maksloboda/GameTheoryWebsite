@@ -81,8 +81,8 @@
           ref="join_first_button"
           :disabled="players_joined.includes(FIRST_PLAYER_ID)"
         >
-          <b>Start: </b>
-          <span> <b>{{current_player}}</b> moves first</span>
+          <b>{{$t('message.PlayGame.Start')}} </b>
+          <span> <b>{{current_player}}</b> {{$t('message.PlayGame.FirstMove')}}</span>
           <span v-if="can_first_pass">, <b>{{FIRST_PLAYER_ID}}</b> {{$t('message.PlayGame.CanPass')}}</span>
           <span v-if="can_second_pass">, <b>{{SECOND_PLAYER_ID}}</b> {{$t('message.PlayGame.CanPass')}}</span>
         </b-button>
