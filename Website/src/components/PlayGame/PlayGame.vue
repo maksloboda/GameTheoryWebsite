@@ -103,9 +103,9 @@
       <b-card v-if="is_ready">
         <b-button 
           v-if="game_mode != MODE_VS_HUMAN"
-          :disabled="current_player == player_id"
+          :disabled="!is_ready ||is_finished || current_player == player_id"
           @click="makeBotMove"
-          variant="outline-danger"
+          variant="primary"
         >
           {{$t('message.PlayGame.MakeMove')}}
         </b-button>
@@ -178,11 +178,26 @@ export default {
       set(token) { this.player_tokens[1] = token; },
     },
     current_player() { return this.game_state.current_player },
-    current_token() { // Only works with spectator mode or when you play as first!
-      if (this.current_player == this.FIRST_PLAYER_ID) {
-        return this.player_tokens[0]
+    current_token() {
+      if (this.game_mode == MODE_SPECTATE) {
+        if (this.current_player == this.FIRST_PLAYER_ID) {
+          return this.player_tokens[0]
+        } else {
+          return this.player_tokens[1]
+        }
+      }
+      if (this.player_id == this.FIRST_PLAYER_ID) {
+        if (this.current_player == this.FIRST_PLAYER_ID) {
+          return this.player_tokens[0]
+        } else {
+          return this.player_tokens[1]
+        }
       } else {
-        return this.player_tokens[1]
+        if (this.current_player == this.FIRST_PLAYER_ID) {
+          return this.player_tokens[1]
+        } else {
+          return this.player_tokens[0]
+        }
       }
     },
     
@@ -237,7 +252,6 @@ export default {
      */
 
     async onMoveMade(move) {
-      this.getGameInfo(this.game_id);
       console.log("Move performed:", move)
 
       if (this.game_object.isMoveValid(this.game_state, move)) {
@@ -300,6 +314,7 @@ export default {
     async getGameInfo() {
       await this.$apollo.query({
         query: GET_GAME_INFO_QUERY,
+        fetchPolicy: 'network-only',
         variables: {
           game_id: this.game_id,
         },
@@ -377,7 +392,7 @@ export default {
 
     async makeBotMove() {
       const best_move = await this.findOptimalMove();
-      console.log("makeBotMove:", best_move)
+      console.log("makeBotMove:", best_move, this.current_token)
       await this.sendMove(best_move, this.current_token)
     },
 
@@ -385,6 +400,7 @@ export default {
       let optimal_move = null
       await this.$apollo.query( {
         query: FIND_OPTIMAL_MOVE_QUERY,
+        fetchPolicy: 'network-only',
         variables: {
           game_id: this.game_id,
         },

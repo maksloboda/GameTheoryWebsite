@@ -36,7 +36,7 @@ export default {
           game_name: game_name,
           start_state: JSON.stringify(start_state),
         },
-      }).then((response) =>  {          
+      }).then((response) =>  {    
           this.$router.push({path: "play/" + response.data.createGame})
         }
       ).catch((response) => {

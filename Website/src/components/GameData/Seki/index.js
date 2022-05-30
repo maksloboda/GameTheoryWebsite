@@ -40,7 +40,6 @@ export default {
     if (move.type == "pass") {
       event.IsPass = true;
     }
-    console.log(event)
     return event
   },
   
