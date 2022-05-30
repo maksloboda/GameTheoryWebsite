@@ -59,7 +59,7 @@
         >
           <b> {{$t('message.PlayGame.JoinAs')}} {{FIRST_PLAYER_ID}} </b>
           <span v-if="current_player == FIRST_PLAYER_ID"> - {{$t('message.PlayGame.FirstMove')}}</span>
-          <span v-if="pass_options[FIRST_PLAYER_ID]"> - {{$t('message.PlayGame.CanPass')}}</span>
+          <span v-if="can_first_pass"> - {{$t('message.PlayGame.CanPass')}}</span>
         </b-button></b-col>
         <b-col sm="6"><b-button 
           class="w-100"
@@ -68,9 +68,9 @@
           ref="join_second_button" 
           :disabled="players_joined.includes(SECOND_PLAYER_ID)"
         >
-          <b> Join as {{SECOND_PLAYER_ID}} </b>
+          <b> {{$t('message.PlayGame.JoinAs')}} {{SECOND_PLAYER_ID}} </b>
           <span v-if="current_player == SECOND_PLAYER_ID"> - {{$t('message.PlayGame.FirstMove')}}</span>
-          <span v-if="pass_options[SECOND_PLAYER_ID]"> - {{$t('message.PlayGame.CanPass')}}</span>
+          <span v-if="can_second_pass"> - {{$t('message.PlayGame.CanPass')}}</span>
         </b-button></b-col>
       </b-row>
       <b-button 
@@ -83,8 +83,8 @@
         >
           <b>Start: </b>
           <span> <b>{{current_player}}</b> moves first</span>
-          <span v-if="pass_options[FIRST_PLAYER_ID]">, <b>{{FIRST_PLAYER_ID}}</b> {{$t('message.PlayGame.CanPass')}}</span>
-          <span v-if="pass_options[SECOND_PLAYER_ID]">, <b>{{SECOND_PLAYER_ID}}</b> {{$t('message.PlayGame.CanPass')}}</span>
+          <span v-if="can_first_pass">, <b>{{FIRST_PLAYER_ID}}</b> {{$t('message.PlayGame.CanPass')}}</span>
+          <span v-if="can_second_pass">, <b>{{SECOND_PLAYER_ID}}</b> {{$t('message.PlayGame.CanPass')}}</span>
         </b-button>
     </div>
     </b-card>
@@ -197,6 +197,20 @@ export default {
 
     game_type() { return this.game_state.game_type },
     pass_options() { return this.game_state.pass_options },
+    can_first_pass() {
+      try {
+        return this.game_state.pass_options[FIRST_PLAYER_ID]
+      } catch (err) {
+        return false
+      }
+    },
+    can_second_pass() {
+      try {
+        return this.game_state.pass_options[SECOND_PLAYER_ID]
+      } catch (err) {
+        return false
+      }
+    },
 
     game_name() { return this.game_info.game_name },
 
@@ -245,7 +259,7 @@ export default {
           if (pid == FIRST_PLAYER_ID) { 
             bot_pid = SECOND_PLAYER_ID
           }
-          thisp.layer_tokens[1] = await this.joinGame(bot_pid)
+          this.player_tokens[1] = await this.joinGame(bot_pid)
         }
       }
     },

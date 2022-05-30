@@ -29,7 +29,7 @@
 
 <script>
 
-import SingleSuit from "."
+import SingleSuit from "./"
 
 export default {
   mounted() {
@@ -39,36 +39,24 @@ export default {
     return {
       game_state: null,
       is_active: false,
+      game_type: "singlesuit",
+      game_name: "SingleSuit",
     }
   },
   methods: {
-    /**
-     * Updates the current game state
-     * @param state new game state
-     */
-    setState(state) {
+    setState(state, game_type, player_id) {
       this.game_state = state
+      this.game_type = game_type
+      this.game_name = SingleSuit.getInterfaceGameName(game_type)
     },
-    /**
-     * Sets current players ability to make a turn
-     * @param {boolean} is_active true if player can make a turn
-     */
     setIsActive(is_active) {
       this.is_active = is_active
     },
-    /**
-     * Called when local player makes a move
-     * @param move move that was made made
-     */
     makeMoveInterface(move) {
       this.$emit("move", move);
     },
-    /**
-     * applies move to the current state
-     * @param move move that needs to be applied
-     */
     applyMoveInterface(move) {
-      this.game_state = SingleSuit.applyMove(this.game_state, move);
+      // this.game_state = SingleSuit.applyMove(this.game_state, move);
     }
   }
 }

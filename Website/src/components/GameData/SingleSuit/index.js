@@ -22,11 +22,17 @@ export default {
   getCardGameName() {
     return "SingleSuit"
   },
+  getInterfaceGameName(game_type) {
+    if (game_type == "singlesuit") {
+      return "SingleSuit"
+    } else if (game_type == "d-singlesuit") {
+      return "D-SingleSuit"
+    }
+  },
   makeMoveEvent(move) {
     const event = {
       Card: move.card,
-      DoTake: move.do_take,
-      CurrentPlayer: move.current_player
+      DoTake: move.do_take
     }
     console.log(event)
     return event
@@ -99,12 +105,12 @@ export default {
   initStateFromSettings(settings) {
     return {
       CurrentPlayer: FIRST_PLAYER_ID,
-      FirstPlayerSet: [],
-      SecondPlayerSet: [],
-      LastCard: int,
+      FirstPlayerSet: settings.first_player_array,
+      SecondPlayerSet: settings.second_player_array,
+      LastCard: null,
       Type: settings.game_type,
     }
   },
-  first_player_id: FIRST_PLAYER_ID,
-  second_player_id: SECOND_PLAYER_ID
+  FIRST_PLAYER_ID: FIRST_PLAYER_ID,
+  SECOND_PLAYER_ID: SECOND_PLAYER_ID
 }
