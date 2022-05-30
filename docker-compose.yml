@@ -48,6 +48,17 @@ services:
       dockerfile: DockerFiles/dockerfile.seki
     networks:
       - shared-network
+  singlesuit:
+    depends_on:
+      - rabbitmq
+    restart: on-failure
+    environment:
+      - RABBITMQ_URL=rabbitmq
+    build:
+      context: .
+      dockerfile: DockerFiles/dockerfile.singlesuit
+    networks:
+      - shared-network
 networks:
   shared-network:
 volumes:
