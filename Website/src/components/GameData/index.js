@@ -1,9 +1,9 @@
 import Seki from "./Seki"
-import SingleSuite from "./SingleSuite"
+import SingleSuit from "./SingleSuit"
 
 export default {
   games: [
     Seki,
-    SingleSuite,
+    SingleSuit,
   ]
 }

@@ -29,7 +29,7 @@
 
 <script>
 
-import Seki from "./"
+import Seki from "."
 
 export default {
   mounted() {
