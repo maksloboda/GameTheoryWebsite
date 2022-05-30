@@ -8,11 +8,11 @@
           Awaiting players...
         </div>
         <div v-else-if="!is_finished">
-          <div v-if="game_state.current_player == player_id">
-            {{ game_state.current_player }} is current player - Your turn
+          <div v-if="current_player == player_id">
+            {{ current_player }} is current player - Your turn
           </div>
           <div v-else>
-            {{ game_state.current_player }} is current player - Opponent's turn
+            {{ current_player }} is current player - Opponent's turn
           </div>
         </div>
         <div v-else-if="is_finished">
@@ -36,33 +36,33 @@
     </b-row></b-card>
     
     <b-row 
-        v-if="this.players_joined.length != 2 && 
-              (this.player_token == null || this.player_token == 0 )" 
+        v-if="players_joined.length != 2 && 
+              (player_token == null || player_token == 0 )"
+        class="mt-2" 
       >
-      <b-col><b-button 
+      <b-col sm="6"><b-button 
         class="w-100"
-        @click="joinGame(game_object.first_player_id)" 
+        @click="joinGame(FIRST_PLAYER_ID)" 
         variant="warning"
         ref="join_first_button"
-        :disabled="players_joined.includes(game_object.first_player_id)"
+        :disabled="players_joined.includes(FIRST_PLAYER_ID)"
       >
-        <b> Join as {{game_object.first_player_id}} </b>
-        <span v-if="game_state.current_player == game_object.first_player_id"> - First move</span>
-        <span v-if="game_state.pass_options[game_object.first_player_id]"> - Can pass</span>
+        <b> Join as {{FIRST_PLAYER_ID}} </b>
+        <span v-if="current_player == FIRST_PLAYER_ID"> - First move</span>
+        <span v-if="pass_options[FIRST_PLAYER_ID]"> - Can pass</span>
       </b-button></b-col>
-      <b-col><b-button 
+      <b-col sm="6"><b-button 
         class="w-100"
-        @click="joinGame(game_object.second_player_id)" 
+        @click="joinGame(SECOND_PLAYER_ID)" 
         variant="warning"
         ref="join_second_button" 
-        :disabled="players_joined.includes(game_object.second_player_id)"
+        :disabled="players_joined.includes(SECOND_PLAYER_ID)"
       >
-        <b> Join as {{game_object.second_player_id}} </b>
-        <span v-if="game_state.current_player == game_object.second_player_id"> - First move</span>
-        <span v-if="game_state.pass_options[game_object.second_player_id]"> - Can pass</span>
+        <b> Join as {{SECOND_PLAYER_ID}} </b>
+        <span v-if="current_player == SECOND_PLAYER_ID"> - First move</span>
+        <span v-if="pass_options[SECOND_PLAYER_ID]"> - Can pass</span>
       </b-button></b-col>
     </b-row>
-
     <div v-if="this.$apollo.loading">
       Loading...
     </div>
@@ -75,17 +75,18 @@
       ></component>
       <br>
       <b-card>
-        <b-button sm="6" @click="leaveGame" variant="outline-danger">Leave game</b-button>
+        <b-button 
+          v-if="is_ready && game_mode != MODE_VS_HUMAN"
+          :disabled="current_player"
+          @click="leaveGame"
+          variant="outline-danger"
+        >Make move</b-button>
+        <b-button 
+          @click="leaveGame" 
+          variant="outline-danger"
+        >Leave game</b-button>
       </b-card>
     </div>
-    
-    <b-modal ref="placeTakenError">
-      This player ID is already taken!
-    </b-modal>
-
-    <b-modal ref="joinError">
-      Join error
-    </b-modal>
   </b-container>
 </template>
 
@@ -100,6 +101,12 @@ import {
   GAME_SUBSCRIPTION,
 } from '../../constants/graphql'
 
+import {
+  MODE_VS_COMP,
+  MODE_VS_HUMAN,
+  MODE_SPECTATE,
+} from "../../constants/constants"
+
 export default {
   async mounted() {
     await this.getGameInfo();
@@ -108,21 +115,49 @@ export default {
 
   data() {
     return {
+      game_state: null,
       game_object: null,
       game_component: null,
-      game_state: null,
-      game_name: "", // Internal game name
-      game_type: "seki",
+      game_info: {
+        is_ready: false,
+        is_finished: false,
+      },
+      game_mode: MODE_VS_HUMAN, // vs human/comp/spectate
 
-      player_token: null,
+      player_tokens: [null, null], // vs human - one token, other modes - two
       player_id: "",
-      players_joined: [],
-      current_player: "",
 
-      is_finished: false,
-      is_ready: false,
-      winner: "",
+      MODE_VS_HUMAN: MODE_VS_HUMAN, 
     }
+  },
+
+  computed: {
+    player_token: { 
+      get() { return this.player_tokens[0]; },
+      set(token) { 
+        this.player_tokens[0] = token; 
+      },
+    },
+    bot_token: { 
+      get() { return this.player_tokens[1]; },
+      set(token) { this.player_tokens[1] = token; },
+    },
+    current_player() { return this.game_state.current_player },
+    
+    FIRST_PLAYER_ID() { return this.game_object.FIRST_PLAYER_ID },
+    SECOND_PLAYER_ID() { return this.game_object.SECOND_PLAYER_ID },
+
+    game_id() { return this.$route.params.game_uid },
+
+    game_type() { return this.game_state.game_type },
+    pass_options() { return this.game_state.pass_options },
+
+    game_name() { return this.game_info.game_name },
+
+    players_joined() { return this.game_info.players_joined },
+    is_finished() { return this.game_info.is_finished },
+    is_ready() { return this.game_info.is_ready },
+    winner() { return this.game_info.winner },
   },
 
   methods: {
@@ -140,11 +175,11 @@ export default {
      */
 
     async onMoveMade(move) {
-      this.getGameInfo(this.$route.params.game_uid);
+      this.getGameInfo(this.game_id);
       console.log("Move performed:", move)
 
       if (this.game_object.isMoveValid(this.game_state, move)) {
-        await this.sendMove(move);
+        await this.sendMove(move, 0);
       }
     },
 
@@ -161,23 +196,18 @@ export default {
       this.$router.push({path: "/"})
     },
 
-    async joinGame(pid) {
+    async joinGame(pid, game_mode) {
       this.player_id = pid
+
       await this.$apollo.mutate({
         mutation: JOIN_GAME_MUTATION,
         variables: {
-          game_id: this.$route.params.game_uid,
+          game_id: this.game_id,
           player_id: pid
         },
       }).then((response) =>  {
           console.log(response)
           this.player_token = response.data.joinGame
-
-          if (this.player_token == null) {
-            this.$refs["joinError"].show();
-          } else if (this.player_token == 0) {
-            this.$refs["placeTakenError"].show();
-          }
         }
       ).catch((response) => {
           console.log("Join game error", response)
@@ -189,9 +219,10 @@ export default {
       await this.$apollo.query({
         query: GET_GAME_INFO_QUERY,
         variables: {
-          game_id: this.$route.params.game_uid,
+          game_id: this.game_id,
         },
       }).then((response) =>  {
+          console.warn("Get game Info", response.data.gameInfo)
           this.updateGame(response.data.gameInfo)
         }
       ).catch((response) => {
@@ -199,12 +230,13 @@ export default {
         }
       )
     },
-    async sendMove(move) {
+
+    async sendMove(move, turn) {
       await this.$apollo.mutate({
         mutation: ADD_EVENT_MUTATION,
         variables: {
-          game_id: this.$route.params.game_uid,
-          player_token: this.player_token,
+          game_id: this.game_id,
+          player_token: this.player_tokens[turn],
           event: JSON.stringify(this.game_object.makeMoveEvent(move)),
         },
       }).then((response) =>  {
@@ -220,7 +252,8 @@ export default {
     },
 
     updateGame(game_info) {
-      this.game_name = game_info.game_name
+      this.game_info = game_info
+
       // Update game object
       for (const game of GameData.games) {
         if (game.getInternalGameName() == this.game_name) {
@@ -233,22 +266,13 @@ export default {
       // --- Update state ---
       // Position
       this.game_state = this.game_object.updateGameState(JSON.parse(game_info.state))
-      this.game_type = this.game_state.game_type
       console.log("Update:", game_info, this.game_state, this.player_id);
       this.$refs["game_instance"].setState(this.game_state, this.game_type, this.player_id)
 
       // Players
-      this.players_joined = game_info.players_joined
-
-      this.is_ready = game_info.is_ready
-
-      if (!this.is_finished && game_info.is_finished) {
-        this.is_finished = true
-        this.winner = game_info.winner
-      }
 
       // Block interface
-      if (this.game_state.current_player == this.player_id && 
+      if (this.current_player == this.player_id && 
           this.is_ready && !this.is_finished) {
         this.$refs["game_instance"].setIsActive(true)
       } else {
@@ -260,7 +284,7 @@ export default {
       await this.$apollo.subscribe( {
         query: GAME_SUBSCRIPTION,
         variables: {
-          game_id: this.$route.params.game_uid,
+          game_id: this.game_id,
         },
       }).subscribe({
         next(result) {
@@ -272,6 +296,20 @@ export default {
       })
     },
 
+    async findOptimalMove() {
+      await this.$apollo.query( {
+        query: FIND_OPTIMAL_MOVE_QUERY,
+        variables: {
+          game_id: this.game_id,
+        },
+      }).then((response) =>  {
+          return this.game_object.makeMoveFromEvent(JSON.parse(response.data.findOptimalMove))
+        }
+      ).catch((response) => {
+          console.log("Add event error", response)
+        }
+      )
+    }
   },
 }
 </script>

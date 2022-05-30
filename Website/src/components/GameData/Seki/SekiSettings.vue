@@ -84,7 +84,7 @@
               v-model="field[i * field_width + j]"
               type='number'
               min="0"
-              max="100"
+              :max="MAX_CELL_VALUE"
               class="field_cell"
             > </b-form-input>
           </b-col>
@@ -105,7 +105,8 @@
 import {
   FIRST_PLAYER_ID,
   SECOND_PLAYER_ID,
-  MAX_FIELD_SIZE
+  MAX_FIELD_SIZE,
+  MAX_CELL_VALUE
 } from "./"
 
 
@@ -120,7 +121,8 @@ export default {
       field_width: 4,
       field_height: 4,
       field: Array(MAX_FIELD_SIZE * MAX_FIELD_SIZE).fill(1),
-      MAX_FIELD_SIZE: MAX_FIELD_SIZE
+      MAX_FIELD_SIZE: MAX_FIELD_SIZE,
+      MAX_CELL_VALUE: MAX_CELL_VALUE,
     }
   },
   methods: {
