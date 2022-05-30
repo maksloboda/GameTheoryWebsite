@@ -59,13 +59,14 @@ type ComplexityRoot struct {
 
 	Mutation struct {
 		AddEvent   func(childComplexity int, id string, token string, event string) int
-		CreateGame func(childComplexity int, gameName string, startState string) int
+		CreateGame func(childComplexity int, gameName string, startState string, isPublic bool) int
 		JoinGame   func(childComplexity int, id string, pid string) int
 	}
 
 	Query struct {
 		FindOptimalMove func(childComplexity int, id string) int
 		GameInfo        func(childComplexity int, id string) int
+		GetPublicGames  func(childComplexity int, limit int) int
 	}
 
 	Subscription struct {
@@ -74,13 +75,14 @@ type ComplexityRoot struct {
 }
 
 type MutationResolver interface {
-	CreateGame(ctx context.Context, gameName string, startState string) (*string, error)
+	CreateGame(ctx context.Context, gameName string, startState string, isPublic bool) (*string, error)
 	JoinGame(ctx context.Context, id string, pid string) (string, error)
 	AddEvent(ctx context.Context, id string, token string, event string) (*bool, error)
 }
 type QueryResolver interface {
 	GameInfo(ctx context.Context, id string) (*model.GameInfo, error)
 	FindOptimalMove(ctx context.Context, id string) (string, error)
+	GetPublicGames(ctx context.Context, limit int) ([]*model.GameInfo, error)
 }
 type SubscriptionResolver interface {
 	SubcribeGame(ctx context.Context, id string) (<-chan *model.GameInfo, error)
@@ -179,7 +181,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateGame(childComplexity, args["game_name"].(string), args["start_state"].(string)), true
+		return e.complexity.Mutation.CreateGame(childComplexity, args["game_name"].(string), args["start_state"].(string), args["is_public"].(bool)), true
 
 	case "Mutation.joinGame":
 		if e.complexity.Mutation.JoinGame == nil {
@@ -216,6 +218,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Query.GameInfo(childComplexity, args["id"].(string)), true
+
+	case "Query.getPublicGames":
+		if e.complexity.Query.GetPublicGames == nil {
+			break
+		}
+
+		args, err := ec.field_Query_getPublicGames_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Query.GetPublicGames(childComplexity, args["limit"].(int)), true
 
 	case "Subscription.subcribeGame":
 		if e.complexity.Subscription.SubcribeGame == nil {
@@ -340,10 +354,12 @@ type GameInfo {
 type Query {
   gameInfo(id: ID!): GameInfo
   findOptimalMove(id: ID!): GameEvent!
+  # limit - use -1 for no limit
+  getPublicGames(limit: Int!): [GameInfo!]!
 }
 
 type Mutation {
-  createGame(game_name: String!, start_state: GameState!): ID
+  createGame(game_name: String!, start_state: GameState!, is_public: Boolean!): ID
   # Tries to join game id as player pid
   joinGame(id: ID!, pid: PlayerIdentifier!): PlayerToken!
   # Adds event to the game
@@ -414,6 +430,15 @@ func (ec *executionContext) field_Mutation_createGame_args(ctx context.Context, 
 		}
 	}
 	args["start_state"] = arg1
+	var arg2 bool
+	if tmp, ok := rawArgs["is_public"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("is_public"))
+		arg2, err = ec.unmarshalNBoolean2bool(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["is_public"] = arg2
 	return args, nil
 }
 
@@ -483,6 +508,21 @@ func (ec *executionContext) field_Query_gameInfo_args(ctx context.Context, rawAr
 		}
 	}
 	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Query_getPublicGames_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 int
+	if tmp, ok := rawArgs["limit"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
+		arg0, err = ec.unmarshalNInt2int(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["limit"] = arg0
 	return args, nil
 }
 
@@ -905,7 +945,7 @@ func (ec *executionContext) _Mutation_createGame(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateGame(rctx, fc.Args["game_name"].(string), fc.Args["start_state"].(string))
+		return ec.resolvers.Mutation().CreateGame(rctx, fc.Args["game_name"].(string), fc.Args["start_state"].(string), fc.Args["is_public"].(bool))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1169,6 +1209,79 @@ func (ec *executionContext) fieldContext_Query_findOptimalMove(ctx context.Conte
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_Query_findOptimalMove_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Query_getPublicGames(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Query_getPublicGames(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Query().GetPublicGames(rctx, fc.Args["limit"].(int))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.([]*model.GameInfo)
+	fc.Result = res
+	return ec.marshalNGameInfo2ᚕᚖmatchmakingᚋgraphᚋmodelᚐGameInfoᚄ(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Query_getPublicGames(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Query",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_GameInfo_id(ctx, field)
+			case "players_joined":
+				return ec.fieldContext_GameInfo_players_joined(ctx, field)
+			case "game_name":
+				return ec.fieldContext_GameInfo_game_name(ctx, field)
+			case "event_clock":
+				return ec.fieldContext_GameInfo_event_clock(ctx, field)
+			case "state":
+				return ec.fieldContext_GameInfo_state(ctx, field)
+			case "is_ready":
+				return ec.fieldContext_GameInfo_is_ready(ctx, field)
+			case "is_finished":
+				return ec.fieldContext_GameInfo_is_finished(ctx, field)
+			case "winner":
+				return ec.fieldContext_GameInfo_winner(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type GameInfo", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Query_getPublicGames_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
 	}
@@ -3355,6 +3468,29 @@ func (ec *executionContext) _Query(ctx context.Context, sel ast.SelectionSet) gr
 			out.Concurrently(i, func() graphql.Marshaler {
 				return rrm(innerCtx)
 			})
+		case "getPublicGames":
+			field := field
+
+			innerFunc := func(ctx context.Context) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Query_getPublicGames(ctx, field)
+				if res == graphql.Null {
+					atomic.AddUint32(&invalids, 1)
+				}
+				return res
+			}
+
+			rrm := func(ctx context.Context) graphql.Marshaler {
+				return ec.OperationContext.RootResolverMiddleware(ctx, innerFunc)
+			}
+
+			out.Concurrently(i, func() graphql.Marshaler {
+				return rrm(innerCtx)
+			})
 		case "__type":
 
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
@@ -3744,6 +3880,60 @@ func (ec *executionContext) marshalNGameEvent2string(ctx context.Context, sel as
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) marshalNGameInfo2ᚕᚖmatchmakingᚋgraphᚋmodelᚐGameInfoᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.GameInfo) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNGameInfo2ᚖmatchmakingᚋgraphᚋmodelᚐGameInfo(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
+}
+
+func (ec *executionContext) marshalNGameInfo2ᚖmatchmakingᚋgraphᚋmodelᚐGameInfo(ctx context.Context, sel ast.SelectionSet, v *model.GameInfo) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._GameInfo(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNGameState2string(ctx context.Context, v interface{}) (string, error) {

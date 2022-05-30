@@ -25,10 +25,12 @@ type GameInfo {
 type Query {
   gameInfo(id: ID!): GameInfo
   findOptimalMove(id: ID!): GameEvent!
+  # limit - use 0 for no limit
+  getPublicGames(limit: Int!): [GameInfo!]!
 }
 
 type Mutation {
-  createGame(game_name: String!, start_state: GameState!): ID
+  createGame(game_name: String!, start_state: GameState!, is_public: Boolean!): ID
   # Tries to join game id as player pid
   joinGame(id: ID!, pid: PlayerIdentifier!): PlayerToken!
   # Adds event to the game

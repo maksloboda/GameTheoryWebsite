@@ -91,7 +91,7 @@ func RemoteCall(game string, method string, args []interface{},
 }
 
 // Creates a game and returns the id of the game
-func CreateGame(game_name string, start_state string) (string, error) {
+func CreateGame(game_name string, start_state string, is_public bool) (string, error) {
 	// TODO find a way to make an extendible game creation pipeline
 
 	rcr := remoteCallResult{}
@@ -126,6 +126,18 @@ func CreateGame(game_name string, start_state string) (string, error) {
 		} else if exists != 0 {
 			return errors.New("Game already exists!")
 		}
+
+		if is_public {
+			stamp := time.Now().Unix()
+			result := transaction.ZAdd("public_lobbies", redis.Z{
+				Score:  float64(stamp),
+				Member: new_id,
+			})
+			if result.Err() != nil {
+				return result.Err()
+			}
+		}
+
 		return setGameInfoImpl(new_id, new_game_state, transaction)
 	}
 
@@ -229,6 +241,27 @@ func AddPlayer(id string, pid string) (string, error) {
 
 	err := (*redis_client).Watch(op, getGameKey(id))
 	return token, err
+}
+
+func GetPublicGames(limit int) ([]*model.GameInfo, error) {
+	slice := (*redis_client).ZRevRange("public_lobbies", 0, int64(limit)-1)
+	ids, err := slice.Result()
+	if err != nil {
+		return []*model.GameInfo{}, err
+	}
+
+	result := make([]*model.GameInfo, 0)
+
+	for _, v := range ids {
+		gi, get_err := getGameInfoImpl(v, *redis_client)
+		if get_err != nil {
+			return []*model.GameInfo{}, get_err
+		}
+		result = append(result, gi)
+	}
+
+	return result, nil
+
 }
 
 func AddEvent(game_id string, player_token, move string) error {
