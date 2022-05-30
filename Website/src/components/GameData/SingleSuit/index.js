@@ -35,7 +35,8 @@ export default {
       current_player: state.CurrentPlayer,
       first_player_set: state.FirstPlayerSet,
       second_player_set: state.SecondPlayerSet,
-      last_card: state.LastCard
+      last_card: state.LastCard,
+      game_type: state.Type
     }
 
     return new_state
@@ -99,7 +100,8 @@ export default {
       CurrentPlayer: FIRST_PLAYER_ID,
       FirstPlayerSet: [],
       SecondPlayerSet: [],
-      LastCard: int
+      LastCard: int,
+      Type: settings.game_type,
     }
   },
   first_player_id: FIRST_PLAYER_ID,
