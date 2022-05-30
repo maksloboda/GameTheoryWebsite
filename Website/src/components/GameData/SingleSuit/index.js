@@ -49,6 +49,7 @@ export default {
     return new_state
   },
   isMoveValid(game_state, move) {
+    return true
     if (move.type == "move") {
       if (game_state == null || move == null) {
         return false

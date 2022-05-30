@@ -9,21 +9,39 @@
       <div class="container mt-2">
         <b-card class="text-center" :title="$t('message.SingleSuitInterface.GameType')">
           <div class="mt-2"> 
-            <b-row class="my-1">
-              <b-col v-for="c in game_state.first_player_set">
+            <b-row class="justify-content-md-center">
+              <b-col md="auto" v-for="c in game_state.first_player_set">
                 <b-button 
+                  class="card-button"
                   :disabled="!is_active" 
-                  @click="makeMoveInterface({type:'move', card: c})"
+                  @click="makeMoveInterface({type:'move', card: c, do_take:false})"
                 >{{ c }}</b-button>
               </b-col>
             </b-row>
 
+            <br>
+            <br>
+            <br>
+            <br>
+            <b-row class="justify-content-md-center">
+              <b-button class="card-button bg-secondary" variant="secondary"
+                v-if="null != game_state.last_card"
+                @click="makeMoveInterface({type:'move', card: c, do_take:true})"
+                >
+                  {{game_state.last_card}}
+              </b-button>
+            </b-row>
+            <br>
+            <br>
+            <br>
+            <br>
 
-            <b-row class="my-1">
-              <b-col v-for="c in game_state.second_player_set">
+            <b-row class="justify-content-md-center">
+              <b-col md="auto" v-for="c in game_state.second_player_set">
                 <b-button 
+                  class="card-button"
                   :disabled="!is_active" 
-                  @click="makeMoveInterface({type:'move', card: c})"
+                  @click="makeMoveInterface({type:'move', card: c, do_take:false})"
                 >{{ c }}</b-button>
               </b-col>
             </b-row>
@@ -34,6 +52,12 @@
   </b-container>
 </template>
 
+<style scoped>
+  .card-button {
+   width:55px;
+   height:80px;
+  }
+</style>
 
 <script>
 
