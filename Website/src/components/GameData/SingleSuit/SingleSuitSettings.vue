@@ -46,9 +46,9 @@
               <b-form-radio-group
                 v-model="card_array[i]"
               >
-                <b-form-radio :value="1">A</b-form-radio>
+                <b-form-radio :value="0">A</b-form-radio>
                 {{i + 1}} {{$t('message.SingleSuitSettings.NthCard')}}
-                <b-form-radio :value="0">B</b-form-radio>
+                <b-form-radio :value="1">B</b-form-radio>
               </b-form-radio-group>
             </b-form-group>
         </b-col>
@@ -86,15 +86,20 @@ export default {
   methods: {
     getSettings() {
       let cnt = this.minMax(this.cards_number, 1, 100)
-      let f = Array(cnt)
-
+      let f = []
+      let s = []
       for (let i = 0; i < cnt; ++i) {
-        f[i] = parseInt(this.card_array[i])
+        if (parseInt(this.card_array[i]) == 0) {
+          f.push(i + 1)
+        } else {
+          s.push(i + 1)
+        }
       }
       return {
           game_type: this.game_type,
           cards_number: cnt,
-          card_array: f
+          first_player_array: f,
+          second_player_array: s
         };
     },
     minMax(val, min, max) {

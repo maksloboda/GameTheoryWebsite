@@ -8,19 +8,24 @@
     <div v-else>
       <div class="container mt-2">
         <b-card class="text-center" :title="game_name">
-          <div class="bg-secondary mt-2"> 
-            <b-row class="my-1" v-for="c in game_state.first_player_set">
+          <div class="mt-2"> 
+            <b-row class="my-1">
+              <b-col v-for="c in game_state.first_player_set">
                 <b-button 
                   :disabled="!is_active" 
                   @click="makeMoveInterface({type:'move', card: c})"
                 >{{ c }}</b-button>
+              </b-col>
             </b-row>
 
-            <b-row class="my-1" v-for="c in game_state.second_player_set">
+
+            <b-row class="my-1">
+              <b-col v-for="c in game_state.second_player_set">
                 <b-button 
                   :disabled="!is_active" 
                   @click="makeMoveInterface({type:'move', card: c})"
                 >{{ c }}</b-button>
+              </b-col>
             </b-row>
           </div>  
         </b-card>
