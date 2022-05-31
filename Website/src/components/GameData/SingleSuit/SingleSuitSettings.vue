@@ -28,7 +28,40 @@
           </b-form-radio-group>
           </b-form-group>
         </b-col>
-        <b-col>
+
+        <br>
+        <br>
+        <br>
+        <br>
+
+        <b-row>
+          <b-col sm="4">
+            <label for="time_limit">Time limit for move in seconds</label>
+          </b-col>
+          <b-col sm="2">
+            <b-form-input
+              id="time_limit"
+              v-model="time_limit"
+              :value="5"
+              :disabled="unlimited_time"
+              type="number"
+              :min="1"
+              :max="300"
+            >
+            </b-form-input>
+          </b-col>
+          <b-col sm="6">
+            <b-form-checkbox
+              v-model="unlimited_time"
+              :value="true"
+              :unchecked-value="false"
+            >
+              Unlimited time
+            </b-form-checkbox>
+          </b-col>
+        </b-row>
+
+        <b-row>
           <b-form-group :label="$t('message.SingleSuitSettings.FirstPlayer')">
             <b-form-radio-group
               id="first-player-radio"
@@ -38,7 +71,7 @@
             <b-form-radio :value="SECOND_PLAYER_ID">B</b-form-radio>
           </b-form-radio-group>
           </b-form-group>
-        </b-col>
+        </b-row>
       </b-row>
       <b-card>
         <b-col v-for="i in Array(minMax(cards_number, 1, 100)).keys()">
@@ -80,7 +113,9 @@ export default {
       cards_number: 8,
       first_player: FIRST_PLAYER_ID,
       game_type: "singlesuit",
-      card_array: Array(100).fill(1)
+      card_array: Array(100).fill(1),
+      unlimited_time: false,
+      time_limit: 10,
     }
   },
   methods: {
@@ -95,11 +130,16 @@ export default {
           s.push(i + 1)
         }
       }
+      let time_limit = null
+      if (!this.unlimited_time) {
+        time_limit = this.time_limit
+      }
       return {
           game_type: this.game_type,
           cards_number: cnt,
           first_player_array: f,
-          second_player_array: s
+          second_player_array: s,
+          time_limit: time_limit,
         };
     },
     minMax(val, min, max) {
