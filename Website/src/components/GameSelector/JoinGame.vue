@@ -1,5 +1,5 @@
 <template>
-  <div class="container mt-2">
+  <div class="container mt-4">
     <b-card><b-row>
       <b-col sm="9">
         <p>
@@ -7,7 +7,7 @@
         </p> 
       </b-col>
       <b-col sm="3">
-          <b-button @click="getLobbies()" variant="success">{{$t('message.JoinGame.Refresh')}}</b-button>
+          <b-button @click="getLobbies()" variant="success" class="w-100">{{$t('message.JoinGame.Refresh')}}</b-button>
       </b-col>
     </b-row></b-card>
     <br>
@@ -22,11 +22,17 @@
           <b-col sm="3">
             players joined: {{ lobby.players_joined.length }} 
           </b-col>
-          <b-col sm="5">
-            {{ getGameStateString(lobby.state, lobby.game_name) }}
+          <b-col sm="4">
+            {{ makeGameStateString(lobby.state, lobby.game_name) }}
           </b-col>
-          <b-col sm="2">
-            <b-button @click="joinLobby(lobby.game_id)" variant="primary">{{$t('message.JoinGame.Join')}}</b-button>
+          <b-col sm="3">
+            <b-button 
+              @click="joinLobby(lobby.game_id)" 
+              variant="primary"
+              class="w-100"
+            >
+              {{$t('message.JoinGame.Join')}}
+            </b-button>
           </b-col>
         </b-row>
       </b-card>
@@ -49,6 +55,7 @@ import {
 
 import Seki from "../GameData/Seki"
 import SingleSuit from "../GameData/SingleSuit"
+import Whistette from "../GameData/Whistette"
 
 export default {
     data() {
@@ -79,12 +86,14 @@ export default {
         this.$router.push({path: "play/" + game_id})
       },
 
-      getGameStateString(string_state, game_name) {
+      makeGameStateString(string_state, game_name) {
         const game_state = JSON.parse(string_state)
         if (game_name == Seki.getInternalGameName()) {
           return `Field: ${game_state.Height}x${game_state.Width}`
         } else if (game_name == SingleSuit.getInternalGameName()) {
           return `First player has ${game_state.FirstPlayerSet.length} cards, Second player has ${game_state.SecondPlayerSet.length} cards`
+        } else if (game_name == Whistette.getInternalGameName()) {
+          return `Players have ${game_state.FirstPlayerSet.length} cards each`
         }
       }
     },
