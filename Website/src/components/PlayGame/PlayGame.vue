@@ -292,8 +292,8 @@ export default {
         this.player_tokens[0] = await this.joinGame(FIRST_PLAYER_ID)
         this.player_tokens[1] = await this.joinGame(SECOND_PLAYER_ID)
       } else {
-        this.player_tokens[0] = await this.joinGame(pid)
         this.player_id = pid
+        this.player_tokens[0] = await this.joinGame(pid)
         if (this.player_tokens[0] != 0) {
           this.client_joined = 1
         }
@@ -416,6 +416,7 @@ export default {
 
       // Players
 
+      console.log("Update game", this.game_info, this.current_player, this.player_id, this.is_ready, this.is_finished)
       // Block interface
       if (this.current_player == this.player_id && 
           this.is_ready && !this.is_finished) {
