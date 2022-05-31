@@ -127,7 +127,7 @@ export const messages = {
         WebsiteName: 'Сайт комбинаторных игр',
         TimeLeft: 'Времени осталось',
         TimeLimit: 'Лимит по времени',
-        MoveTimeLimit: 'Время на ход в секнудах',
+        MoveTimeLimit: 'Время на ход в секундах',
         UnlimitedTime: 'Бесконечное время',
         SekiSettings: {
             PassOptions: 'Возможность пропуска хода',
