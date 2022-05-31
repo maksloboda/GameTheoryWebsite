@@ -2,7 +2,7 @@
   <div>
     <b-form>
       <b-row>
-        <b-col>
+        <b-col sm="4">
           <b-form-group 
             id="cards_number"
             :label="$t('message.SingleSuitSettings.CardNumber')"
@@ -17,7 +17,7 @@
               </b-form-input>
           </b-form-group>
         </b-col>
-        <b-col>
+        <b-col sm="4">
           <b-form-group :label="$t('message.SekiSettings.GameType')">
             <b-form-radio-group
               id="game-type-radio"
@@ -28,63 +28,67 @@
           </b-form-radio-group>
           </b-form-group>
         </b-col>
-
-        <br>
-        <br>
-        <br>
-        <br>
-
-        <b-row>
-          <b-col sm="4">
-            <label for="time_limit">Time limit for move in seconds</label>
-          </b-col>
-          <b-col sm="2">
-            <b-form-input
-              id="time_limit"
-              v-model="time_limit"
-              :value="5"
-              :disabled="unlimited_time"
-              type="number"
-              :min="1"
-              :max="300"
-            >
-            </b-form-input>
-          </b-col>
-          <b-col sm="6">
-            <b-form-checkbox
-              v-model="unlimited_time"
-              :value="true"
-              :unchecked-value="false"
-            >
-              Unlimited time
-            </b-form-checkbox>
-          </b-col>
-        </b-row>
-
-        <b-row>
+        <b-col sm="4">
           <b-form-group :label="$t('message.SingleSuitSettings.FirstPlayer')">
-            <b-form-radio-group
+            <b-radio-group
               id="first-player-radio"
               v-model="first_player"
             >
-            <b-form-radio :value="FIRST_PLAYER_ID">A</b-form-radio>
-            <b-form-radio :value="SECOND_PLAYER_ID">B</b-form-radio>
-          </b-form-radio-group>
+              <b-radio :value="FIRST_PLAYER_ID">A</b-radio>
+              <b-radio :value="SECOND_PLAYER_ID">B</b-radio>
+            </b-radio-group>
           </b-form-group>
-        </b-row>
-      </b-row>
-      <b-card>
-        <b-col v-for="i in Array(minMax(cards_number, 1, 100)).keys()">
-            <b-form-group>
-              <b-form-radio-group
-                v-model="card_array[i]"
-              >
-                <b-form-radio :value="0">A</b-form-radio>
-                {{i + 1}}{{$t('message.SingleSuitSettings.NthCard')}}
-                <b-form-radio :value="1">B</b-form-radio>
-              </b-form-radio-group>
-            </b-form-group>
         </b-col>
+      </b-row>
+
+      <br>
+
+      <b-row>
+        <b-col sm="4">
+          <label for="time_limit">Time limit for move in seconds</label>
+        </b-col>
+        <b-col sm="2">
+          <b-form-input
+            id="time_limit"
+            v-model="time_limit"
+            :value="5"
+            :disabled="unlimited_time"
+            type="number"
+            :min="1"
+            :max="300"
+          >
+          </b-form-input>
+        </b-col>
+        <b-col sm="6">
+          <b-form-checkbox
+            v-model="unlimited_time"
+            :value="true"
+            :unchecked-value="false"
+          >
+            Unlimited time
+          </b-form-checkbox>
+        </b-col>
+      </b-row>
+
+      <br>
+      <b-card>
+        <b-row v-for="i in Array(minMax(cards_number, 1, 100)).keys()">
+            <b-col sm="3">
+              {{i + 1}}{{$t('message.SingleSuitSettings.NthCard')}}
+            </b-col>
+            <b-col sm="9">
+              <b-form-group>
+                <b-form-radio-group
+                  v-model="card_array[i]"
+                  buttons
+                  class="w-100"
+                >
+                  <b-form-radio :value="0">A</b-form-radio>
+                  <b-form-radio :value="1">B</b-form-radio>
+                </b-form-radio-group>
+              </b-form-group>
+            </b-col>
+        </b-row>
       </b-card>
     </b-form>
   </div>
