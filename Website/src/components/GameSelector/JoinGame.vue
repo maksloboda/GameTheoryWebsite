@@ -20,7 +20,7 @@
             </p>
           </b-col>
           <b-col sm="3">
-            players joined: {{ lobby.players_joined.length }} 
+            {{$t('message.JoinGame.PlayersConnected')}}: {{ lobby.players_joined.length }} 
           </b-col>
           <b-col sm="5">
             {{ getGameStateString(lobby.state, lobby.game_name) }}

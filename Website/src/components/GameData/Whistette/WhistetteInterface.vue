@@ -52,11 +52,11 @@
             <br>
 
             <div class="justify-content-md-center">
-              Player A score: {{game_state.first_score}}
+              {{$t('message.Whistette.PlayerAScore')}}: {{game_state.first_score}}
             </div>
 
             <div class="justify-content-md-center">
-              Player B score: {{game_state.second_score}}
+              {{$t('message.Whistette.PlayerBScore')}}: {{game_state.second_score}}
             </div>
           </div>  
         </b-card>

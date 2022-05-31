@@ -25,7 +25,7 @@
 
         <b-row>
           <b-col sm="4">
-            <label for="time_limit">Time limit for move in seconds</label>
+            <label for="time_limit">{{$t('message.MoveTimeLimit')}}</label>
           </b-col>
           <b-col sm="2">
             <b-form-input
@@ -45,7 +45,7 @@
               :value="true"
               :unchecked-value="false"
             >
-              Unlimited time
+              {{$t('message.UnlimitedTime')}}
             </b-form-checkbox>
           </b-col>
         </b-row>
