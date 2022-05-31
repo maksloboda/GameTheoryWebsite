@@ -77,6 +77,27 @@ GameInfo add_event(GameInfo gi, std::string pid, std::string mv_enc) {
   }
 }
 
+GameInfo advance(GameInfo gi) {
+  auto state = nlohmann::json::parse(gi.state).get<core::GameState>();
+  bool can_both_pass = state.get_passtype() == core::PassType::ANY_PASS;
+  bool can_current_pass = 
+    (state.get_is_r() && (state.get_passtype() == core::PassType::R_PASS)) ||
+    (!state.get_is_r() && (state.get_passtype() == core::PassType::C_PASS));
+  
+  if (can_both_pass || can_current_pass) {
+    // Player passes
+    auto move = core::Move(0, 0, 0);
+    move.is_pass = true;
+    gi = add_event(gi, state.get_is_r() ? "R" : "C", nlohmann::json(move).dump());
+    return gi;
+  } else {
+    // Player loses immidiately
+    gi.is_finished = true;
+    gi.winner = state.get_is_r() ? "C" : "R";
+    return gi;
+  }
+}
+
 std::string call_function(std::string details) {
   nlohmann::json json = nlohmann::json::parse(details);
   auto method = json.at("method").get<std::string>();
@@ -89,6 +110,8 @@ std::string call_function(std::string details) {
     return detail::call_with_json(add_event, params);
   } else if (method == "findOptimalMove") {
     return detail::call_with_json(find_optimal_move, params);
+  }  else if (method == "advance") {
+    return detail::call_with_json(advance, params);
   }
   return method;
 }

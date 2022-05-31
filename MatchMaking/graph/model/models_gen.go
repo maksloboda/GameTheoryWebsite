@@ -2,13 +2,27 @@
 
 package model
 
+type GameCreateRequest struct {
+	GameName   string `json:"game_name"`
+	StartState string `json:"start_state"`
+	IsPublic   bool   `json:"is_public"`
+	TimeLimit  *int   `json:"time_limit"`
+}
+
 type GameInfo struct {
-	ID            string   `json:"id"`
-	PlayersJoined []string `json:"players_joined"`
-	GameName      string   `json:"game_name"`
-	EventClock    int      `json:"event_clock"`
-	State         string   `json:"state"`
-	IsReady       bool     `json:"is_ready"`
-	IsFinished    bool     `json:"is_finished"`
-	Winner        string   `json:"winner"`
+	ID            string       `json:"id"`
+	PlayersJoined []string     `json:"players_joined"`
+	GameName      string       `json:"game_name"`
+	EventClock    int          `json:"event_clock"`
+	State         string       `json:"state"`
+	IsReady       bool         `json:"is_ready"`
+	IsFinished    bool         `json:"is_finished"`
+	Winner        string       `json:"winner"`
+	TimeControl   *TimeControl `json:"time_control"`
+}
+
+type TimeControl struct {
+	LastEventTime string `json:"last_event_time"`
+	TimeLimit     *int   `json:"time_limit"`
+	TimeLeft      int    `json:"time_left"`
 }

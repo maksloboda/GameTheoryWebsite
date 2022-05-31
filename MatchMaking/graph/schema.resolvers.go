@@ -13,8 +13,8 @@ import (
 	"github.com/go-redis/redis"
 )
 
-func (r *mutationResolver) CreateGame(ctx context.Context, gameName string, startState string, isPublic bool) (*string, error) {
-	id, err := gamemanager.CreateGame(gameName, startState, isPublic)
+func (r *mutationResolver) CreateGame(ctx context.Context, data *model.GameCreateRequest) (*string, error) {
+	id, err := gamemanager.CreateGame(data)
 	return &id, err
 }
 
@@ -27,6 +27,10 @@ func (r *mutationResolver) AddEvent(ctx context.Context, id string, token string
 	err := gamemanager.AddEvent(id, token, event)
 	is_error := err == nil
 	return &is_error, err
+}
+
+func (r *mutationResolver) Advance(ctx context.Context, id string) (bool, error) {
+	return gamemanager.AdvanceGame(id)
 }
 
 func (r *queryResolver) GameInfo(ctx context.Context, id string) (*model.GameInfo, error) {
