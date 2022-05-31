@@ -84,7 +84,8 @@ export default {
       this.$emit("createGame", 
         this.game_object.getInternalGameName(), 
         this.game_object.initStateFromSettings(settings),
-        is_public);
+        is_public,
+        settings.time_limit);
     },
   },
 }

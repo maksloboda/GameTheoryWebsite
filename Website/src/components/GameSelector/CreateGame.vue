@@ -28,14 +28,19 @@ export default {
       }
   },
   methods: {
-    async createGame(game_name, start_state, is_public) {
-      console.log("Create game:", start_state, Boolean(is_public))
+    async createGame(game_name, start_state, is_public, time_limit) {
+      const data = {
+        game_name: game_name,
+        start_state: JSON.stringify(start_state),
+        is_public: Boolean(is_public),
+        time_limit: parseInt(time_limit),
+      }
+      console.log("Create game:", data)
+      
       await this.$apollo.mutate({
         mutation: CREATE_GAME_MUTATION,
         variables: {
-          game_name: game_name,
-          start_state: JSON.stringify(start_state),
-          is_public: Boolean(is_public),
+          data: data,
         },
       }).then((response) =>  {    
           this.$router.push({path: "play/" + response.data.createGame})
