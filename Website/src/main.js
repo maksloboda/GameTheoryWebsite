@@ -2,6 +2,7 @@ import Vue from 'vue'
 import App from './App.vue'
 import { BootstrapVue, BootstrapVueIcons } from 'bootstrap-vue'
 import VueRouter from "vue-router"
+import VueCookies from 'vue-cookies'
 
 Vue.config.productionTip = false
 
@@ -90,7 +91,7 @@ const i18n = new VueI18n({
   messages,
 })
 
-
+Vue.use(VueCookies, { expire: '7d'})
 
 let app = new Vue({
   render: h => h(App),

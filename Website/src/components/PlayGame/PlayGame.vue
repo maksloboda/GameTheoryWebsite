@@ -148,6 +148,12 @@ export default {
   async mounted() {
     await this.getGameInfo();
     await this.subscribeGame(this.updateGame);
+    if(this.$cookies.isKey(this.game_id.toString())) {
+      var cookie = this.$cookies.get(this.game_id.toString())
+      this.player_tokens = cookie.player_tokens
+      this.player_id = cookie.player_id
+      this.client_joined = cookie.client_joined
+    }
   },
 
   data() {
@@ -305,6 +311,11 @@ export default {
           this.player_tokens[1] = await this.joinGame(bot_pid)
         }
       }
+      this.$cookies.set(this.game_id.toString(), {
+        player_tokens: this.player_tokens,
+        player_id:this.player_id, 
+        client_joined: this.client_joined
+        })
     },
 
     copyURL() {
@@ -317,6 +328,7 @@ export default {
     
     leaveGame() {
       console.log("Game left")
+      this.$cookies.remove(this.game_id.toString())
       this.$router.push({path: "/"})
     },
 
