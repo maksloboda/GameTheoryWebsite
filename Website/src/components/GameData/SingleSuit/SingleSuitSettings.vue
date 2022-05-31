@@ -47,7 +47,7 @@
                 v-model="card_array[i]"
               >
                 <b-form-radio :value="0">A</b-form-radio>
-                {{i + 1}} {{$t('message.SingleSuitSettings.NthCard')}}
+                {{i + 1}}{{$t('message.SingleSuitSettings.NthCard')}}
                 <b-form-radio :value="1">B</b-form-radio>
               </b-form-radio-group>
             </b-form-group>

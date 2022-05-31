@@ -13,7 +13,7 @@
               <b-col md="auto" v-for="c in game_state.first_player_set">
                 <b-button 
                   class="card-button"
-                  :disabled="!is_active" 
+                  :disabled="!is_active || game_state.current_player == 'B' || (game_state.last_card != null && c < game_state.last_card)"
                   @click="makeMoveInterface({type:'move', card: c, do_take:false})"
                 >{{ c }}</b-button>
               </b-col>
@@ -23,6 +23,7 @@
             <br>
             <br>
             <br>
+
             <b-row class="justify-content-md-center">
               <b-button class="card-button bg-secondary" variant="secondary"
                 v-if="null != game_state.last_card"
@@ -40,7 +41,7 @@
               <b-col md="auto" v-for="c in game_state.second_player_set">
                 <b-button 
                   class="card-button"
-                  :disabled="!is_active" 
+                  :disabled="!is_active || game_state.current_player == 'A' || (game_state.last_card != null && c < game_state.last_card)" 
                   @click="makeMoveInterface({type:'move', card: c, do_take:false})"
                 >{{ c }}</b-button>
               </b-col>

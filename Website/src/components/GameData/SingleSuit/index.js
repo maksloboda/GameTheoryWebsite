@@ -54,7 +54,7 @@ export default {
       if (game_state == null || move == null) {
         return false
       }
-      if (move.do_take != 0) {
+      if (move.do_take == true) {
         return true;
       }
       if (move.current_player == FIRST_PLAYER_ID) {
