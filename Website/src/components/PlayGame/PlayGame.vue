@@ -102,7 +102,7 @@
       
       <b-card v-if="is_ready">
         <b-button 
-          v-if="game_mode != MODE_VS_HUMAN"
+          v-if="game_mode == MODE_SPECTATOR"
           :disabled="!is_ready ||is_finished || current_player == player_id"
           @click="makeBotMove"
           variant="primary"

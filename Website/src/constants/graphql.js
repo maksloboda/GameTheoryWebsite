@@ -19,10 +19,24 @@ export const FIND_OPTIMAL_MOVE_QUERY = gql`
     findOptimalMove(id: $game_id)
   }
 `
+export const GET_PUBLIC_GAMES_QUERY = gql`
+  query GetPublicGamesQuery($limit: Int!) {
+    getPublicGames(limit: $limit) {
+      id
+      players_joined
+      game_name
+      event_clock
+      state
+      is_ready
+      is_finished
+      winner
+    }
+  }
+`
 
 export const CREATE_GAME_MUTATION = gql`
-  mutation CreateGameMutation($game_name: String!, $start_state: GameState!) {
-    createGame(game_name: $game_name, start_state: $start_state)
+  mutation CreateGameMutation($game_name: String!, $start_state: GameState!, $is_public: Boolean!) {
+    createGame(game_name: $game_name, start_state: $start_state, is_public: $is_public)
   }
 `
 

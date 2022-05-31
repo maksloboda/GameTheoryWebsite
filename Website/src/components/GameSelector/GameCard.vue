@@ -37,7 +37,8 @@
       :is="game_object.getSettingsComponent()"
       ref="game_settings_component"
     ></component>
-    <b-button variant="primary" class="mt-2" @click="startGame">{{$t('message.PlayGame.Start')}}</b-button>
+    <b-button variant="primary" class="mt-2" @click="startGame(false)">{{$t('message.PlayGame.StartPrivate')}}</b-button>
+    <b-button variant="primary" class="mt-2" @click="startGame(true)">{{$t('message.PlayGame.StartPublic')}}</b-button>
   </b-modal>
 
 
@@ -77,12 +78,13 @@ export default {
     showConfigModal() {
       this.$refs["config_modal"].show()
     },
-    startGame() {
+    startGame(is_public) {
       const settings = this.$refs["game_settings_component"].getSettings()
-      console.log("Settings:", settings)
+      console.log("Settings:", settings, is_public)
       this.$emit("createGame", 
         this.game_object.getInternalGameName(), 
-        this.game_object.initStateFromSettings(settings));
+        this.game_object.initStateFromSettings(settings),
+        is_public);
     },
   },
 }

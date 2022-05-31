@@ -1,23 +1,20 @@
 <template>
   <div id="app" class="bg-secondary">
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark w-100">
-      <div class="container-fluid">
-        <b-row>
-          <b-col sm="6">
-            <a class="navbar-brand" href="/">{{$t('message.WebsiteName')}}</a>
-          </b-col>
-          <b-col sm="6">
-            <b-button>
-              <b-form-select 
-                v-model="selected" 
-                :options="options"
-                @change='changeLanguage'
-              ></b-form-select>
-            </b-button>
-          </b-col>
-        </b-row>
-      </div>
-    </nav>
+    <b-navbar class="navbar navbar-expand-lg navbar-dark bg-dark w-100">
+      <b-navbar-brand class="mx-4" href="/">{{$t('message.WebsiteName')}}
+      </b-navbar-brand >
+      <b-collapse id="nav-collapse" is-nav>
+        <b-navbar-nav class="ml-auto" right>
+          <b-button>
+            <b-form-select 
+              v-model="selected" 
+              :options="options"
+              @change='changeLanguage'
+            ></b-form-select>
+          </b-button>
+        </b-navbar-nav>
+      </b-collapse>
+    </b-navbar>
     <router-view></router-view>
   </div>
 </template>
