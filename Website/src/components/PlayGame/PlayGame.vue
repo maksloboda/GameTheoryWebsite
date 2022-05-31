@@ -92,17 +92,22 @@
       {{$t('message.PlayGame.Loading')}}
     </div>
     <div v-else>
-      <component
+      <b-row class="mt-2"><b-col sm="9"><component
         :is="game_component"
         ref="game_instance"
         @component_ready="onGameComponentSpawned"
         @move="onMoveMade"
-      ></component>
-      <br>
+      ></component></b-col>
+      <b-col sm="3" class="flex-grow-1" v-if="!unlimited_time">
+        <b-card>
+          <b>Time left:</b> {{ time_left }} <br>
+          <b>Time limit:</b> {{ time_limit }} 
+        </b-card>
+      </b-col></b-row>
       
-      <b-card v-if="is_ready">
+      <b-card v-if="is_ready" class="mt-2">
         <b-button 
-          v-if="game_mode != MODE_VS_HUMAN"
+          v-if="game_mode == MODE_SPECTATE"
           :disabled="!is_ready ||is_finished || current_player == player_id"
           @click="makeBotMove"
           variant="primary"
@@ -129,6 +134,7 @@ import {
   JOIN_GAME_MUTATION,
   ADD_EVENT_MUTATION,
   GAME_SUBSCRIPTION,
+  ADVANCE_MUTATION,
 } from '../../constants/graphql'
 
 import {
@@ -163,6 +169,8 @@ export default {
 
       MODE_VS_HUMAN: MODE_VS_HUMAN, 
       MODE_SPECTATE: MODE_SPECTATE, 
+
+      timer_interval: null,
     }
   },
 
@@ -235,6 +243,21 @@ export default {
         { text: this.$t('message.PlayGame.Spectator'), value: MODE_SPECTATE }
       ]
     },
+
+    time_left: {
+      get() { return this.game_info.time_control.time_left },
+      set(time) { 
+        this.game_info.time_control.time_left = time; 
+      },
+    },
+    
+    unlimited_time() {
+      return this.game_info.time_control.time_limit == null
+    },
+
+    time_limit() {
+      return this.game_info.time_control.time_limit
+    }
   },
 
   methods: {
@@ -256,6 +279,10 @@ export default {
 
       if (this.game_object.isMoveValid(this.game_state, move)) {
         await this.sendMove(move, this.player_token);
+      }
+
+      if (this.game_mode == MODE_VS_COMP) {
+        await this.makeBotMove();
       }
     },
 
@@ -346,6 +373,30 @@ export default {
       )
     },
 
+    startTimer() {
+      this.timer_interval = setInterval(function() {
+        if (this.time_left > 0) {
+          this.time_left = this.time_left - 1;
+        }
+        if (this.time_left == 0) {
+          this.advance()
+        }
+      }.bind(this), 1000);
+    },
+
+    advance() {
+      if (this.is_finished) {
+        clearInterval(this.timer_interval);
+        return;
+      }
+      this.$apollo.mutate({
+        mutation: ADVANCE_MUTATION,
+        variables: {
+          game_id: this.game_id,
+        },
+      })
+    },
+
     updateGame(game_info) {
       this.game_info = game_info
 
@@ -371,6 +422,13 @@ export default {
         this.$refs["game_instance"].setIsActive(true)
       } else {
         this.$refs["game_instance"].setIsActive(false)
+      }
+
+
+      if (this.is_finished) {
+        clearInterval(this.timer_interval);
+      } else if (this.is_ready) {
+        this.startTimer()
       }
     },
 

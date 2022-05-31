@@ -70,6 +70,35 @@
         </b-col>
       </b-row>
       <br>
+
+      <b-row>
+        <b-col sm="4">
+          <label for="time_limit">Time limit for move in seconds</label>
+        </b-col>
+        <b-col sm="2">
+          <b-form-input
+            id="time_limit"
+            v-model="time_limit"
+            :value="5"
+            :disabled="unlimited_time"
+            type="number"
+            :min="1"
+            :max="300"
+          >
+          </b-form-input>
+        </b-col>
+        <b-col sm="6">
+          <b-form-checkbox
+            v-model="unlimited_time"
+            :value="true"
+            :unchecked-value="false"
+          >
+            Unlimited time
+          </b-form-checkbox>
+        </b-col>
+      </b-row>
+
+      <br>
       <b-card>
         <b-row 
           v-for="i in Array(minMax(field_height, 1, MAX_FIELD_SIZE)).keys()"
@@ -123,6 +152,8 @@ export default {
       field: Array(MAX_FIELD_SIZE * MAX_FIELD_SIZE).fill(1),
       MAX_FIELD_SIZE: MAX_FIELD_SIZE,
       MAX_CELL_VALUE: MAX_CELL_VALUE,
+      unlimited_time: false,
+      time_limit: 10,
     }
   },
   methods: {
@@ -137,13 +168,19 @@ export default {
           f[c++] = parseInt(this.field[i * w + j])
         }
       }
+      let time_limit = null
+      if (!this.unlimited_time) {
+        time_limit = this.time_limit
+      }
+
       return {
         first_move: this.first_player,
         game_type: this.game_type,
         pass_options: this.pass_options,
         field_width: w,
         field_height: h,
-        field: f
+        field: f,
+        time_limit: time_limit,
       };
     },
     minMax(val, min, max) {

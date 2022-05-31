@@ -88,6 +88,11 @@ def addEvent(gameinfo, pid, move_enc):
   gameinfo["state"] = json.dumps(state)
   return gameinfo
   
+def advance(gameinfo):
+  gameinfo["is_finished"] = True
+  state = json.loads(gameinfo["state"])
+  gameinfo["winner"] = "A" if state["CurrentPlayer"] == "B" else "B"
+  return gameinfo
 
 def callWrapper(request):
   method = request["method"]
@@ -97,6 +102,8 @@ def callWrapper(request):
     return joinGame(*request["params"])
   elif method == "addEvent":
     return addEvent(*request["params"])
+  elif method == "advance":
+    return advance(*request["params"])
 
   raise Exception("Unknown method")
 

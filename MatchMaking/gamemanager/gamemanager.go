@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"strconv"
 
 	"matchmaking/graph/model"
 	"sync"
@@ -91,13 +92,13 @@ func RemoteCall(game string, method string, args []interface{},
 }
 
 // Creates a game and returns the id of the game
-func CreateGame(game_name string, start_state string) (string, error) {
+func CreateGame(data *model.GameCreateRequest) (string, error) {
 	// TODO find a way to make an extendible game creation pipeline
 
 	rcr := remoteCallResult{}
 
-	rcr_err := RemoteCall(game_name, "isStartStateValid",
-		[]interface{}{start_state}, &rcr)
+	rcr_err := RemoteCall(data.GameName, "isStartStateValid",
+		[]interface{}{data.StartState}, &rcr)
 
 	if rcr_err != nil {
 		return "", rcr_err
@@ -108,15 +109,22 @@ func CreateGame(game_name string, start_state string) (string, error) {
 
 	key := getGameKey(new_id)
 
+	stamp := time.Now().Unix()
+
 	new_game_state := &model.GameInfo{
 		ID:            new_id,
 		PlayersJoined: make([]string, 0),
-		GameName:      game_name,
+		GameName:      data.GameName,
 		EventClock:    0,
-		State:         start_state,
-		IsReady:       false,
-		IsFinished:    false,
-		Winner:        "",
+		State:         data.StartState,
+		TimeControl: &model.TimeControl{
+			LastEventTime: strconv.FormatInt(stamp, 10),
+			TimeLimit:     data.TimeLimit,
+			TimeLeft:      0,
+		},
+		IsReady:    false,
+		IsFinished: false,
+		Winner:     "",
 	}
 
 	op := func(transaction *redis.Tx) error {
@@ -126,6 +134,17 @@ func CreateGame(game_name string, start_state string) (string, error) {
 		} else if exists != 0 {
 			return errors.New("Game already exists!")
 		}
+
+		if data.IsPublic {
+			result := transaction.ZAdd("public_lobbies", redis.Z{
+				Score:  float64(stamp),
+				Member: new_id,
+			})
+			if result.Err() != nil {
+				return result.Err()
+			}
+		}
+
 		return setGameInfoImpl(new_id, new_game_state, transaction)
 	}
 
@@ -171,6 +190,8 @@ func getGameInfoImpl(id string, source getable) (*model.GameInfo, error) {
 	var result *model.GameInfo
 	json.Unmarshal(marshalled, &result)
 
+	updateRemainingTime(result.TimeControl)
+
 	return result, nil
 }
 
@@ -188,6 +209,25 @@ func publishImpl(id string, game_ptr *model.GameInfo, dest publishable) error {
 // Returns ptr to GameObject or nil if not found
 func GetGameInfo(id string) (*model.GameInfo, error) {
 	return getGameInfoImpl(id, *redis_client)
+}
+
+func updateTime(tc *model.TimeControl) {
+	stamp := time.Now().Unix()
+	tc.LastEventTime = strconv.FormatInt(stamp, 10)
+	updateRemainingTime(tc)
+}
+
+func updateRemainingTime(tc *model.TimeControl) {
+	if tc.TimeLimit != nil {
+		start_time, _ := strconv.ParseInt(tc.LastEventTime, 10, 64)
+		current_time := time.Now().Unix()
+		time_elapsed := current_time - start_time
+		if time_elapsed > int64(*tc.TimeLimit) {
+			tc.TimeLeft = 0
+		} else {
+			tc.TimeLeft = int(*tc.TimeLimit) - int(time_elapsed)
+		}
+	}
 }
 
 // Tries to add a player to the game
@@ -219,6 +259,7 @@ func AddPlayer(id string, pid string) (string, error) {
 
 		game_ptr.EventClock += 1
 		game_ptr.PlayersJoined = append(game_ptr.PlayersJoined, pid)
+		updateTime(game_ptr.TimeControl)
 
 		set_err := setGameInfoImpl(id, game_ptr, transaction)
 		if set_err != nil {
@@ -229,6 +270,27 @@ func AddPlayer(id string, pid string) (string, error) {
 
 	err := (*redis_client).Watch(op, getGameKey(id))
 	return token, err
+}
+
+func GetPublicGames(limit int) ([]*model.GameInfo, error) {
+	slice := (*redis_client).ZRevRange("public_lobbies", 0, int64(limit)-1)
+	ids, err := slice.Result()
+	if err != nil {
+		return []*model.GameInfo{}, err
+	}
+
+	result := make([]*model.GameInfo, 0)
+
+	for _, v := range ids {
+		gi, get_err := getGameInfoImpl(v, *redis_client)
+		if get_err != nil {
+			return []*model.GameInfo{}, get_err
+		}
+		result = append(result, gi)
+	}
+
+	return result, nil
+
 }
 
 func AddEvent(game_id string, player_token, move string) error {
@@ -256,6 +318,7 @@ func AddEvent(game_id string, player_token, move string) error {
 		}
 
 		game_ptr.EventClock += 1
+		updateTime(game_ptr.TimeControl)
 		set_err := setGameInfoImpl(game_id, game_ptr, transaction)
 		if set_err != nil {
 			return set_err
@@ -264,6 +327,41 @@ func AddEvent(game_id string, player_token, move string) error {
 	}
 
 	return (*redis_client).Watch(op, getGameKey(game_id))
+}
+
+func AdvanceGame(id string) (bool, error) {
+	game_ptr, get_err := getGameInfoImpl(id, *redis_client)
+	if get_err != nil {
+		return false, get_err
+	}
+
+	if game_ptr.TimeControl.TimeLimit == nil || !game_ptr.IsReady {
+		return false, nil
+	}
+
+	start_time, _ := strconv.ParseInt(game_ptr.TimeControl.LastEventTime, 10, 64)
+	current_time := time.Now().Unix()
+	if current_time-start_time > int64(*game_ptr.TimeControl.TimeLimit) {
+		rcr := remoteCallResult{}
+		rcr_err := RemoteCall(game_ptr.GameName, "advance",
+			[]interface{}{game_ptr}, &rcr)
+		if rcr_err != nil {
+			return false, rcr_err
+		}
+
+		parse_err := json.Unmarshal([]byte(rcr.Result), &game_ptr)
+		if parse_err != nil {
+			return false, parse_err
+		} else {
+			updateTime(game_ptr.TimeControl)
+			setGameInfoImpl(id, game_ptr, *redis_client)
+			publishImpl(id, game_ptr, *redis_client)
+			return true, nil
+		}
+
+	} else {
+		return false, nil
+	}
 }
 
 func SubscribeGame(id string) (<-chan *model.GameInfo, error) {

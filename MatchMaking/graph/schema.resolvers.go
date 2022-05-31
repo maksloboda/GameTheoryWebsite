@@ -13,8 +13,8 @@ import (
 	"github.com/go-redis/redis"
 )
 
-func (r *mutationResolver) CreateGame(ctx context.Context, gameName string, startState string) (*string, error) {
-	id, err := gamemanager.CreateGame(gameName, startState)
+func (r *mutationResolver) CreateGame(ctx context.Context, data *model.GameCreateRequest) (*string, error) {
+	id, err := gamemanager.CreateGame(data)
 	return &id, err
 }
 
@@ -29,6 +29,10 @@ func (r *mutationResolver) AddEvent(ctx context.Context, id string, token string
 	return &is_error, err
 }
 
+func (r *mutationResolver) Advance(ctx context.Context, id string) (bool, error) {
+	return gamemanager.AdvanceGame(id)
+}
+
 func (r *queryResolver) GameInfo(ctx context.Context, id string) (*model.GameInfo, error) {
 	game_info, err := gamemanager.GetGameInfo(id)
 	return game_info, err
@@ -36,6 +40,10 @@ func (r *queryResolver) GameInfo(ctx context.Context, id string) (*model.GameInf
 
 func (r *queryResolver) FindOptimalMove(ctx context.Context, id string) (string, error) {
 	return gamemanager.FindOptimal(id)
+}
+
+func (r *queryResolver) GetPublicGames(ctx context.Context, limit int) ([]*model.GameInfo, error) {
+	return gamemanager.GetPublicGames(limit)
 }
 
 func (r *subscriptionResolver) SubcribeGame(ctx context.Context, id string) (<-chan *model.GameInfo, error) {

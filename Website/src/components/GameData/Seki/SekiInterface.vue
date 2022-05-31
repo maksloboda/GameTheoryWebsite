@@ -1,11 +1,11 @@
 <template>
-  <b-container>
-    <div v-if="game_state === null">
+  <b-container class="container mx-0 px-0">
+    <div v-if="game_state == null">
       <center>
         {{$t('message.SekiInterface.NullGameState')}}
       </center>
     </div>
-    <div v-else  class="container mt-2">
+    <div v-else >
       <b-card>
         <b-row>
           <b-col sm="2" id="game_info_panel">
