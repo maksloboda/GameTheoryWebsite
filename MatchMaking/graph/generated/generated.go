@@ -54,12 +54,14 @@ type ComplexityRoot struct {
 		IsReady       func(childComplexity int) int
 		PlayersJoined func(childComplexity int) int
 		State         func(childComplexity int) int
+		TimeControl   func(childComplexity int) int
 		Winner        func(childComplexity int) int
 	}
 
 	Mutation struct {
 		AddEvent   func(childComplexity int, id string, token string, event string) int
-		CreateGame func(childComplexity int, gameName string, startState string, isPublic bool) int
+		Advance    func(childComplexity int, id string) int
+		CreateGame func(childComplexity int, data *model.GameCreateRequest) int
 		JoinGame   func(childComplexity int, id string, pid string) int
 	}
 
@@ -72,12 +74,19 @@ type ComplexityRoot struct {
 	Subscription struct {
 		SubcribeGame func(childComplexity int, id string) int
 	}
+
+	TimeControl struct {
+		LastEventTime func(childComplexity int) int
+		TimeLeft      func(childComplexity int) int
+		TimeLimit     func(childComplexity int) int
+	}
 }
 
 type MutationResolver interface {
-	CreateGame(ctx context.Context, gameName string, startState string, isPublic bool) (*string, error)
+	CreateGame(ctx context.Context, data *model.GameCreateRequest) (*string, error)
 	JoinGame(ctx context.Context, id string, pid string) (string, error)
 	AddEvent(ctx context.Context, id string, token string, event string) (*bool, error)
+	Advance(ctx context.Context, id string) (bool, error)
 }
 type QueryResolver interface {
 	GameInfo(ctx context.Context, id string) (*model.GameInfo, error)
@@ -152,6 +161,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.GameInfo.State(childComplexity), true
 
+	case "GameInfo.time_control":
+		if e.complexity.GameInfo.TimeControl == nil {
+			break
+		}
+
+		return e.complexity.GameInfo.TimeControl(childComplexity), true
+
 	case "GameInfo.winner":
 		if e.complexity.GameInfo.Winner == nil {
 			break
@@ -171,6 +187,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.AddEvent(childComplexity, args["id"].(string), args["token"].(string), args["event"].(string)), true
 
+	case "Mutation.advance":
+		if e.complexity.Mutation.Advance == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_advance_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.Advance(childComplexity, args["id"].(string)), true
+
 	case "Mutation.createGame":
 		if e.complexity.Mutation.CreateGame == nil {
 			break
@@ -181,7 +209,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateGame(childComplexity, args["game_name"].(string), args["start_state"].(string), args["is_public"].(bool)), true
+		return e.complexity.Mutation.CreateGame(childComplexity, args["data"].(*model.GameCreateRequest)), true
 
 	case "Mutation.joinGame":
 		if e.complexity.Mutation.JoinGame == nil {
@@ -243,6 +271,27 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Subscription.SubcribeGame(childComplexity, args["id"].(string)), true
 
+	case "TimeControl.last_event_time":
+		if e.complexity.TimeControl.LastEventTime == nil {
+			break
+		}
+
+		return e.complexity.TimeControl.LastEventTime(childComplexity), true
+
+	case "TimeControl.time_left":
+		if e.complexity.TimeControl.TimeLeft == nil {
+			break
+		}
+
+		return e.complexity.TimeControl.TimeLeft(childComplexity), true
+
+	case "TimeControl.time_limit":
+		if e.complexity.TimeControl.TimeLimit == nil {
+			break
+		}
+
+		return e.complexity.TimeControl.TimeLimit(childComplexity), true
+
 	}
 	return 0, false
 }
@@ -250,7 +299,9 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
 	ec := executionContext{rc, e}
-	inputUnmarshalMap := graphql.BuildUnmarshalerMap()
+	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputGameCreateRequest,
+	)
 	first := true
 
 	switch rc.Operation.Operation {
@@ -336,6 +387,12 @@ scalar PlayerToken
 # Used to identify player (while/black in chess etc.)
 scalar PlayerIdentifier
 
+type TimeControl {
+  last_event_time: String!
+  time_limit: Int
+  time_left: Int!
+}
+
 # Infomation about the game
 type GameInfo {
   id: ID!
@@ -349,21 +406,31 @@ type GameInfo {
   is_ready: Boolean!
   is_finished: Boolean!
   winner: PlayerIdentifier!
+  time_control: TimeControl!
 }
 
 type Query {
   gameInfo(id: ID!): GameInfo
   findOptimalMove(id: ID!): GameEvent!
-  # limit - use -1 for no limit
+  # limit - use 0 for no limit
   getPublicGames(limit: Int!): [GameInfo!]!
 }
 
+input GameCreateRequest {
+  game_name: String!
+  start_state: GameState!
+  is_public: Boolean!
+  time_limit: Int
+}
+
 type Mutation {
-  createGame(game_name: String!, start_state: GameState!, is_public: Boolean!): ID
+  createGame(data: GameCreateRequest): ID
   # Tries to join game id as player pid
   joinGame(id: ID!, pid: PlayerIdentifier!): PlayerToken!
   # Adds event to the game
   addEvent(id: ID!, token: PlayerToken!, event: GameEvent!): Boolean
+  # Enforces timeout
+  advance(id: ID!): Boolean!
 }
 
 type Subscription {
@@ -409,36 +476,33 @@ func (ec *executionContext) field_Mutation_addEvent_args(ctx context.Context, ra
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_createGame_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_advance_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
-	if tmp, ok := rawArgs["game_name"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("game_name"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNID2string(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["game_name"] = arg0
-	var arg1 string
-	if tmp, ok := rawArgs["start_state"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("start_state"))
-		arg1, err = ec.unmarshalNGameState2string(ctx, tmp)
+	args["id"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_createGame_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 *model.GameCreateRequest
+	if tmp, ok := rawArgs["data"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("data"))
+		arg0, err = ec.unmarshalOGameCreateRequest2ᚖmatchmakingᚋgraphᚋmodelᚐGameCreateRequest(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["start_state"] = arg1
-	var arg2 bool
-	if tmp, ok := rawArgs["is_public"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("is_public"))
-		arg2, err = ec.unmarshalNBoolean2bool(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["is_public"] = arg2
+	args["data"] = arg0
 	return args, nil
 }
 
@@ -931,6 +995,58 @@ func (ec *executionContext) fieldContext_GameInfo_winner(ctx context.Context, fi
 	return fc, nil
 }
 
+func (ec *executionContext) _GameInfo_time_control(ctx context.Context, field graphql.CollectedField, obj *model.GameInfo) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_GameInfo_time_control(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TimeControl, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.TimeControl)
+	fc.Result = res
+	return ec.marshalNTimeControl2ᚖmatchmakingᚋgraphᚋmodelᚐTimeControl(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_GameInfo_time_control(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "GameInfo",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "last_event_time":
+				return ec.fieldContext_TimeControl_last_event_time(ctx, field)
+			case "time_limit":
+				return ec.fieldContext_TimeControl_time_limit(ctx, field)
+			case "time_left":
+				return ec.fieldContext_TimeControl_time_left(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type TimeControl", field.Name)
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_createGame(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_createGame(ctx, field)
 	if err != nil {
@@ -945,7 +1061,7 @@ func (ec *executionContext) _Mutation_createGame(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateGame(rctx, fc.Args["game_name"].(string), fc.Args["start_state"].(string), fc.Args["is_public"].(bool))
+		return ec.resolvers.Mutation().CreateGame(rctx, fc.Args["data"].(*model.GameCreateRequest))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1090,6 +1206,61 @@ func (ec *executionContext) fieldContext_Mutation_addEvent(ctx context.Context, 
 	return fc, nil
 }
 
+func (ec *executionContext) _Mutation_advance(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_advance(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().Advance(rctx, fc.Args["id"].(string))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(bool)
+	fc.Result = res
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_Mutation_advance(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Boolean does not have child fields")
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_Mutation_advance_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Query_gameInfo(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_gameInfo(ctx, field)
 	if err != nil {
@@ -1142,6 +1313,8 @@ func (ec *executionContext) fieldContext_Query_gameInfo(ctx context.Context, fie
 				return ec.fieldContext_GameInfo_is_finished(ctx, field)
 			case "winner":
 				return ec.fieldContext_GameInfo_winner(ctx, field)
+			case "time_control":
+				return ec.fieldContext_GameInfo_time_control(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type GameInfo", field.Name)
 		},
@@ -1270,6 +1443,8 @@ func (ec *executionContext) fieldContext_Query_getPublicGames(ctx context.Contex
 				return ec.fieldContext_GameInfo_is_finished(ctx, field)
 			case "winner":
 				return ec.fieldContext_GameInfo_winner(ctx, field)
+			case "time_control":
+				return ec.fieldContext_GameInfo_time_control(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type GameInfo", field.Name)
 		},
@@ -1479,6 +1654,8 @@ func (ec *executionContext) fieldContext_Subscription_subcribeGame(ctx context.C
 				return ec.fieldContext_GameInfo_is_finished(ctx, field)
 			case "winner":
 				return ec.fieldContext_GameInfo_winner(ctx, field)
+			case "time_control":
+				return ec.fieldContext_GameInfo_time_control(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type GameInfo", field.Name)
 		},
@@ -1493,6 +1670,135 @@ func (ec *executionContext) fieldContext_Subscription_subcribeGame(ctx context.C
 	if fc.Args, err = ec.field_Subscription_subcribeGame_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TimeControl_last_event_time(ctx context.Context, field graphql.CollectedField, obj *model.TimeControl) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TimeControl_last_event_time(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.LastEventTime, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TimeControl_last_event_time(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TimeControl",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TimeControl_time_limit(ctx context.Context, field graphql.CollectedField, obj *model.TimeControl) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TimeControl_time_limit(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TimeLimit, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*int)
+	fc.Result = res
+	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TimeControl_time_limit(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TimeControl",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _TimeControl_time_left(ctx context.Context, field graphql.CollectedField, obj *model.TimeControl) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_TimeControl_time_left(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.TimeLeft, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_TimeControl_time_left(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "TimeControl",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type Int does not have child fields")
+		},
 	}
 	return fc, nil
 }
@@ -3270,6 +3576,53 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(ctx context.Conte
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputGameCreateRequest(ctx context.Context, obj interface{}) (model.GameCreateRequest, error) {
+	var it model.GameCreateRequest
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	for k, v := range asMap {
+		switch k {
+		case "game_name":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("game_name"))
+			it.GameName, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "start_state":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("start_state"))
+			it.StartState, err = ec.unmarshalNGameState2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "is_public":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("is_public"))
+			it.IsPublic, err = ec.unmarshalNBoolean2bool(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "time_limit":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("time_limit"))
+			it.TimeLimit, err = ec.unmarshalOInt2ᚖint(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -3344,6 +3697,13 @@ func (ec *executionContext) _GameInfo(ctx context.Context, sel ast.SelectionSet,
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "time_control":
+
+			out.Values[i] = ec._GameInfo_time_control(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3395,6 +3755,15 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 				return ec._Mutation_addEvent(ctx, field)
 			})
 
+		case "advance":
+
+			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
+				return ec._Mutation_advance(ctx, field)
+			})
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3532,6 +3901,45 @@ func (ec *executionContext) _Subscription(ctx context.Context, sel ast.Selection
 	default:
 		panic("unknown field " + strconv.Quote(fields[0].Name))
 	}
+}
+
+var timeControlImplementors = []string{"TimeControl"}
+
+func (ec *executionContext) _TimeControl(ctx context.Context, sel ast.SelectionSet, obj *model.TimeControl) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, timeControlImplementors)
+	out := graphql.NewFieldSet(fields)
+	var invalids uint32
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("TimeControl")
+		case "last_event_time":
+
+			out.Values[i] = ec._TimeControl_last_event_time(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "time_limit":
+
+			out.Values[i] = ec._TimeControl_time_limit(ctx, field, obj)
+
+		case "time_left":
+
+			out.Values[i] = ec._TimeControl_time_left(ctx, field, obj)
+
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch()
+	if invalids > 0 {
+		return graphql.Null
+	}
+	return out
 }
 
 var __DirectiveImplementors = []string{"__Directive"}
@@ -4058,6 +4466,16 @@ func (ec *executionContext) marshalNString2string(ctx context.Context, sel ast.S
 	return res
 }
 
+func (ec *executionContext) marshalNTimeControl2ᚖmatchmakingᚋgraphᚋmodelᚐTimeControl(ctx context.Context, sel ast.SelectionSet, v *model.TimeControl) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._TimeControl(ctx, sel, v)
+}
+
 func (ec *executionContext) marshalN__Directive2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚋintrospectionᚐDirective(ctx context.Context, sel ast.SelectionSet, v introspection.Directive) graphql.Marshaler {
 	return ec.___Directive(ctx, sel, &v)
 }
@@ -4337,6 +4755,14 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 	return res
 }
 
+func (ec *executionContext) unmarshalOGameCreateRequest2ᚖmatchmakingᚋgraphᚋmodelᚐGameCreateRequest(ctx context.Context, v interface{}) (*model.GameCreateRequest, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := ec.unmarshalInputGameCreateRequest(ctx, v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
 func (ec *executionContext) marshalOGameInfo2ᚖmatchmakingᚋgraphᚋmodelᚐGameInfo(ctx context.Context, sel ast.SelectionSet, v *model.GameInfo) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
@@ -4357,6 +4783,22 @@ func (ec *executionContext) marshalOID2ᚖstring(ctx context.Context, sel ast.Se
 		return graphql.Null
 	}
 	res := graphql.MarshalID(*v)
+	return res
+}
+
+func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalInt(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.SelectionSet, v *int) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalInt(*v)
 	return res
 }
 

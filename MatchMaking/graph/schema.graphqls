@@ -7,6 +7,12 @@ scalar PlayerToken
 # Used to identify player (while/black in chess etc.)
 scalar PlayerIdentifier
 
+type TimeControl {
+  last_event_time: String!
+  time_limit: Int
+  time_left: Int!
+}
+
 # Infomation about the game
 type GameInfo {
   id: ID!
@@ -20,6 +26,7 @@ type GameInfo {
   is_ready: Boolean!
   is_finished: Boolean!
   winner: PlayerIdentifier!
+  time_control: TimeControl!
 }
 
 type Query {
@@ -29,12 +36,21 @@ type Query {
   getPublicGames(limit: Int!): [GameInfo!]!
 }
 
+input GameCreateRequest {
+  game_name: String!
+  start_state: GameState!
+  is_public: Boolean!
+  time_limit: Int
+}
+
 type Mutation {
-  createGame(game_name: String!, start_state: GameState!, is_public: Boolean!): ID
+  createGame(data: GameCreateRequest): ID
   # Tries to join game id as player pid
   joinGame(id: ID!, pid: PlayerIdentifier!): PlayerToken!
   # Adds event to the game
   addEvent(id: ID!, token: PlayerToken!, event: GameEvent!): Boolean
+  # Enforces timeout
+  advance(id: ID!): Boolean!
 }
 
 type Subscription {
