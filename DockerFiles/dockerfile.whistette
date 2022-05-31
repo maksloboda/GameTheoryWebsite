@@ -1,0 +1,23 @@
+FROM python:slim-buster
+# Creates the actual service
+
+# Copy the needed files
+COPY Whistette/ /Whistette/
+
+RUN mkdir /Worker
+
+COPY Worker/ /Worker/
+
+WORKDIR /Worker
+
+# Install dependencies
+RUN pip3 install pika
+
+# Set environment
+ENV EXEC_PATH=/Whistette/run.sh
+ENV GAME_NAME=whistette
+
+RUN chmod +x $EXEC_PATH
+
+CMD ["bash", "./run_fullservice.sh"]
+
