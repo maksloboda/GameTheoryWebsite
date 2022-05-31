@@ -84,8 +84,7 @@ export default {
         if (game_name == Seki.getInternalGameName()) {
           return `Field: ${game_state.Height}x${game_state.Width}`
         } else if (game_name == SingleSuit.getInternalGameName()) {
-          return `First player has ${game_state.FirstPlayerSet.length} cards,`
-          `Second player has${game_state.SecondPlayerSet.length} cards`
+          return `First player has ${game_state.FirstPlayerSet.length} cards, Second player has ${game_state.SecondPlayerSet.length} cards`
         }
       }
     },
