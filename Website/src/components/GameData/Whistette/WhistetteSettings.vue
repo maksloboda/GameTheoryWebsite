@@ -2,7 +2,7 @@
   <div>
     <b-form>
       <b-row>
-        <b-col>
+        <b-col sm="4">
           <b-form-group 
             id="cards_number"
             :label="$t('message.SingleSuitSettings.CardNumber')"
@@ -17,11 +17,20 @@
               </b-form-input>
           </b-form-group>
         </b-col>
+        <b-row>
+          <b-form-group :label="$t('message.SingleSuitSettings.FirstPlayer')">
+            <b-form-radio-group
+              id="first-player-radio"
+              v-model="first_player"
+            >
+            <b-form-radio :value="FIRST_PLAYER_ID">A</b-form-radio>
+            <b-form-radio :value="SECOND_PLAYER_ID">B</b-form-radio>
+          </b-form-radio-group>
+          </b-form-group>
+        </b-row>
+      </b-row>
 
-        <br>
-        <br>
-        <br>
-        <br>
+      <br>
 
         <b-row>
           <b-col sm="4">
@@ -50,30 +59,26 @@
           </b-col>
         </b-row>
 
-        <b-row>
-          <b-form-group :label="$t('message.SingleSuitSettings.FirstPlayer')">
-            <b-form-radio-group
-              id="first-player-radio"
-              v-model="first_player"
-            >
-            <b-form-radio :value="FIRST_PLAYER_ID">A</b-form-radio>
-            <b-form-radio :value="SECOND_PLAYER_ID">B</b-form-radio>
-          </b-form-radio-group>
-          </b-form-group>
-        </b-row>
-      </b-row>
+        <br>
+        
       <b-card>
-        <b-col v-for="i in Array(minMax(cards_number, 1, 100)).keys()">
-            <b-form-group>
-              <b-form-radio-group
-                v-model="card_array[i]"
-              >
-                <b-form-radio :value="0">A</b-form-radio>
-                {{i + 1}}{{$t('message.SingleSuitSettings.NthCard')}}
-                <b-form-radio :value="1">B</b-form-radio>
-              </b-form-radio-group>
-            </b-form-group>
-        </b-col>
+        <b-row v-for="i in Array(minMax(cards_number, 1, 100)).keys()">
+            <b-col sm="3">
+              {{i + 1}}{{$t('message.SingleSuitSettings.NthCard')}}
+            </b-col>
+            <b-col sm="9">
+              <b-form-group>
+                <b-form-radio-group
+                  v-model="card_array[i]"
+                  buttons
+                  class="w-100"
+                >
+                  <b-form-radio :value="0">A</b-form-radio>
+                  <b-form-radio :value="1">B</b-form-radio>
+                </b-form-radio-group>
+              </b-form-group>
+            </b-col>
+        </b-row>
       </b-card>
     </b-form>
   </div>
