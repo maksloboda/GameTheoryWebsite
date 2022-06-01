@@ -100,8 +100,8 @@
       ></component></b-col>
       <b-col sm="3" class="flex-grow-1" v-if="!unlimited_time">
         <b-card>
-          <b>Time left:</b> {{ time_left }} <br>
-          <b>Time limit:</b> {{ time_limit }} 
+          <b>{{$t('message.TimeLeft')}}:</b> {{ time_left }} <br>
+          <b>{{$t('message.TimeLimit')}}:</b> {{ time_limit }} 
         </b-card>
       </b-col></b-row>
       

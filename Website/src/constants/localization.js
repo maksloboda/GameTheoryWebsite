@@ -2,6 +2,10 @@ export const messages = {
     en: {
       message: {
         WebsiteName: 'Combinatory games website',
+        TimeLeft: 'Time left',
+        TimeLimit: 'Time limit',
+        MoveTimeLimit: 'Time limit for move in seconds',
+        UnlimitedTime: 'Unlimited time',
         SekiSettings: {
             PassOptions: 'Pass options',
             RPass: 'R can pass',
@@ -29,6 +33,10 @@ export const messages = {
         GameSelector: {
             CreateGame: 'Create a game',
             ConnectToGame: 'Join the game',
+        },
+        Whistette: {
+            PlayerAScore: 'Player A score',
+            PlayerBScore: 'Player B score',
         },
         JoinGame: {
             LobbiesFound: 'Number of found lobbies:',
@@ -120,6 +128,10 @@ export const messages = {
     ru: {
       message: {
         WebsiteName: 'Сайт комбинаторных игр',
+        TimeLeft: 'Времени осталось',
+        TimeLimit: 'Лимит по времени',
+        MoveTimeLimit: 'Время на ход в секундах',
+        UnlimitedTime: 'Бесконечное время',
         SekiSettings: {
             PassOptions: 'Возможность пропуска хода',
             RPass: 'R может пропускать ход',
@@ -127,6 +139,10 @@ export const messages = {
             GameType: 'Тип игры',
             FieldWidth: 'Ширина поля',
             FieldHeight: 'Высота поля',
+        },
+        Whistette: {
+          PlayerAScore: 'Счет игрока A',
+          PlayerBScore: 'Счет игрока B',
         },
         SingleSuitSettings: {
             Fool: 'Дурак',
