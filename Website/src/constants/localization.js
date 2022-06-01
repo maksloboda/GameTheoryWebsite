@@ -34,6 +34,10 @@ export const messages = {
             LobbiesFound: 'Number of found lobbies:',
             Refresh: 'Refresh',
             Join: 'Join',
+            PlayersJoined: 'players joined',
+            SekiStateString: 'Field: {height}x{width}',
+            SingleSuitStateString: 'A has {first_size} cards, B has {second_size} cards',
+            WhistetteStateString: 'Players have {size} cards each',
         },
         PlayGame: {
             WaitPlayers: 'Awaiting Players...',
@@ -148,6 +152,10 @@ export const messages = {
             LobbiesFound: 'Найдено лобби:',
             Refresh: 'Обновить',
             Join: 'Войти',
+            PlayersJoined: 'игроков в игре',
+            SekiStateString: 'Поле: {height}x{width}',
+            SingleSuitStateString: 'Карт у игрока A: {first_size}, карт у игрока B: {second_size}',
+            WhistetteStateString: 'У каждого игрока по {size} карт',
         },
         PlayGame: {
             WaitPlayers: 'Ожидание игроков...',

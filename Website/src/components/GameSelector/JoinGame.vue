@@ -20,7 +20,7 @@
             </p>
           </b-col>
           <b-col sm="3">
-            players joined: {{ lobby.players_joined.length }} 
+            {{$t('message.JoinGame.PlayersJoined')}}: {{ lobby.players_joined.length }} 
           </b-col>
           <b-col sm="4">
             {{ makeGameStateString(lobby.state, lobby.game_name) }}
@@ -89,11 +89,13 @@ export default {
       makeGameStateString(string_state, game_name) {
         const game_state = JSON.parse(string_state)
         if (game_name == Seki.getInternalGameName()) {
-          return `Field: ${game_state.Height}x${game_state.Width}`
+          return this.$t('message.JoinGame.SekiStateString', { height: game_state.Height, width: game_state.Width } )
         } else if (game_name == SingleSuit.getInternalGameName()) {
-          return `First player has ${game_state.FirstPlayerSet.length} cards, Second player has ${game_state.SecondPlayerSet.length} cards`
+          return this.$t('message.JoinGame.SingleSuitStateString', 
+            { first_size: game_state.FirstPlayerSet.length, second_size: game_state.SecondPlayerSet.length } )
         } else if (game_name == Whistette.getInternalGameName()) {
-          return `Players have ${game_state.FirstPlayerSet.length} cards each`
+          return this.$t('message.JoinGame.WhistetteStateString', 
+            { size: game_state.FirstPlayerSet.length } )
         }
       }
     },
