@@ -27,7 +27,7 @@
           </b-col>
           <b-col sm="3">
             <b-button 
-              @click="joinLobby(lobby.game_id)" 
+              @click="joinLobby(lobby.id)"
               variant="primary"
               class="w-100"
             >
