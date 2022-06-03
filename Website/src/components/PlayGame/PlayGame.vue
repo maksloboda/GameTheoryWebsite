@@ -428,7 +428,7 @@ export default {
 
       if (this.is_finished) {
         clearInterval(this.timer_interval);
-      } else if (this.is_ready) {
+      } else if (this.is_ready && !this.timer_interval) {
         this.startTimer()
       }
     },

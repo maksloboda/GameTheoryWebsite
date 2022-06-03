@@ -70,11 +70,12 @@ export default {
       async getLobbies() {
         await this.$apollo.query({
           query: GET_PUBLIC_GAMES_QUERY,
+          fetchPolicy: 'network-only',
           variables: {
             limit: 0,
           },
         }).then((response) =>  {
-            this.lobbies = response.data.getPublicGames
+            this.$set(this, "lobbies", response.data.getPublicGames)
           }
         ).catch((response) => {
             console.error("Get public games error:", response)
