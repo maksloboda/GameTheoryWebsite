@@ -50,12 +50,12 @@ import { PORT } from "./constants/network"
 // HTTP connection to the API
 const httpLink = createHttpLink({
   // You should use an absolute URL here
-  uri: `http://localhost:${PORT}/query`,
+  uri: `http://${HOST}:${PORT}/query`,
 })
 
 // Create the subscription websocket link
 const wsLink = new WebSocketLink({
-  uri: `ws://localhost:${PORT}/query`,
+  uri: `ws://${HOST}:${PORT}/query`,
   options: {
     reconnect: true,
   },

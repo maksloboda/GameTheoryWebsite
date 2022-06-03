@@ -4,7 +4,7 @@
   "description": "",
   "main": "babel.config.js",
   "scripts": {
-    "serve": "cross-env PORT=8081 vue-cli-service serve",
+    "serve": "cross-env PORT=8081 HOST=localhost vue-cli-service serve",
     "build": "vue-cli-service build",
     "start": "node index.js"
   },
