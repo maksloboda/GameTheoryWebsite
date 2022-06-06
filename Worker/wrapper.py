@@ -15,11 +15,13 @@ def pika_respond(request_id, pika_connection, response):
     tmp.basic_publish(exchange='',
                       routing_key='resp_%s' % request_id,
                       body=json.dumps(response))
+    tmp.close()
 
 def handle_func(function_name, pika_connection, executable_path, message_body):
     error_cause = ""
     request_id = ""
     result = None
+    # print("Handling a message")
     try:
         parsed = json.loads(message_body)
         params = parsed.get("params")

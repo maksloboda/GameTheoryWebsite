@@ -41,6 +41,7 @@ func RemoteCall(game string, method string, args []interface{},
 	if chan_err != nil {
 		return chan_err
 	}
+	defer ch.Close()
 
 	query_id := uuid.New().String()
 
