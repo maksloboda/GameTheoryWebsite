@@ -105,6 +105,13 @@ func CreateGame(data *model.GameCreateRequest) (string, error) {
 		return "", rcr_err
 	}
 
+	var is_state_valid bool
+	json.Unmarshal([]byte(rcr.Result), &is_state_valid)
+
+	if !is_state_valid {
+		return "", nil
+	}
+
 	// TODO deadline
 	new_id := uuid.New().String()
 

@@ -42,13 +42,13 @@ export default {
         variables: {
           data: data,
         },
-      }).then((response) =>  {    
+      }).then((response) =>  {
+        if (response.data.createGame != "") {
           this.$router.push({path: "play/" + response.data.createGame})
         }
-      ).catch((response) => {
-          console.error("Create game error", response)
-        }
-      )
+      }).catch((response) => {
+        console.error("Create game error", response)
+      })
     },
   },
 };
