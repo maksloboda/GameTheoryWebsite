@@ -46,7 +46,7 @@ import { getMainDefinition } from 'apollo-utilities'
 Vue.use(VueApollo)
 Vue.use(VueI18n)
 
-import { PORT } from "./constants/network"
+import { PORT, HOST } from "./constants/network"
 // HTTP connection to the API
 const httpLink = createHttpLink({
   // You should use an absolute URL here

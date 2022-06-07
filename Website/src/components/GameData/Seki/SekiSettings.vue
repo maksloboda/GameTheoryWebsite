@@ -149,7 +149,7 @@ export default {
       game_type: "seki",
       field_width: 4,
       field_height: 4,
-      field: Array(MAX_FIELD_SIZE * MAX_FIELD_SIZE).fill(1),
+      field: Array(MAX_FIELD_SIZE * MAX_FIELD_SIZE).fill(0),
       MAX_FIELD_SIZE: MAX_FIELD_SIZE,
       MAX_CELL_VALUE: MAX_CELL_VALUE,
       unlimited_time: false,

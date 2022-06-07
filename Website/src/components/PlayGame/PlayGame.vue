@@ -106,19 +106,26 @@
       </b-col></b-row>
       
       <b-card v-if="is_ready" class="mt-2">
-        <b-button 
-          v-if="game_mode == MODE_SPECTATE"
-          :disabled="!is_ready ||is_finished || current_player == player_id"
-          @click="makeBotMove"
-          variant="primary"
-        >
-          {{$t('message.PlayGame.MakeMove')}}
-        </b-button>
-
+        <b-row>
+        <b-col>
         <b-button 
           @click="leaveGame" 
           variant="outline-danger"
         >{{$t('message.PlayGame.LeaveGame')}}</b-button>
+        </b-col>
+
+        <b-col>
+        <b-button 
+          v-if="MODE_SPECTATE || game_mode == MODE_VS_COMP"
+          :disabled="!is_ready || is_finished || current_player == player_id"
+          @click="makeBotMove"
+          variant="primary"
+          class="float-end"
+        >
+          {{$t('message.PlayGame.MakeMove')}}
+        </b-button>
+        </b-col>
+        </b-row>
       </b-card>
     </div>
   </b-container>
@@ -281,9 +288,9 @@ export default {
         await this.sendMove(move, this.player_token);
       }
 
-      if (this.game_mode == MODE_VS_COMP) {
-        await this.makeBotMove();
-      }
+      // if (this.game_mode == MODE_VS_COMP) {
+      //   await this.makeBotMove();
+      // }
     },
 
     async joinLobby(pid) {
