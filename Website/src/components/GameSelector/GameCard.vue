@@ -5,7 +5,7 @@
       >
         <h5 class="card-title">
           <center>
-          {{ game_object.getCardGameName() }}
+          {{ this.$t("message.GameNames." + game_object.getCardGameName()) }}
           </center>
         </h5>
         <div class="d-flex">
@@ -37,8 +37,14 @@
       :is="game_object.getSettingsComponent()"
       ref="game_settings_component"
     ></component>
-    <b-button variant="primary" class="mt-2" @click="startGame(false)">{{$t('message.PlayGame.StartPrivate')}}</b-button>
-    <b-button variant="primary" class="mt-2" @click="startGame(true)">{{$t('message.PlayGame.StartPublic')}}</b-button>
+    <b-row>
+      <b-col>
+        <b-button variant="primary" class="mt-2" @click="startGame(false)">{{$t('message.PlayGame.StartPrivate')}}</b-button>
+      </b-col>
+      <b-col>
+        <b-button variant="primary" class="mt-2 float-end" @click="startGame(true)">{{$t('message.PlayGame.StartPublic')}}</b-button>
+      </b-col>
+    </b-row>
   </b-modal>
 
 

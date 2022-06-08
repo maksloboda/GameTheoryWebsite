@@ -8,8 +8,8 @@
               id="game-type-radio"
               v-model="game_type"
             >
-            <b-form-radio value="seki">Seki</b-form-radio>
-            <b-form-radio value="dseki">D-Seki</b-form-radio>
+            <b-form-radio value="seki">{{$t('message.SekiSettings.TypeSeki')}}</b-form-radio>
+            <b-form-radio value="dseki">{{$t('message.SekiSettings.TypeDSeki')}}</b-form-radio>
           </b-form-radio-group>
           </b-form-group>
         </b-col>

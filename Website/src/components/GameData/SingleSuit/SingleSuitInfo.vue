@@ -7,22 +7,6 @@
       <li>
         <p>
           <h3>
-            {{ $t('message.SingleSuitInfo.SuitWhistette.header') }}
-          </h3>
-            {{ $t('message.SingleSuitInfo.SuitWhistette.info') }}
-        </p>
-      </li>
-      <li>
-        <p>
-          <h3>
-            {{ $t('message.SingleSuitInfo.WeightedWhistette.header') }}
-          </h3>
-            {{ $t('message.SingleSuitInfo.WeightedWhistette.info') }}
-        </p>
-      </li>
-      <li>
-        <p>
-          <h3>
             {{ $t('message.SingleSuitInfo.SuitFool.header') }}
           </h3>
             {{ $t('message.SingleSuitInfo.SuitFool.part1') }}
