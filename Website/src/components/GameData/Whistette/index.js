@@ -71,7 +71,7 @@ export default {
   },
   initStateFromSettings(settings) {
     return {
-      CurrentPlayer: FIRST_PLAYER_ID,
+      CurrentPlayer: settings.first_player,
       FirstPlayerSet: settings.first_player_array,
       SecondPlayerSet: settings.second_player_array,
       LastCard: null,
