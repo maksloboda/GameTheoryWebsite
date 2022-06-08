@@ -2,8 +2,13 @@ import sys
 import json
 
 
-def isStartStateValid(enc_state):
-  return True
+def isStartStateValid(state_enc):
+  state = json.loads(state_enc)
+  fps = state["FirstPlayerSet"]
+  sps = state["SecondPlayerSet"]
+  if len(fps) != 0 and len(sps) != 0:
+    return True
+  return False
 
 def joinGame(gameinfo, pid):
   players_joined = gameinfo["players_joined"]

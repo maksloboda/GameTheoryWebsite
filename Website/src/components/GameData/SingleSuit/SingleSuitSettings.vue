@@ -140,6 +140,7 @@ export default {
       }
       return {
           game_type: this.game_type,
+          first_player: this.first_player,
           cards_number: cnt,
           first_player_array: f,
           second_player_array: s,
