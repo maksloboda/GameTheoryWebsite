@@ -11,7 +11,7 @@
                 v-model="cards_number"
                 id="cards-number"
                 type="number"
-                min="1"
+                min="2"
                 max="16"
               >
               </b-form-input>
