@@ -116,7 +116,7 @@
 
         <b-col>
         <b-button 
-          v-if="MODE_SPECTATE || game_mode == MODE_VS_COMP"
+          v-if="is_bot_button_visible"
           :disabled="!is_ready || is_finished || current_player == player_id"
           @click="makeBotMove"
           variant="primary"
@@ -181,6 +181,9 @@ export default {
   },
 
   computed: {
+    is_bot_button_visible() {
+      return this.game_mode == MODE_SPECTATE || this.game_mode == MODE_VS_COMP
+    },
     player_token: { 
       get() { return this.player_tokens[0]; },
       set(token) { 
