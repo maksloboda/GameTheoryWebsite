@@ -6,14 +6,9 @@
       </center>
     </div>
     <div v-else >
-      <b-card>
+      <b-card class="text-center" :title="subgameName()">
         <b-row>
-          <b-col sm="2" id="game_info_panel">
-            <h3>
-              {{ game_name }}
-            </h3>
-          </b-col>
-          <b-col sm="8">
+          <b-col sm="12">
             <b-row 
               class="justify-content-md-center"
               v-for="row in game_state.field"
@@ -72,6 +67,13 @@ export default {
     }
   },
   methods: {
+    subgameName() {
+      if (this.game_type == "seki") {
+        return this.$t('message.SekiSettings.TypeSeki')
+      } else if (this.game_type == "dseki") {
+        return this.$t('message.SekiSettings.TypeDSeki')
+      }
+    },
     setState(state, game_type, player_id) {
       this.game_state = state
       this.game_type = game_type
