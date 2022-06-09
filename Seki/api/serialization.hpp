@@ -92,14 +92,21 @@ namespace nlohmann {
 
       std::vector<std::vector<int>> field_data(uheight, std::vector<int>(uwidth, 0));
 
+      unsigned long long sum = 0;
+
       for(size_t y = 0; y < uheight; ++y) {
         for(size_t x = 0; x < uwidth; ++x) {
           auto value = flat_field_data[x + y * uwidth];
           if (value < 0) {
             throw std::runtime_error("Negative items are not allowed");
           }
+          sum += (unsigned int)value;
           field_data[y][x] = value;
         }
+      }
+
+      if (sum > 20) {
+        throw std::runtime_error("Sum is too big");
       }
 
       auto type = api::detail::match<std::string, core::SekiType, 2>(
