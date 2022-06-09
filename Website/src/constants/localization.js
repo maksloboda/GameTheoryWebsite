@@ -10,6 +10,9 @@ export const messages = {
           Seki: "Seki",
           Fool: "Fool",
           Whistette: "Whistette",
+          seki: "Seki",
+          singlesuit: "Fool",
+          whistette: "Whistette",
         },
         SekiSettings: {
             PassOptions: 'Pass options',
@@ -147,6 +150,9 @@ export const messages = {
           Seki: "Секи",
           Fool: "Дурак",
           Whistette: "Вист",
+          seki: "Секи",
+          singlesuit: "Дурак",
+          whistette: "Вист",
         },
         SekiSettings: {
             PassOptions: 'Возможность пропуска хода',

@@ -16,7 +16,7 @@
         <b-row>
           <b-col sm="2">
             <p class="font-weight-bold">
-              <b>{{ lobby.game_name }}</b>
+              <b>{{ $t("message.GameNames." + lobby.game_name) }}</b>
             </p>
           </b-col>
           <b-col sm="3">
