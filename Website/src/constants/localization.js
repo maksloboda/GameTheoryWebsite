@@ -46,6 +46,9 @@ export const messages = {
             PlayerAScore: 'Player A score',
             PlayerBScore: 'Player B score',
         },
+        WhistetteInterface: {
+          GameType: "Whistette",
+        },
         JoinGame: {
             LobbiesFound: 'Number of found lobbies:',
             Refresh: 'Refresh',
@@ -158,6 +161,9 @@ export const messages = {
         Whistette: {
           PlayerAScore: 'Счет игрока A',
           PlayerBScore: 'Счет игрока B',
+        },
+        WhistetteInterface: {
+          GameType: "Вист",
         },
         SingleSuitSettings: {
             Fool: 'Дурак',

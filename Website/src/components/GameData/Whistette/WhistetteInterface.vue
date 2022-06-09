@@ -7,7 +7,7 @@
     </div>
     <div v-else>
       <div class="container mt-2">
-        <b-card class="text-center" :title="$t('message.SingleSuitInterface.GameType')">
+        <b-card class="text-center" :title="$t('message.WhistetteInterface.GameType')">
           <div class="mt-2"> 
             <b-row class="justify-content-md-center">
               <b-col md="auto" v-for="c in game_state.first_player_set">

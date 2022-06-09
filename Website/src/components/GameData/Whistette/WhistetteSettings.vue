@@ -12,22 +12,22 @@
                 id="cards-number"
                 type="number"
                 min="1"
-                max="100"
+                max="16"
               >
               </b-form-input>
           </b-form-group>
         </b-col>
-        <b-row>
-          <b-form-group :label="$t('message.SingleSuitSettings.FirstPlayer')">
-            <b-form-radio-group
-              id="first-player-radio"
-              v-model="first_player"
-            >
-            <b-form-radio :value="FIRST_PLAYER_ID">A</b-form-radio>
-            <b-form-radio :value="SECOND_PLAYER_ID">B</b-form-radio>
-          </b-form-radio-group>
-          </b-form-group>
-        </b-row>
+        <b-col sm="4">
+            <b-form-group :label="$t('message.SingleSuitSettings.FirstPlayer')">
+              <b-form-radio-group
+                id="first-player-radio"
+                v-model="first_player"
+              >
+              <b-form-radio :value="FIRST_PLAYER_ID">A</b-form-radio>
+              <b-form-radio :value="SECOND_PLAYER_ID">B</b-form-radio>
+            </b-form-radio-group>
+            </b-form-group>
+          </b-col>
       </b-row>
 
       <br>
@@ -134,6 +134,7 @@ export default {
           first_player_array: f,
           second_player_array: s,
           time_limit: time_limit,
+          first_player: this.first_player,
         };
     },
     minMax(val, min, max) {

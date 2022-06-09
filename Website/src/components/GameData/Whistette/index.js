@@ -69,6 +69,11 @@ export default {
 
     return game_state
   },
+  makeMoveFromEvent(event) {
+    return {
+      card: event.Card
+    }
+  },
   initStateFromSettings(settings) {
     return {
       CurrentPlayer: settings.first_player,

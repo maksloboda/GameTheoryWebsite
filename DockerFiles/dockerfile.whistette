@@ -1,8 +1,17 @@
 FROM python:slim-buster
-# Creates the actual service
+
+RUN apt update && apt install -y build-essential
 
 # Copy the needed files
 COPY Whistette/ /Whistette/
+
+RUN cd Whistette && make
+
+
+FROM python:slim-buster
+# Creates the actual service
+
+COPY --from=0 /Whistette/a.out /bin/whistette
 
 RUN mkdir /Worker
 
@@ -14,7 +23,7 @@ WORKDIR /Worker
 RUN pip3 install pika
 
 # Set environment
-ENV EXEC_PATH=/Whistette/run.sh
+ENV EXEC_PATH=/bin/whistette
 ENV GAME_NAME=whistette
 
 RUN chmod +x $EXEC_PATH
