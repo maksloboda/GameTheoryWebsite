@@ -52,11 +52,17 @@ struct GameState {
     if (it == cards.end()) {
       throw std::runtime_error("No such card");
     }
+    auto swap_player = [&]() {
+      if (!is_terminal()) {
+        CurrentPlayer = CurrentPlayer == "A" ? "B" : "A";
+      }
+    };
     cards.erase(it);
     if (LastCard.has_value()) {
       bool does_first_win = false;
       if (m.Card <= *LastCard) {
         does_first_win = CurrentPlayer == "B";
+        swap_player();
       } else {
         does_first_win = CurrentPlayer == "A";
       }
@@ -68,9 +74,7 @@ struct GameState {
       LastCard = std::nullopt;
     } else {
       LastCard = m.Card;
-    }
-    if (!is_terminal()) {
-      CurrentPlayer = CurrentPlayer == "A" ? "B" : "A";
+      swap_player();
     }
   }
 
