@@ -32,7 +32,7 @@
     ref='config_modal'
     hide-footer 
     size="xl"
-    :title="game_object.getCardGameName()">
+    :title="this.$t('message.GameNames.' + game_object.getCardGameName())">
     <component 
       :is="game_object.getSettingsComponent()"
       ref="game_settings_component"

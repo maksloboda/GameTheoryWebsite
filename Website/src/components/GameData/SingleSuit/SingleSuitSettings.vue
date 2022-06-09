@@ -12,7 +12,7 @@
                 id="cards-number"
                 type="number"
                 min="1"
-                max="100"
+                max="8"
               >
               </b-form-input>
           </b-form-group>
