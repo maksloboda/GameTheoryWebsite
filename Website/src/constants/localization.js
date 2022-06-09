@@ -34,7 +34,8 @@ export const messages = {
             Pass: 'Pass',
         },
         SingleSuitInterface: {
-            GameType: 'SingleSuit',
+            Fool: 'Fool',
+            DFool: 'D-Fool',
             NullGameState: 'SingleSuit state is null',
         },
         GameSelector: {
@@ -171,7 +172,8 @@ export const messages = {
             Pass: 'Пропуск хода',
         },
         SingleSuitInterface: {
-            GameType: 'Одномастка',
+            Fool: 'Дурак',
+            DFool: 'Н-Дурак',
             NullGameState: 'Состояние игры неизвестно',
         },
         GameSelector: {

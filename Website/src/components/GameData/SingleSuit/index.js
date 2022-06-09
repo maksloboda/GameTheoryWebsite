@@ -76,6 +76,12 @@ export default {
       console.error("Wrong move type:", move)
     }
   },
+  makeMoveFromEvent(event) {
+    return {
+      card: event.Card,
+      do_take: event.DoTake
+    }
+  },
   applyMove(game_state, move) {
     if (move.type == 'move') {
       if (move.do_take) {

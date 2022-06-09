@@ -1,6 +1,6 @@
 <template>
   <b-container>
-    <b-card><b-row><b-col sm="10">
+    <b-card><b-row><b-col sm="10" align="center" class="fs-3">
       <b-div
         ref="game_status"
       >
@@ -149,7 +149,6 @@ import {
   MODE_VS_HUMAN,
   MODE_SPECTATE,
 } from "../../constants/constants"
-import { FIRST_PLAYER_ID, SECOND_PLAYER_ID } from "../GameData/Seki";
 
 export default {
   async mounted() {
@@ -225,14 +224,14 @@ export default {
     pass_options() { return this.game_state.pass_options },
     can_first_pass() {
       try {
-        return this.game_state.pass_options[FIRST_PLAYER_ID]
+        return this.game_state.pass_options[this.FIRST_PLAYER_ID]
       } catch (err) {
         return false
       }
     },
     can_second_pass() {
       try {
-        return this.game_state.pass_options[SECOND_PLAYER_ID]
+        return this.game_state.pass_options[this.SECOND_PLAYER_ID]
       } catch (err) {
         return false
       }
@@ -296,8 +295,8 @@ export default {
     async joinLobby(pid) {
       console.log(this.game_mode)
       if (this.game_mode == MODE_SPECTATE) {
-        this.player_tokens[0] = await this.joinGame(FIRST_PLAYER_ID)
-        this.player_tokens[1] = await this.joinGame(SECOND_PLAYER_ID)
+        this.player_tokens[0] = await this.joinGame(this.FIRST_PLAYER_ID)
+        this.player_tokens[1] = await this.joinGame(this.SECOND_PLAYER_ID)
       } else {
         this.player_id = pid
         this.player_tokens[0] = await this.joinGame(pid)
@@ -305,9 +304,9 @@ export default {
           this.client_joined = 1
         }
         if (this.game_mode != MODE_VS_HUMAN) {
-          let bot_pid = FIRST_PLAYER_ID
-          if (pid == FIRST_PLAYER_ID) { 
-            bot_pid = SECOND_PLAYER_ID
+          let bot_pid = this.FIRST_PLAYER_ID
+          if (pid == this.FIRST_PLAYER_ID) { 
+            bot_pid = this.SECOND_PLAYER_ID
           }
           this.player_tokens[1] = await this.joinGame(bot_pid)
         }

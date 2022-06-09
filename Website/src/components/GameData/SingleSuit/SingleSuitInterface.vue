@@ -7,7 +7,7 @@
     </div>
     <div v-else>
       <div class="container mt-2">
-        <b-card class="text-center" :title="$t('message.SingleSuitInterface.GameType')">
+        <b-card class="text-center" :title="subgameName()">
           <div class="mt-2"> 
             <b-row class="justify-content-md-center">
               <b-col md="auto" v-for="c in game_state.first_player_set">
@@ -27,7 +27,7 @@
             <b-row class="justify-content-md-center">
               <b-button class="card-button bg-secondary" variant="secondary"
                 v-if="null != game_state.last_card"
-                @click="makeMoveInterface({type:'move', card: c, do_take:true})"
+                @click="makeMoveInterface({type:'move', card: game_state.last_card, do_take:true})"
                 >
                   {{game_state.last_card}}
               </b-button>
@@ -77,6 +77,13 @@ export default {
     }
   },
   methods: {
+    subgameName() {
+      if (this.game_state.game_type == "d-singlesuit") {
+        return this.$t('message.SingleSuitInterface.DFool')
+      } else {
+        return this.$t('message.SingleSuitInterface.Fool')
+      }
+    },
     setState(state, game_type, player_id) {
       this.game_state = state
       this.game_type = game_type
