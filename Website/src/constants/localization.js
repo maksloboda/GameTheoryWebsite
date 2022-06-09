@@ -205,7 +205,7 @@ export const messages = {
             Loading: 'Загрузка...',
             MakeMove: 'Сделать ход',
             LeaveGame: 'Покинуть игру',
-            AgainstComputer: 'Игра против бота',
+            AgainstComputer: 'Игра против компьютера',
             AgainstHuman: 'Против реального человека',
             Spectator: 'Наблюдатель',
         },

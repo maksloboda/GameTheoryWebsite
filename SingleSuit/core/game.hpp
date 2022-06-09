@@ -80,9 +80,15 @@ struct GameState {
     if (m.DoTake && !LastCard.has_value()) {
       throw std::runtime_error("Cant take without LastCard");
     }
+    auto swap_player = [&]() {
+      if (!is_terminal()) {
+        CurrentPlayer = CurrentPlayer == "A" ? "B" : "A";
+      }
+    };
     if (m.DoTake && LastCard.has_value()) {
       cards.push_back(*LastCard);
       LastCard = std::nullopt;
+      swap_player();
     } else {
       auto it = std::find(cards.begin(), cards.end(), m.Card);
       if (it == cards.end()) {
@@ -96,10 +102,9 @@ struct GameState {
         LastCard = std::nullopt;
       } else {
         LastCard = m.Card;
+        swap_player();
       }
     }
-    
-    CurrentPlayer = CurrentPlayer == "A" ? "B" : "A";
   }
 
 };
