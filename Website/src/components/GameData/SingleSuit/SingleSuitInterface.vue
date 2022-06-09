@@ -9,7 +9,7 @@
       <div class="container mt-2">
         <b-card class="text-center" :title="subgameName()">
           <div class="mt-2"> 
-            <b-row class="justify-content-md-center">
+            <b-row class="justify-content-md-center" style="height: 80px">
               <b-col md="auto" v-for="c in game_state.first_player_set">
                 <b-button 
                   class="card-button"
@@ -24,7 +24,7 @@
             <br>
             <br>
 
-            <b-row class="justify-content-md-center">
+            <b-row class="justify-content-md-center" style="height: 80px">
               <b-button class="card-button bg-secondary" variant="secondary"
                 v-if="null != game_state.last_card"
                 @click="makeMoveInterface({type:'move', card: game_state.last_card, do_take:true})"
@@ -37,7 +37,7 @@
             <br>
             <br>
 
-            <b-row class="justify-content-md-center">
+            <b-row class="justify-content-md-center" style="height: 80px">
               <b-col md="auto" v-for="c in game_state.second_player_set">
                 <b-button 
                   class="card-button"
