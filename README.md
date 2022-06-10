@@ -4,6 +4,8 @@
 
 - установка утилит docker-compose и npm
 - в корне репозитория ```docker-compose build```
+- в корне репозитория ```git submodule init```
+- в корне репозитория ```git submodule update```
 - в директории Website ```npm install```
 
 
