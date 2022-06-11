@@ -97,6 +97,21 @@
           </b-form-checkbox>
         </b-col>
       </b-row>
+      
+      <br>
+      <b-row>
+        <b-form-group label="Choose opponent:">
+          <b-form-radio-group
+            id="choose-opponent-radio"
+            button-variant="outline-primary"
+            buttons
+          >
+          <b-form-radio>vs comp</b-form-radio>
+          <b-form-radio>vs person</b-form-radio>
+          <b-form-radio>spectator</b-form-radio>
+        </b-form-radio-group>
+        </b-form-group>
+      </b-row>
 
       <br>
       <b-card>
