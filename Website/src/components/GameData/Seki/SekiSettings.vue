@@ -4,13 +4,13 @@
       <b-row>
         <b-col>
           <b-form-group :label="$t('message.SekiSettings.GameType')">
-            <b-form-radio-group
-              id="game-type-radio"
+            <b-form-select
+              id="game-type-select"
               v-model="game_type"
             >
-            <b-form-radio value="seki">{{$t('message.SekiSettings.TypeSeki')}}</b-form-radio>
-            <b-form-radio value="dseki">{{$t('message.SekiSettings.TypeDSeki')}}</b-form-radio>
-          </b-form-radio-group>
+            <b-form-select-option value="seki">{{$t('message.SekiSettings.TypeSeki')}}</b-form-select-option>
+            <b-form-select-option value="dseki">{{$t('message.SekiSettings.TypeDSeki')}}</b-form-select-option>
+            </b-form-select>
           </b-form-group>
         </b-col>
         
@@ -32,13 +32,13 @@
         
         <b-col>
           <b-form-group :label="$t('message.SingleSuitSettings.FirstPlayer')">
-            <b-form-radio-group
-              id="first-player-radio"
+            <b-form-select
+              id="first-player-select"
               v-model="first_player"
             >
-            <b-form-radio :value="FIRST_PLAYER_ID">R</b-form-radio>
-            <b-form-radio :value="SECOND_PLAYER_ID">C</b-form-radio>
-          </b-form-radio-group>
+            <b-form-select-option :value="FIRST_PLAYER_ID">R</b-form-select-option>
+            <b-form-select-option :value="SECOND_PLAYER_ID">C</b-form-select-option>
+            </b-form-select>
           </b-form-group>
         </b-col>
       </b-row>
