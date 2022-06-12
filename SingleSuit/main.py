@@ -1,6 +1,9 @@
+from pickle import PickleError
 import sys
 import json
 
+from solver.classtypes.game_state import GameState, EMPTY_FIELD
+from solver.solvers import find_optimal_move_dfool, find_optimal_move_fool
 
 def isStartStateValid(state_enc):
   state = json.loads(state_enc)
@@ -99,6 +102,29 @@ def advance(gameinfo):
   gameinfo["winner"] = "A" if state["CurrentPlayer"] == "B" else "B"
   return gameinfo
 
+def findOptimalMove(gameinfo):
+  state = json.loads(gameinfo["state"])
+  last_card = state["LastCard"]
+  solverstate = GameState(
+    int(state["CurrentPlayer"] == "B"),
+    state["FirstPlayerSet"],
+    state["SecondPlayerSet"],
+    EMPTY_FIELD if last_card is None else last_card
+  )
+
+  is_dfool = state["Type"] == "d-singlesuit"
+  picked_move = None
+  if is_dfool:
+    picked_move = find_optimal_move_dfool(solverstate)
+  else:
+    picked_move = find_optimal_move_fool(solverstate)
+  
+  return {
+    "DoTake": picked_move == last_card,
+    "Card": picked_move
+  }
+
+
 def callWrapper(request):
   method = request["method"]
   if method == "isStartStateValid":
@@ -109,10 +135,10 @@ def callWrapper(request):
     return addEvent(*request["params"])
   elif method == "advance":
     return advance(*request["params"])
+  elif method == "findOptimalMove":
+    return findOptimalMove(*request["params"])
 
   raise Exception("Unknown method")
-
-# def 
 
 def main():
   request_json = sys.stdin.read()
