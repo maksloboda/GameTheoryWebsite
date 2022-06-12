@@ -1,6 +1,3 @@
-[submodule "SingleSuit/genericgamesolver"]
-	path = SingleSuit/genericgamesolver
-	url = https://github.com/maksloboda/GenericGameSolver.git
 [submodule "Whistette/genericgamesolver"]
 	path = Whistette/genericgamesolver
 	url = https://github.com/maksloboda/GenericGameSolver.git
