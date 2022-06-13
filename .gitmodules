@@ -1,6 +1,3 @@
-[submodule "Whistette/genericgamesolver"]
-	path = Whistette/genericgamesolver
-	url = https://github.com/maksloboda/GenericGameSolver.git
 [submodule "SingleSuit/solver"]
 	path = SingleSuit/solver
 	url = git@github.com:maksloboda/Singlesuit-Fool-Solver.git
