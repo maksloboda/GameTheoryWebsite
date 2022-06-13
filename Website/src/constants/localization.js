@@ -18,11 +18,16 @@ export const messages = {
             PassOptions: 'Pass options',
             RPass: 'R can pass',
             CPass: 'C can pass',
+            BothPass: 'Both players',
             GameType: 'Game type',
             TypeSeki: 'Seki',
             TypeDSeki: 'D-Seki',
             FieldWidth: 'Field width',
             FieldHeight: 'Field height',
+            OpponentChoice: 'Opponent options',
+            ComputerPerson: 'VS computer',
+            PersonPerson: 'VS person',
+            ComputerComputer: 'Spectator',
         },
         SingleSuitSettings: {
             Fool: 'Fool',
@@ -155,14 +160,19 @@ export const messages = {
           whistette: "Вист",
         },
         SekiSettings: {
-            PassOptions: 'Возможность пропуска хода',
-            RPass: 'R может пропускать ход',
-            CPass: 'C может пропускать ход',
+            PassOptions: 'Возможность пасовать',
+            RPass: 'Только для R',
+            CPass: 'Только для C',
+            BothPass: 'Для обоих игроков',
             GameType: 'Тип игры',
             TypeSeki: 'Секи',
             TypeDSeki: 'Н-Секи',
             FieldWidth: 'Ширина поля',
             FieldHeight: 'Высота поля',
+            OpponentChoice: 'Режим игры',
+            ComputerPerson: 'Против компьютера',
+            PersonPerson: 'Против человека',
+            ComputerComputer: 'Наблюдатель',
         },
         Whistette: {
           PlayerAScore: 'Счет игрока A',
@@ -212,8 +222,8 @@ export const messages = {
             FirstMove: 'Ходит первый',
             CanPass: 'может пропустить ход',
             Start: 'Начать игру:',
-            StartPrivate: 'Создать приватную игру',
-            StartPublic: 'Создать публичную игру',
+            StartPrivate: 'Приватная игра',
+            StartPublic: 'Публичная игра',
             Loading: 'Загрузка...',
             MakeMove: 'Сделать ход',
             LeaveGame: 'Покинуть игру',
@@ -224,7 +234,7 @@ export const messages = {
         SekiInfo: {
           header: 'Правила семейства игр Секи',
           part1: 'Задана матрица A размера m x n, состоящая из неотрицательных чисел.\
-          Два игрока(обозначим их для удобства R и C), по очереди делают ходы.\
+          Два игрока (обозначим их для удобства R и C), по очереди делают ходы.\
           За каждый ход один из игроков может уменьшить любое положительное\
           число матрицы на единицу.\
           Игрок R стремится занулить строку, игрок C - столбец. Если после\

@@ -27,10 +27,10 @@
         {{ $t('message.SekiInfo.mode2') }}
       </li>
       <li>
-        {{ $t('message.SekiInfo.mode2') }}
+        {{ $t('message.SekiInfo.mode3') }}
       </li>
       <li>
-        {{ $t('message.SekiInfo.mode3') }}
+        {{ $t('message.SekiInfo.mode4') }}
       </li>
     </ul>
         {{ $t('message.SekiInfo.endInfo') }}

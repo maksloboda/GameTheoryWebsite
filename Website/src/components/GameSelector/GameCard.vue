@@ -39,10 +39,10 @@
     ></component>
     <b-row>
       <b-col>
-        <b-button variant="primary" class="mt-2" @click="startGame(false)">{{$t('message.PlayGame.StartPrivate')}}</b-button>
+        <b-button variant="primary" class="custom-btn" @click="startGame(false)">{{$t('message.PlayGame.StartPrivate')}}</b-button>
       </b-col>
       <b-col>
-        <b-button variant="primary" class="mt-2 float-end" @click="startGame(true)">{{$t('message.PlayGame.StartPublic')}}</b-button>
+        <b-button variant="primary" class="custom-btn float-end" @click="startGame(true)">{{$t('message.PlayGame.StartPublic')}}</b-button>
       </b-col>
     </b-row>
   </b-modal>
@@ -50,6 +50,48 @@
 
   </div>
 </template>
+
+<style>
+.close {
+  font-size: 28px;
+  line-height: 1;
+  color: #ef1616;
+  filter: alpha(opacity=20);
+  border: none;
+  background-color: inherit;
+}
+
+.custom-btn {
+  width: 200px;
+  height: 40px;
+  color: #fff;
+  border-radius: 5px;
+  transition: all 0.3s ease;
+  position: relative;
+  display: inline-block;
+  outline: none;
+  margin: 20px;
+  background: #0d6efd;
+  border: none;
+  z-index: 1;
+}
+.custom-btn:after {
+  position: absolute;
+  content: "";
+  width: 0;
+  height: 100%;
+  top: 0;
+  right: 0;
+  z-index: -1;
+  background-color: #210b99;
+  border-radius: 5px;
+  transition: all 0.3s ease;
+}
+.custom-btn:hover:after {
+  left: 0;
+  width: 100%;
+}
+</style>
 
 <script>
 export default {

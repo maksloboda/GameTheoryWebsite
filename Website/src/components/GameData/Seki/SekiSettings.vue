@@ -1,154 +1,183 @@
 <template>
   <div>
     <b-form>
-        <b-row>
-          <b-col cols=6>
-            <b-row>
-              <b-col cols=3>
-                <b-form-group :label="$t('message.SekiSettings.GameType')">
-                  <b-form-select
-                    id="game-type-select"
-                    v-model="game_type"
-                  >
-                  <b-form-select-option value="seki">{{$t('message.SekiSettings.TypeSeki')}}</b-form-select-option>
-                  <b-form-select-option value="dseki">{{$t('message.SekiSettings.TypeDSeki')}}</b-form-select-option>
-                  </b-form-select>
-                </b-form-group>
-              </b-col>
-          
-              <b-col cols=6>
-                <b-form-group 
-                  id="pass_options"
-                  :label="$t('message.SekiSettings.PassOptions')"
-                >
-                  <b-form-checkbox-group
-                    v-model="pass_options"
-                    id="checkboxes-4"
-                  >
-                    <b-form-checkbox :value="FIRST_PLAYER_ID">{{$t('message.SekiSettings.RPass')}}</b-form-checkbox>
-                    <b-form-checkbox :value="SECOND_PLAYER_ID">{{$t('message.SekiSettings.CPass')}}</b-form-checkbox>
-                  </b-form-checkbox-group>
-                </b-form-group>
-              </b-col>
-              
-              <b-col cols=3>
-                <b-form-group :label="$t('message.SingleSuitSettings.FirstPlayer')">
-                  <b-form-select
-                    id="first-player-select"
-                    v-model="first_player"
-                  >
+      <b-row>
+        <b-col cols=6>
+
+          <b-row id="firstContainer">
+            <b-col cols=3 id="first">
+              <b-form-group id="labelOfText" :label="$t('message.SekiSettings.GameType')">
+                <b-form-select id="game-type-select" v-model="game_type">
+                  <b-form-select-option value="seki">{{ $t('message.SekiSettings.TypeSeki') }}</b-form-select-option>
+                  <b-form-select-option value="dseki">{{ $t('message.SekiSettings.TypeDSeki') }}</b-form-select-option>
+                </b-form-select>
+              </b-form-group>
+            </b-col>
+
+            <b-col cols=3 id="second">
+              <b-form-group id="labelOfText" :label="$t('message.SingleSuitSettings.FirstPlayer')">
+                <b-form-select id="first-player-select" v-model="first_player">
                   <b-form-select-option :value="FIRST_PLAYER_ID">R</b-form-select-option>
                   <b-form-select-option :value="SECOND_PLAYER_ID">C</b-form-select-option>
-                  </b-form-select>
-                </b-form-group>
-              </b-col>
-            </b-row>
-            <br>
-            
-            <b-row>
-              <b-col sm="3">
-                <label for="field-width">{{$t('message.SekiSettings.FieldWidth')}}</label>
-              </b-col>
-              <b-col sm="3">
-                <b-form-input
-                  v-model="field_width"
-                  id="field-width"
-                  type="number"
-                  min="1"
-                  :max="MAX_FIELD_SIZE"
-                ></b-form-input>
-              </b-col>
-              <b-col sm="3">
-                <label for="field_height">{{$t('message.SekiSettings.FieldHeight')}}</label>
-              </b-col>
-              <b-col sm="3">
-                <b-form-input
-                  v-model="field_height"
-                  id="field_height"
-                  type='number'
-                  min="1"
-                  :max="MAX_FIELD_SIZE"
-                ></b-form-input>
-              </b-col>
-            </b-row>
-            <br>
-            
-            <b-row>
-              <b-col sm="6">
-                <label for="time_limit">{{$t('message.MoveTimeLimit')}}</label>
-              </b-col>
-              <b-col sm="3">
-                <b-form-input
-                  id="time_limit"
-                  v-model="time_limit"
-                  :value="5"
-                  :disabled="unlimited_time"
-                  type="number"
-                  :min="1"
-                  :max="300"
-                >
-                </b-form-input>
-              </b-col>
-            </b-row>
-            
+                </b-form-select>
+              </b-form-group>
+            </b-col>
+          </b-row>
+
+          <b-row id="secondContainer">
+            <b-col cols=3 id="third">
+              <b-form-group id="labelOfText" :label="$t('message.SekiSettings.OpponentChoice')">
+                <b-form-select id="choose-opponent-radio" button-variant="outline-primary" buttons>
+                  <b-form-select-option id="option1">{{ $t('message.SekiSettings.ComputerPerson') }}
+                  </b-form-select-option>
+                  <b-form-select-option id="option1">{{ $t('message.SekiSettings.PersonPerson') }}</b-form-select-option>
+                  <b-form-select-option id="option1">{{ $t('message.SekiSettings.ComputerComputer') }}
+                  </b-form-select-option>
+                </b-form-select>
+              </b-form-group>
+            </b-col>
+
+            <b-col cols=3 id="forth">
+              <b-form-group id="labelOfText" :label="$t('message.SekiSettings.PassOptions')">
+                <b-form-select id="pass_options" v-model="first_player">
+                  <b-form-select-option id="option1" :value="FIRST_PLAYER_ID">{{ $t('message.SekiSettings.RPass') }}
+                  </b-form-select-option>
+                  <b-form-select-option id="option1" :value="SECOND_PLAYER_ID">{{ $t('message.SekiSettings.CPass') }}
+                  </b-form-select-option>
+                  <b-form-select-option id="option1">{{ $t('message.SekiSettings.BothPass') }}</b-form-select-option>
+                </b-form-select>
+              </b-form-group>
+            </b-col>
+          </b-row>
+
+          <br>
+          <b-row id="thirdContainer">
+            <b-col sm="3" id="fifth">
+              <label id="labelOfText1" for="field-width">{{ $t('message.SekiSettings.FieldWidth') }}</label>
+              <b-form-input v-model="field_width" id="field-width" type="number" min="1" :max="MAX_FIELD_SIZE">
+              </b-form-input>
+            </b-col>
+            <b-col sm="3" id="sixth">
+              <label id="labelOfText1" for="field_height">{{ $t('message.SekiSettings.FieldHeight') }}</label>
+              <b-form-input v-model="field_height" id="field_height" type='number' min="1" :max="MAX_FIELD_SIZE">
+              </b-form-input>
+            </b-col>
+          </b-row>
+          <br>
+
+          <b-row id="forthContainer">
+            <b-col sm="3">
+              <label id="labelOfText1" for="time_limit">{{ $t('message.MoveTimeLimit') }}</label>
+              <b-form-input id="time_limit" v-model="time_limit" :value="5" :disabled="unlimited_time" type="number"
+                :min="1" :max="300">
+              </b-form-input>
+            </b-col>
+          </b-row>
+
+          <b-row id="fifthContainer">
             <b-row sm="6">
-              <b-form-checkbox
-                v-model="unlimited_time"
-                :value="true"
-                :unchecked-value="false"
-              >
-                {{$t('message.UnlimitedTime')}}
+              <b-form-checkbox id="labelOfText" v-model="unlimited_time" :value="true" :unchecked-value="false">
+                {{ $t('message.UnlimitedTime') }}
               </b-form-checkbox>
             </b-row>
-            <br>
-            
-            <b-row>
-              <b-form-group label="Choose opponent:">
-              <b-form-radio-group
-                id="choose-opponent-radio"
-                button-variant="outline-primary"
-                buttons
-              >
-              <b-form-radio>vs comp</b-form-radio>
-              <b-form-radio>vs person</b-form-radio>
-              <b-form-radio>spectator</b-form-radio>
-              </b-form-radio-group>
-              </b-form-group>
-            </b-row>
-          </b-col>
-        
-          <b-col cols=6>
-            <b-card>
-            <b-row 
-              v-for="i in Array(minMax(field_height, 1, MAX_FIELD_SIZE)).keys()"
-              class="justify-content-md-center"
-            >
-              <b-col 
-                v-for="j in Array(minMax(field_width, 1, MAX_FIELD_SIZE)).keys()"
-                class="mx-0 px-0"
-                md="auto"
-              >
-                <b-form-input
-                  v-model="field[i * field_width + j]"
-                  type='number'
-                  min="0"
-                  :max="MAX_CELL_VALUE"
-                  class="field_cell"
-                > </b-form-input>
+          </b-row>
+          <br>
+        </b-col>
+
+        <b-col cols=6>
+          <b-card>
+            <b-row v-for="i in Array(minMax(field_height, 1, MAX_FIELD_SIZE)).keys()" class="justify-content-md-center">
+              <b-col v-for="j in Array(minMax(field_width, 1, MAX_FIELD_SIZE)).keys()" class="mx-0 px-0" md="auto">
+                <b-form-input v-model="field[i * field_width + j]" type='number' min="0" :max="MAX_CELL_VALUE"
+                  class="field_cell"> </b-form-input>
               </b-col>
             </b-row>
           </b-card>
         </b-col>
-        </b-row>
-
+        
+      </b-row>
     </b-form>
   </div>
 </template>
 
 <style>
 .field_cell {
-  width:70px;
-  height:70px;
+  width: 70px;
+  height: 70px;
+}
+
+#labelOfText,
+#labelOfText1 {
+  font-weight: bold;
+}
+
+#labelOfText1 {
+  padding-bottom: calc(0.375rem + 1px);
+}
+
+#second,
+#forth,
+#sixth {
+  margin-left: 150px;
+}
+
+legend,
+#labelOfText,
+#labelOfText1,
+#option1 {
+  white-space: nowrap
+}
+
+#option1 {
+  width: 400px;
+}
+
+#checkboxes-4 {
+  padding-right: 0;
+}
+
+#firstContainer,
+#secondContainer,
+#thirdContainer,
+#forthContainer,
+#fifthContainer {
+  margin-left: 20px;
+}
+
+#secondContainer,
+#fifthContainer {
+  margin-top: 20px;
+}
+
+#field-width,
+#field_height,
+#time_limit {
+  width: 120px;
+  border: 1px solid #6d6d6d;
+}
+
+input#labelOfText {
+  margin-right: 10px;
+}
+
+@media (max-width: 1200px) {
+
+  #secondContainer,
+  #firstContainer,
+  #thirdContainer {
+    display: block;
+  }
+
+  #second,
+  #forth,
+  #sixth {
+    margin-left: 0px;
+    margin-top: 20px;
+  }
+}
+
+select {
+  width: 200px;
 }
 </style>
 
