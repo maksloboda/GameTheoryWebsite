@@ -47,15 +47,20 @@ Vue.use(VueApollo)
 Vue.use(VueI18n)
 
 import { PORT, HOST } from "./constants/network"
+
+// Use default values from constants if env vars are undefined
+const host = process.env.VUE_APP_HOST || HOST
+const port = process.env.VUE_APP_PORT || PORT
+
 // HTTP connection to the API
 const httpLink = createHttpLink({
   // You should use an absolute URL here
-  uri: `http://${HOST}:${PORT}/query`,
+  uri: `http://${host}:${port}/query`,
 })
 
 // Create the subscription websocket link
 const wsLink = new WebSocketLink({
-  uri: `ws://${HOST}:${PORT}/query`,
+  uri: `ws://${host}:${port}/query`,
   options: {
     reconnect: true,
   },
