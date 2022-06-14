@@ -1,6 +1,6 @@
 import sys
 import json
-
+from solver.solver import find_optimal_move, EMPTY_FIELD, GameState
 
 def isStartStateValid(enc_state):
   return True
@@ -97,6 +97,20 @@ def advance(gameinfo):
   gameinfo["winner"] = "A" if state["CurrentPlayer"] == "B" else "B"
   return gameinfo
 
+def findOptimalMove(gameinfo):
+  state = json.loads(gameinfo["state"])
+  last_card = state["LastCard"]
+  solverstate = GameState(
+    state["FirstPlayerSet"],
+    state["SecondPlayerSet"],
+    int(state["CurrentPlayer"] == "B"),
+    EMPTY_FIELD if last_card is None else last_card
+  )
+  
+  return {
+    "Card": find_optimal_move(solverstate)
+  }
+
 def callWrapper(request):
   method = request["method"]
   if method == "isStartStateValid":
@@ -107,10 +121,10 @@ def callWrapper(request):
     return addEvent(*request["params"])
   elif method == "advance":
     return advance(*request["params"])
+  elif method == "findOptimalMove":
+    return findOptimalMove(*request["params"])
 
   raise Exception("Unknown method")
-
-# def 
 
 def main():
   request_json = sys.stdin.read()
