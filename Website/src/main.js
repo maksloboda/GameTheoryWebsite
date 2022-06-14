@@ -46,16 +46,15 @@ import { getMainDefinition } from 'apollo-utilities'
 Vue.use(VueApollo)
 Vue.use(VueI18n)
 
-import { PORT, HOST } from "./constants/network"
 // HTTP connection to the API
 const httpLink = createHttpLink({
   // You should use an absolute URL here
-  uri: `http://${HOST}:${PORT}/query`,
+  uri: `http://${process.env.VUE_APP_HOST}:${process.env.VUE_APP_PORT}/query`,
 })
 
 // Create the subscription websocket link
 const wsLink = new WebSocketLink({
-  uri: `ws://${HOST}:${PORT}/query`,
+  uri: `ws://${process.env.VUE_APP_HOST}:${process.env.VUE_APP_PORT}/query`,
   options: {
     reconnect: true,
   },
