@@ -1,6 +1,6 @@
 [submodule "SingleSuit/solver"]
 	path = SingleSuit/solver
-	url = git@github.com:maksloboda/Singlesuit-Fool-Solver.git
+	url = https://github.com/maksloboda/Singlesuit-Fool-Solver.git
 [submodule "Whistette/solver"]
 	path = Whistette/solver
 	url = https://github.com/maksloboda/Singlesuit-Whistette.git
