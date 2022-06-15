@@ -200,7 +200,7 @@ export default {
       game_type: "seki",
       field_width: 4,
       field_height: 4,
-      field: Array(MAX_FIELD_SIZE * MAX_FIELD_SIZE).fill(0),
+      field: Array(MAX_FIELD_SIZE * MAX_FIELD_SIZE).fill('0'),
       MAX_FIELD_SIZE: MAX_FIELD_SIZE,
       MAX_CELL_VALUE: MAX_CELL_VALUE,
       unlimited_time: false,
@@ -238,6 +238,52 @@ export default {
       if (parseInt(val) < min) { return min; }
       if (parseInt(val) > max) { return max; }
       return parseInt(val)
+    }
+  },
+  mounted() {
+    if (this.$cookies.isKey("Seki-settings-pass-options")) {
+      this.pass_options = this.$cookies.get("Seki-settings-pass-options")
+    }
+    if (this.$cookies.isKey("Seki-settings-first-player")) {
+      this.first_player = this.$cookies.get("Seki-settings-first-player")
+    }
+    if (this.$cookies.isKey("Seki-settings-game-type")) {
+      this.game_type = this.$cookies.get("Seki-settings-game-type")
+    }
+    if (this.$cookies.isKey("Seki-settings-field-width")) {
+      this.field_width = this.$cookies.get("Seki-settings-field-width")
+    }
+    if (this.$cookies.isKey("Seki-settings-field-height")) {
+      this.field_height = this.$cookies.get("Seki-settings-field-height")
+    }
+    if (this.$cookies.isKey("Seki-settings-field")) {
+      this.field = this.$cookies.get("Seki-settings-field").split(',')
+    }
+    if (this.$cookies.isKey("Seki-settings-time-limit")) {
+      this.time_limit = this.$cookies.get("Seki-settings-time-limit")
+    }
+  },
+  watch: {
+    pass_options(new_pass_options) {
+      this.$cookies.set("Seki-settings-pass-options", new_pass_options, "1h")
+    },
+    first_player(new_first_player) {
+      this.$cookies.set("Seki-settings-first-player", new_first_player, "1h")
+    },
+    game_type(new_game_type) {
+      this.$cookies.set("Seki-settings-game-type", new_game_type, "1h")
+    },
+    field_width(new_field_width) {
+      this.$cookies.set("Seki-settings-field-width", new_field_width, "1h")
+    },
+    field_height(new_field_height) {
+      this.$cookies.set("Seki-settings-field-height", new_field_height, "1h")
+    },
+    field(new_field) {
+      this.$cookies.set("Seki-settings-field", new_field, "1h")
+    },
+    time_limit(new_time_limit) {
+      this.$cookies.set("Seki-settings-time-limit", new_time_limit, "1h")
     }
   }
 }
