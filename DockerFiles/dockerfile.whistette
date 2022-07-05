@@ -14,7 +14,7 @@ WORKDIR /Worker
 RUN pip3 install pika
 
 # Set environment
-ENV EXEC_PATH=/Whistette/run.sh
+ENV EXEC_PATH=/Whistette/main.py
 ENV GAME_NAME=whistette
 ENV PYTHONPATH=/Whistette/solver/:/Whistette/solver/legacy/
 

@@ -1,3 +1,4 @@
+#!/usr/local/bin/python3
 import sys
 import json
 from solver.solver import find_optimal_move, EMPTY_FIELD, GameState

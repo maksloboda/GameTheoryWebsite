@@ -14,7 +14,7 @@ WORKDIR /Worker
 RUN pip3 install pika
 
 # Set environment
-ENV EXEC_PATH=/SingleSuit/run.sh
+ENV EXEC_PATH=/SingleSuit/main.py
 ENV GAME_NAME=singlesuit
 ENV PYTHONPATH=/SingleSuit/solver
 

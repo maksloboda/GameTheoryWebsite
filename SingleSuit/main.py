@@ -1,3 +1,4 @@
+#!/usr/local/bin/python3
 from pickle import PickleError
 import sys
 import json
