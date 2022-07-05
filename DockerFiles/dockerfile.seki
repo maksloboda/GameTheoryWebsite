@@ -32,5 +32,5 @@ RUN pip3 install pika
 ENV EXEC_PATH=/bin/seki
 ENV GAME_NAME=seki
 
-CMD ["bash", "./run_fullservice.sh"]
+CMD ["python3", "main.py"]
 
