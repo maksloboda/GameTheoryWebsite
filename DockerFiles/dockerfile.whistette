@@ -20,5 +20,5 @@ ENV PYTHONPATH=/Whistette/solver/:/Whistette/solver/legacy/
 
 RUN chmod +x $EXEC_PATH
 
-CMD ["bash", "./run_fullservice.sh"]
+CMD ["python3", "main.py"]
 
