@@ -20,7 +20,7 @@ export default {
     return "singlesuit"
   },
   getCardGameName() {
-    return "Fool"
+    return "Odnomastka"
   },
   getInterfaceGameName(game_type) {
     if (game_type == "singlesuit") {
