@@ -1,10 +1,10 @@
 <template>
   <div class="container mt-4">
     <div class="row">
-      <div class="col-sm-6" v-for="game in games" :key="game.getCardGameName">
-        <game-card
-            :game_object="game"
-            @createGame="createGame"
+      <div class="col-sm-6" v-for="game in games" :key="game.getCardName">
+        <game-card 
+          :game_object="game"
+          @createGame="createGame"
         ></game-card>
       </div>
     </div>
@@ -14,9 +14,9 @@
 <script>
 import GameCard from "./GameCard.vue"
 import GameData from "./../GameData"
-import {
+import { 
   CREATE_GAME_MUTATION
-} from '@/constants/graphql'
+} from '../../constants/graphql'
 
 export default {
   components: {
@@ -24,8 +24,8 @@ export default {
   },
   data() {
     return {
-      games: GameData.game_cards
-    }
+        games: GameData.games
+      }
   },
   methods: {
     async createGame(game_name, start_state, is_public, time_limit) {
@@ -36,14 +36,14 @@ export default {
         time_limit: parseInt(time_limit),
       }
       console.log("Create game:", data)
-
+      
       await this.$apollo.mutate({
         mutation: CREATE_GAME_MUTATION,
         variables: {
           data: data,
         },
-      }).then((response) => {
-        if (response.data.createGame !== "") {
+      }).then((response) =>  {
+        if (response.data.createGame != "") {
           this.$router.push({path: "play/" + response.data.createGame})
         }
       }).catch((response) => {

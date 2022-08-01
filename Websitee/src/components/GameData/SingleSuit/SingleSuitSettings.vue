@@ -25,8 +25,7 @@
             >
             <b-form-radio value="singlesuit">{{$t('message.SingleSuitSettings.Fool')}}</b-form-radio>
             <b-form-radio value="d-singlesuit">{{$t('message.SingleSuitSettings.DFool')}}</b-form-radio>
-              <b-form-radio value="whistette">{{$t('message.SingleSuitSettings.SingleSuitWhistette')}}</b-form-radio>
-            </b-form-radio-group>
+          </b-form-radio-group>
           </b-form-group>
         </b-col>
         <b-col sm="4">

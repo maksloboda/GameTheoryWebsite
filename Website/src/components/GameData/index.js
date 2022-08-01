@@ -1,11 +1,17 @@
 import Seki from "./Seki"
 import SingleSuit from "./SingleSuit"
-import Whistette from "./Whistette"
+import Whistette from "./SingleSuit/Whistette"
+import Fool from "./SingleSuit/Fool"
 
 export default {
-  games: [
-    Seki,
-    SingleSuit,
-    Whistette,
-  ]
+    games: [
+        Seki,
+        Whistette,
+        Fool,
+    ],
+
+    game_cards: [
+        Seki,
+        SingleSuit
+    ]
 }
