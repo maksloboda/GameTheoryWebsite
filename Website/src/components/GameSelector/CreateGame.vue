@@ -1,7 +1,7 @@
 <template>
   <div class="container mt-4">
     <div class="row">
-      <div class="col-sm-6" v-for="game in games" :key="game.getCardGameName">
+      <div class="col-sm-6" v-for="game in games">
         <game-card
             :game_object="game"
             @createGame="createGame"

@@ -12,3 +12,4 @@ Seki/bin/prog
 MatchMaking/workspace.code-workspace
 Website/package-lock.json
 .vscode/
+**/.idea/
