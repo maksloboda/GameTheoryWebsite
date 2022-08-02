@@ -22,7 +22,7 @@
 
     </b-card>
 
-    <b-modal ref='info_modal'>
+    <b-modal ref='info_modal' hide-footer size="xl">
       <component :is="game_object.getInfoComponent()"></component>
     </b-modal>
 

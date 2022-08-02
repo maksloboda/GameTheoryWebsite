@@ -9,11 +9,11 @@
             <b-col sm="3" id="first">
               <b-form-group id="labelOfText" :label="$t('message.SekiSettings.GameType')">
                 <b-form-select id="game-type-select" v-model="game_type">
-                  <b-form-select-option value="whistette">{{ $t('message.SingleSuitSettings.Whistette') }}
-                  </b-form-select-option>
                   <b-form-select-option value="singlesuit">{{ $t('message.SingleSuitSettings.Fool') }}
                   </b-form-select-option>
                   <b-form-select-option value="d-singlesuit">{{ $t('message.SingleSuitSettings.DFool') }}
+                  </b-form-select-option>
+                  <b-form-select-option value="whistette">{{ $t('message.SingleSuitSettings.Whistette') }}
                   </b-form-select-option>
                 </b-form-select>
               </b-form-group>
