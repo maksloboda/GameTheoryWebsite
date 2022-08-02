@@ -8,6 +8,7 @@ export const messages = {
         UnlimitedTime: 'Unlimited time',
         GameNames: {
           Seki: "Seki",
+          Odnomastka: "SingleSuit",
           Fool: "Fool",
           Whistette: "Whistette",
           seki: "Seki",
