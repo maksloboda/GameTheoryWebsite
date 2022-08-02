@@ -30,6 +30,7 @@ export const messages = {
           ComputerComputer: 'Spectator',
         },
         SingleSuitSettings: {
+            Whistette: 'Whistette',
             Fool: 'Fool',
             DFool: 'D-Fool',
             FirstPlayer: 'First player',
@@ -183,6 +184,7 @@ export const messages = {
           GameType: "Вист",
         },
         SingleSuitSettings: {
+            Whistette: 'Вист',
             Fool: 'Дурак',
             DFool: 'Н-Дурак',
             FirstPlayer: 'Первый игрок',
