@@ -459,10 +459,7 @@ export default {
 
       // Update game object
       for (const game of GameData.games) {
-        console.log("game name: ", this.game_name)
-
         if (game.getInternalGameName() === this.game_name) {
-          console.log("game object name: ", this.game_name)
           this.game_object = game
           this.game_component = game.getInterfaceComponent()
           break

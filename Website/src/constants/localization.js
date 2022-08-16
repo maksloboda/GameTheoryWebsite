@@ -12,7 +12,7 @@ export const messages = {
           Fool: "Fool",
           Whistette: "Whistette",
           seki: "Seki",
-          singlesuit: "SingleSuit",
+          singlesuit: "Fool",
           whistette: "Whistette",
         },
         SekiSettings: {
@@ -34,7 +34,6 @@ export const messages = {
             Whistette: 'Whistette',
             Fool: 'Fool',
             DFool: 'D-Fool',
-            SingleSuitWhistette: "Whistette",
             FirstPlayer: 'First player',
             SecondPlayer: 'Second player',
             NthCard: '-th card',
@@ -160,7 +159,7 @@ export const messages = {
           Odnomastka: "Одномастка",
           Whistette: "Вист",
           seki: "Секи",
-          singlesuit: "Одномастка",
+          singlesuit: "Дурак",
           whistette: "Вист",
         },
         SekiSettings: {
@@ -189,7 +188,6 @@ export const messages = {
             Whistette: 'Вист',
             Fool: 'Дурак',
             DFool: 'Н-Дурак',
-            SingleSuitWhistette: "Вист",
             FirstPlayer: 'Первый игрок',
             SecondPlayer: 'Второй игрок',
             NthCard: '-ая карта',
