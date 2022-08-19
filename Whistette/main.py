@@ -105,7 +105,8 @@ def findOptimalMove(gameinfo):
     state["FirstPlayerSet"],
     state["SecondPlayerSet"],
     int(state["CurrentPlayer"] == "B"),
-    EMPTY_FIELD if last_card is None else last_card
+    EMPTY_FIELD if last_card is None else last_card,
+    state["Weights"]
   )
   
   return {

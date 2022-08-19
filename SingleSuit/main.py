@@ -4,7 +4,7 @@ import sys
 import json
 
 from solver.classtypes.game_state import GameState, EMPTY_FIELD
-from solver.solvers import find_optimal_move_dfool, find_optimal_move_fool
+from solver.solvers import find_optimal_move_dfool, find_optimal_move_fool, find_optimal_move_dfool_weighted, find_optimal_move_fool_weighted
 
 def isStartStateValid(state_enc):
   state = json.loads(state_enc)
@@ -29,18 +29,43 @@ def joinGame(gameinfo, pid):
 def processFinished(gameinfo, state, leading, can_draw):
   fps = state["FirstPlayerSet"]
   sps = state["SecondPlayerSet"]
-  if len(fps) == 0 and len(sps) == 0:
-    if can_draw:
-      gameinfo["winner"] = ""
-    else:
-      gameinfo["winner"] = leading
-    gameinfo["is_finished"] = True
-  elif len(fps) == 0:
-    gameinfo["winner"] = "A"
-    gameinfo["is_finished"] = True
-  elif len(sps) == 0:
-    gameinfo["winner"] = "B"
-    gameinfo["is_finished"] = True
+
+  if state["Weights"] is not None and len(state["Weights"]) > 0:
+    weights = state["Weights"]
+    first_player_sum = sum([weights[i-1] for i in fps])
+    second_player_sum = sum([weights[i-1] for i in sps])
+
+    if len(fps) == 0 and len(sps) == 0:
+      if can_draw:
+        gameinfo["winner"] = ""
+      else:
+        gameinfo["winner"] = leading
+      gameinfo["is_finished"] = True
+    elif len(fps) == 0 and second_player_sum == 0 or len(sps) == 0 and first_player_sum == 0:
+      if can_draw:
+        gameinfo["winner"] = ""
+      else:
+        gameinfo["winner"] = "A" if len(fps) == 0 else "B"
+      gameinfo["is_finished"] = True
+    elif len(fps) == 0 and second_player_sum > 0 or len(sps) == 0 and first_player_sum < 0:
+      gameinfo["is_finished"] = True
+      gameinfo["winner"] = "A"
+    elif len(fps) == 0 and second_player_sum < 0 or len(sps) == 0 and first_player_sum > 0:
+      gameinfo["is_finished"] = True
+      gameinfo["winner"] = "B"
+  else:
+    if len(fps) == 0 and len(sps) == 0:
+      if can_draw:
+        gameinfo["winner"] = ""
+      else:
+        gameinfo["winner"] = leading
+      gameinfo["is_finished"] = True
+    elif len(fps) == 0:
+      gameinfo["winner"] = "A"
+      gameinfo["is_finished"] = True
+    elif len(sps) == 0:
+      gameinfo["winner"] = "B"
+      gameinfo["is_finished"] = True
 
 def addEvent(gameinfo, pid, move_enc):
   players_joined = gameinfo["players_joined"]
@@ -96,7 +121,7 @@ def addEvent(gameinfo, pid, move_enc):
 
   gameinfo["state"] = json.dumps(state)
   return gameinfo
-  
+
 def advance(gameinfo):
   gameinfo["is_finished"] = True
   state = json.loads(gameinfo["state"])
@@ -110,16 +135,23 @@ def findOptimalMove(gameinfo):
     int(state["CurrentPlayer"] == "B"),
     state["FirstPlayerSet"],
     state["SecondPlayerSet"],
-    EMPTY_FIELD if last_card is None else last_card
+    EMPTY_FIELD if last_card is None else last_card,
+    state["Weights"]
   )
 
   is_dfool = state["Type"] == "d-singlesuit"
+  is_weighted = state["Weights"] is not None and len(state["Weights"]) > 0
   picked_move = None
-  if is_dfool:
+
+  if is_weighted and is_dfool:
+    picked_move = find_optimal_move_dfool_weighted(solverstate)
+  elif is_weighted:
+    picked_move = find_optimal_move_fool_weighted(solverstate)
+  elif is_dfool:
     picked_move = find_optimal_move_dfool(solverstate)
   else:
     picked_move = find_optimal_move_fool(solverstate)
-  
+
   return {
     "DoTake": picked_move == last_card,
     "Card": picked_move
@@ -151,7 +183,7 @@ def main():
     print(json.dumps(str(e)), file=sys.stderr)
     sys.exit(1)
   print(json.dumps(result))
-  
+
 
 if __name__ == "__main__":
   main()
