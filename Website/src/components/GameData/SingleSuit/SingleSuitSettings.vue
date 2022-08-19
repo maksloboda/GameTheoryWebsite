@@ -54,6 +54,14 @@
             </b-row>
           </b-row>
 
+          <b-row id="fifthContainer2">
+            <b-row sm="6">
+              <b-form-checkbox id="labelOfText" v-model="weighted_game" :value="true" :unchecked-value="false">
+                {{ $t('message.SingleSuitSettings.WeightedVersion') }}
+              </b-form-checkbox>
+            </b-row>
+          </b-row>
+
           <br>
         </b-col>
 
@@ -64,6 +72,7 @@
               <b-col sm="9" id="titlesPfTableCardsContainer">
                 <b-form-text id="titleOfTableCards">A</b-form-text>
                 <b-form-text id="titleOfTableCards">B</b-form-text>
+                <b-form-text id="titleOfTableCards">{{ $t('message.SingleSuitSettings.Weights') }}</b-form-text>
               </b-col>
             </b-row>
             <b-row v-for="i in Array(minMax(cards_number, 1, 100)).keys()">
@@ -75,6 +84,8 @@
                   <b-form-radio-group v-model="card_array[i]" buttons class="w-100">
                     <b-form-radio :value="0"></b-form-radio>
                     <b-form-radio :value="1"></b-form-radio>
+                    <b-form-input class="checked_w" id="weight_number" v-model="weight_number" :value="1" type="number"
+                      :min="-99" :max="99" style="display: block;" v-if="weighted_game"/>
                   </b-form-radio-group>
                 </b-form-group>
               </b-col>
@@ -120,11 +131,14 @@ select.form-control {
   border: 1px solid #6d6d6d;
 }
 
-#secondContainer2, #fifthContainer2 {
+#secondContainer1,
+#secondContainer2,
+#fifthContainer2 {
   margin-left: 20px;
 }
 
 @media (max-width: 1200px) {
+  #secondContainer1,
   #secondContainer2 {
     display: block;
   }
@@ -149,6 +163,7 @@ export default {
       card_array: Array(100).fill(1),
       unlimited_time: false,
       time_limit: 10,
+      weighted_game: false,
     }
   },
   methods: {
