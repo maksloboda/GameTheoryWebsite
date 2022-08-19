@@ -54,6 +54,14 @@
             </b-row>
           </b-row>
 
+          <b-row id="fifthContainer2">
+            <b-row sm="6">
+              <b-form-checkbox id="labelOfText" v-model="weighted_game" :value="true" :unchecked-value="false">
+                {{ $t('message.SingleSuitSettings.WeightedVersion') }}
+              </b-form-checkbox>
+            </b-row>
+          </b-row>
+
           <br>
         </b-col>
 
@@ -64,6 +72,7 @@
               <b-col sm="9" id="titlesPfTableCardsContainer">
                 <b-form-text id="titleOfTableCards">A</b-form-text>
                 <b-form-text id="titleOfTableCards">B</b-form-text>
+                <b-form-text id="titleOfTableCards">{{ $t('message.SingleSuitSettings.Weights') }}</b-form-text>
               </b-col>
             </b-row>
             <b-row v-for="i in Array(minMax(cards_number, 1, 100)).keys()">
@@ -75,8 +84,14 @@
                   <b-form-radio-group v-model="card_array[i]" buttons class="w-100">
                     <b-form-radio :value="0"></b-form-radio>
                     <b-form-radio :value="1"></b-form-radio>
+                    <b-form-input class="checked_w" id="weight_number" v-model="weights_array[i]" :value="1"
+                      type="number" :min="-99" :max="99" v-if="weighted_game" />
                   </b-form-radio-group>
                 </b-form-group>
+                <!-- <b-form-group v-model="weights_array[i]" buttons class="w-100">
+                  <b-form-input v-model="weights_array[i]" :value="1" type="number" :min="-99" :max="99"
+                    v-if="weighted_game" />
+                </b-form-group> -->
               </b-col>
             </b-row>
           </b-card>
@@ -120,11 +135,15 @@ select.form-control {
   border: 1px solid #6d6d6d;
 }
 
-#secondContainer2, #fifthContainer2 {
+#secondContainer1,
+#secondContainer2,
+#fifthContainer2 {
   margin-left: 20px;
 }
 
 @media (max-width: 1200px) {
+
+  #secondContainer1,
   #secondContainer2 {
     display: block;
   }
@@ -149,6 +168,8 @@ export default {
       card_array: Array(100).fill(1),
       unlimited_time: false,
       time_limit: 10,
+      weighted_game: false,
+      weights_array: Array(100).fill(1),
     }
   },
   methods: {
@@ -156,11 +177,16 @@ export default {
       let cnt = this.minMax(this.cards_number, 1, 100)
       let f = []
       let s = []
+      let w = []
       for (let i = 0; i < cnt; ++i) {
         if (parseInt(this.card_array[i]) == 0) {
           f.push(i + 1)
         } else {
           s.push(i + 1)
+        }
+
+        if (this.weighted_game) {
+          w.push(parseInt(this.weights_array[i]))
         }
       }
       let time_limit = null
@@ -174,6 +200,7 @@ export default {
         first_player_array: f,
         second_player_array: s,
         time_limit: time_limit,
+        weights: w,
       };
     },
     minMax(val, min, max) {
