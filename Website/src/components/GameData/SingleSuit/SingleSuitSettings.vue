@@ -29,6 +29,19 @@
             </b-col>
           </b-row>
 
+          <!-- <br> -->
+
+          <!-- <b-row id="secondContainer1">
+            <b-col sm="3" id="third">
+              <b-form-group id="labelOfText" :label="$t('message.SingleSuitSettings.Weights')">
+                <b-form-select id="first-player-radio" v-model="first_player">
+                  <b-form-select-option :value="FIRST_PLAYER_ID">{{ $t('message.SingleSuitSettings.WithWeights') }}</b-form-select-option>
+                  <b-form-select-option :value="SECOND_PLAYER_ID">{{ $t('message.SingleSuitSettings.WithoutWeights') }}</b-form-select-option>
+                </b-form-select>
+              </b-form-group>
+            </b-col>
+          </b-row> -->
+
           <br>
 
           <b-row id="secondContainer2">
@@ -54,6 +67,29 @@
             </b-row>
           </b-row>
 
+          <b-row id="fifthContainer2">
+            <b-row sm="6">
+              <b-form-checkbox id="labelOfText" v-model="weighted_game" :value="false" :unchecked-value="true"
+                onclick="document.querySelector('.checked_w').style.display = this.checked ? 'block' : 'none'">
+                {{ $t('message.SingleSuitSettings.WeightedSuitFool') }}
+              </b-form-checkbox>
+            </b-row>
+          </b-row>
+
+
+          <!-- <input class="chkb" type="checkbox" data-target="price">
+          <input class="chkb" type="checkbox" data-target="type">
+          <input class="chkb" type="checkbox" data-target="weights">
+
+          <div class="wrapper">
+            <div class="block" data-price="">Price</div>
+            <div class="block" data-type="">Type</div>
+            <div class="block" data-price="">Price</div>
+            <div class="block" data-type="">Type</div>
+            <div class="block" data-price="">Price</div>
+            <div class="block" data-type="">Type</div>
+          </div> -->
+
           <br>
         </b-col>
 
@@ -64,6 +100,7 @@
               <b-col sm="9" id="titlesPfTableCardsContainer">
                 <b-form-text id="titleOfTableCards">A</b-form-text>
                 <b-form-text id="titleOfTableCards">B</b-form-text>
+                <b-form-text id="titleOfTableCards">Weights</b-form-text>
               </b-col>
             </b-row>
             <b-row v-for="i in Array(minMax(cards_number, 1, 100)).keys()">
@@ -75,11 +112,21 @@
                   <b-form-radio-group v-model="card_array[i]" buttons class="w-100">
                     <b-form-radio :value="0"></b-form-radio>
                     <b-form-radio :value="1"></b-form-radio>
+
+                    <b-form-input class="checked_w" id="weight_number" v-model="weight_number" :value="1" type="number"
+                      :min="-99" :max="99" style="display: none;">
+                    </b-form-input>
                   </b-form-radio-group>
                 </b-form-group>
               </b-col>
             </b-row>
           </b-card>
+        </b-col>
+
+        <b-col v-for="i in Array(minMax(cards_number, 1, 100)).keys()">
+          <b-form-input class="checked_w" id="weight_number" v-model="weight_number" :value="1" type="number" :min="-99"
+            :max="99">
+          </b-form-input>
         </b-col>
 
       </b-row>
@@ -89,12 +136,6 @@
 </template>
 
 <style>
-select.form-control {
-  -moz-appearance: none;
-  -webkit-appearance: none;
-  appearance: none;
-}
-
 #titlesPfTableCardsContainer {
   display: flex;
   text-align: center;
@@ -120,14 +161,38 @@ select.form-control {
   border: 1px solid #6d6d6d;
 }
 
-#secondContainer2, #fifthContainer2 {
+#secondContainer1,
+#secondContainer2,
+#fifthContainer2 {
   margin-left: 20px;
 }
 
 @media (max-width: 1200px) {
+
+  #secondContainer1,
   #secondContainer2 {
     display: block;
   }
+}
+
+/* .block {
+  display: none;
+}
+
+[data-target="price"]:checked~.wrapper>[data-price],
+[data-target="type"]:checked~.wrapper>[data-type],
+[data-target="weights"]:checked~.wrapper > w-100>[data-weights] {
+  display: block;
+} */
+
+.checked .toggle {
+  display: none;
+}
+
+/* для скрытых блоков указываем, что когда инпуты с типом checkbox/radio активны (выбраны), блок показывается */
+.checked input[type=radio]:checked~.toggle,
+.checked input[type=checkbox]:checked~.toggle {
+  display: block;
 }
 </style>
 
@@ -136,7 +201,6 @@ import {
   FIRST_PLAYER_ID,
   SECOND_PLAYER_ID
 } from "."
-
 
 export default {
   data() {
@@ -166,6 +230,10 @@ export default {
       let time_limit = null
       if (!this.unlimited_time) {
         time_limit = this.time_limit
+      }
+      let weight_number = null
+      if (!this.weighted_game) {
+        weight_number = this.weight_number
       }
       return {
         game_type: this.game_type,

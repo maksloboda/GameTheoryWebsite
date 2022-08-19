@@ -142,7 +142,8 @@ legend,
 }
 #field-width,
 #field_height,
-#time_limit {
+#time_limit,
+#weight_number {
   width: 120px;
   border: 1px solid #6d6d6d;
 }

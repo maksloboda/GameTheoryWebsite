@@ -38,6 +38,10 @@ export const messages = {
             SecondPlayer: 'Second player',
             NthCard: '-th card',
             CardNumber: 'Number of cards',
+            Weights: 'Weights',
+            WithWeights: 'With',
+            WithoutWeights: 'Without',
+            WeightedSuitFool: 'Weighted game',
         },
         SekiInterface: {
             NullGameStatus: 'Current game status is null',
@@ -192,6 +196,10 @@ export const messages = {
             SecondPlayer: 'Второй игрок',
             NthCard: '-ая карта',
             CardNumber: 'Число карт в раздаче',
+            Weights: 'Веса',
+            WithWeights: 'С весами',
+            WithoutWeights: 'Без весов',
+            WeightedSuitFool: 'Взвешенная игра',
         },
         SekiInterface: {
             NullGameStatus: 'Текущее состояние игры неизвестно',
