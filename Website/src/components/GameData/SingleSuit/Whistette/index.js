@@ -81,7 +81,8 @@ export default {
       LastCard: null,
       Type: settings.game_type,
       FirstScore: 0,
-      SecondScore: 0
+      SecondScore: 0,
+      Weights: settings.weights,
     }
   },
   FIRST_PLAYER_ID: FIRST_PLAYER_ID,

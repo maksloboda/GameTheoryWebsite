@@ -116,6 +116,7 @@ export default {
       SecondPlayerSet: settings.second_player_array,
       LastCard: null,
       Type: settings.game_type,
+      Weights: settings.weights,
     }
   },
   FIRST_PLAYER_ID: FIRST_PLAYER_ID,
