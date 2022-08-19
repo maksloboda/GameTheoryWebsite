@@ -186,7 +186,7 @@ export default {
         }
 
         if (this.weighted_game) {
-          w.push(this.weights_array[i])
+          w.push(parseInt(this.weights_array[i]))
         }
       }
       let time_limit = null
