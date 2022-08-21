@@ -91,7 +91,7 @@ export default {
             new_state.pass_options = {"R": 1, "C": 0}
         } else if (state.Pp === SECOND_PLAYER_ID) {
             new_state.pass_options = {"R": 0, "C": 1}
-        } else if (state.Pp === BOTH_PLAYERS_IDS) {
+        } else if (state.Pp === FIRST_PLAYER_ID + SECOND_PLAYER_ID) {
             new_state.pass_options = {"R": 1, "C": 1}
         } else if (state.Pp === NOONE_PLAYERS_IDS) {
             new_state.pass_options = {"R": 0, "C": 0}

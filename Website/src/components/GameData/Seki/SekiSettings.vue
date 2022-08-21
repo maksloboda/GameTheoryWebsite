@@ -30,7 +30,8 @@
                 <b-form-select id="choose-opponent-radio" button-variant="outline-primary" buttons>
                   <b-form-select-option id="option1">{{ $t('message.SekiSettings.ComputerPerson') }}
                   </b-form-select-option>
-                  <b-form-select-option id="option1">{{ $t('message.SekiSettings.PersonPerson') }}</b-form-select-option>
+                  <b-form-select-option id="option1">{{ $t('message.SekiSettings.PersonPerson') }}
+                  </b-form-select-option>
                   <b-form-select-option id="option1">{{ $t('message.SekiSettings.ComputerComputer') }}
                   </b-form-select-option>
                 </b-form-select>
@@ -40,12 +41,12 @@
             <b-col cols=3 id="forth">
               <b-form-group id="labelOfText" :label="$t('message.SekiSettings.PassOptions')">
                 <b-form-select id="pass_options" v-model="first_player">
-                  <b-form-select-option id="option2" :value="FIRST_PLAYER_ID">{{ $t('message.SekiSettings.RPass') }}
+                  <b-form-select-option id="option1" :value="FIRST_PLAYER_ID">{{ $t('message.SekiSettings.RPass') }}
                   </b-form-select-option>
-                  <b-form-select-option id="option2" :value="SECOND_PLAYER_ID">{{ $t('message.SekiSettings.CPass') }}
+                  <b-form-select-option id="option1" :value="SECOND_PLAYER_ID">{{ $t('message.SekiSettings.CPass') }}
                   </b-form-select-option>
-                  <b-form-select-option id="option2" :value="BOTH_PLAYERS_IDS">{{ $t('message.SekiSettings.BothPass') }}</b-form-select-option>
-                  <b-form-select-option id="option2" :value="NOONE_PLAYERS_IDS">{{ $t('message.SekiSettings.NoOnePass') }}</b-form-select-option>
+                  <b-form-select-option id="option1" :value="FIRST_PLAYER_ID + SECOND_PLAYER_ID">{{ $t('message.SekiSettings.BothPass') }}</b-form-select-option>
+                  <b-form-select-option id="option1" :value="NOONE_PLAYERS_IDS">{{ $t('message.SekiSettings.NoOnePass') }}</b-form-select-option>
                 </b-form-select>
               </b-form-group>
             </b-col>
@@ -95,7 +96,7 @@
             </b-row>
           </b-card>
         </b-col>
-        
+
       </b-row>
     </b-form>
   </div>
@@ -106,30 +107,37 @@
   width: 70px;
   height: 70px;
 }
+
 #labelOfText,
 #labelOfText1 {
   font-weight: bold;
 }
+
 #labelOfText1 {
   padding-bottom: calc(0.375rem + 1px);
 }
+
 #second,
 #forth,
 #sixth {
   margin-left: 150px;
 }
+
 legend,
 #labelOfText,
 #labelOfText1,
 #option1 {
   white-space: nowrap
 }
+
 #option1 {
   width: 400px;
 }
+
 #checkboxes-4 {
   padding-right: 0;
 }
+
 #firstContainer,
 #secondContainer,
 #thirdContainer,
@@ -137,10 +145,12 @@ legend,
 #fifthContainer {
   margin-left: 20px;
 }
+
 #secondContainer,
 #fifthContainer {
   margin-top: 20px;
 }
+
 #field-width,
 #field_height,
 #time_limit,
@@ -148,15 +158,19 @@ legend,
   width: 120px;
   border: 1px solid #6d6d6d;
 }
+
 input#labelOfText {
   margin-right: 10px;
 }
+
 @media (max-width: 1200px) {
+
   #secondContainer,
   #firstContainer,
   #thirdContainer {
     display: block;
   }
+
   #second,
   #forth,
   #sixth {
@@ -164,6 +178,7 @@ input#labelOfText {
     margin-top: 20px;
   }
 }
+
 select {
   width: 200px;
 }
