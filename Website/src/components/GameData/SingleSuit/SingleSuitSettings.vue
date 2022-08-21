@@ -72,7 +72,10 @@
               <b-col sm="9" id="titlesPfTableCardsContainer">
                 <b-form-text id="titleOfTableCards">A</b-form-text>
                 <b-form-text id="titleOfTableCards">B</b-form-text>
-                <b-form-text id="titleOfTableCards">{{ $t('message.SingleSuitSettings.Weights') }}</b-form-text>
+                <b-form-text id="titleOfTableCards"
+                  v-if="weighted_game && game_type === 'singlesuit' || weighted_game && game_type === 'd-singlesuit'">{{
+                      $t('message.SingleSuitSettings.Weights')
+                  }}</b-form-text>
               </b-col>
             </b-row>
             <b-row v-for="i in Array(minMax(cards_number, 1, 100)).keys()">
@@ -85,7 +88,8 @@
                     <b-form-radio :value="0"></b-form-radio>
                     <b-form-radio :value="1"></b-form-radio>
                     <b-form-input class="checked_w" id="weight_number" v-model="weights_array[i]" :value="1"
-                      type="number" :min="-99" :max="99" v-if="weighted_game" />
+                      type="number" :min="-99" :max="99"
+                      v-if="weighted_game && game_type === 'singlesuit' || weighted_game && game_type === 'd-singlesuit'" />
                   </b-form-radio-group>
                 </b-form-group>
                 <!-- <b-form-group v-model="weights_array[i]" buttons class="w-100">
@@ -97,6 +101,14 @@
           </b-card>
         </b-col>
 
+        <br>
+        <label id="labelOfText1" for="bribes_weights" v-if="weighted_game && game_type === 'whistette'">{{ $t('message.SingleSuitSettings.BribeWeights') }}</label>
+        <b-col v-for="i in Array(minMax(cards_number, 1, 100) / 2).keys()">
+          <label id="labelOfText1" for="bribe_weight" v-if="weighted_game && game_type === 'whistette'">{{ i + 1 }}{{ $t('message.SingleSuitSettings.NthBribe') }}</label>
+          <b-form-input class="checked_w" id="weight_number" v-if="weighted_game && game_type === 'whistette'" v-model="weight_number" :value="1" type="number" :min="-99"
+            :max="99">
+          </b-form-input>
+        </b-col>
       </b-row>
 
     </b-form>
