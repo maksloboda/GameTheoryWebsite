@@ -158,6 +158,11 @@ import {
 
 
 export default {
+  mounted() {
+    if (this.$cookies.isKey("singlesuit-settings")) {
+      this.setSettings(this.$cookies.get("singlesuit-settings"))
+    }
+  },
   data() {
     return {
       FIRST_PLAYER_ID: FIRST_PLAYER_ID,
@@ -173,6 +178,28 @@ export default {
     }
   },
   methods: {
+    setSettings(settings) {
+      this.game_type = settings.game_type
+      this.first_player = settings.first_player
+      this.cards_number = settings.cards_number
+      this.time_limit = settings.time_limit == null ? 10 : settings.time_limit
+      this.unlimited_time = settings.time_limit == null
+      this.weighted_game = settings.weighted_game
+
+      for (let i = 0; i < this.cards_number; i++) {
+        if (settings.first_player_array.includes(i + 1)) {
+          this.card_array[i] = 0
+        } else {
+          this.card_array[i] = 1
+        }
+      }
+
+      if (settings.weights != null && settings.weights.length > 0) {
+        for (let i = 0; i < this.cards_number; i++) {
+          this.weights_array[i] = settings.weights[i]
+        }
+      }
+    },
     getSettings() {
       let cnt = this.minMax(this.cards_number, 1, 100)
       let f = []
@@ -202,6 +229,11 @@ export default {
         time_limit: time_limit,
         weights: w,
       };
+    },
+    saveSettings() {
+      let settings = this.getSettings()
+      settings.weighted_game = this.weighted_game
+      this.$cookies.set("singlesuit-settings", settings)
     },
     minMax(val, min, max) {
       if (parseInt(val) < min) { return min; }

@@ -146,6 +146,7 @@ export default {
     },
     startGame(is_public) {
       const settings = this.$refs["game_settings_component"].getSettings()
+      this.$refs["game_settings_component"].saveSettings()
       console.log("Settings:", settings, is_public)
       this.$emit("createGame",
           //this.game_object.getInternalGameName(),
