@@ -40,7 +40,7 @@
 
             <b-col cols=3 id="forth">
               <b-form-group id="labelOfText" :label="$t('message.SekiSettings.PassOptions')">
-                <b-form-select id="pass_options" v-model="first_player">
+                <b-form-select id="pass_options" v-model="pass_options">
                   <b-form-select-option id="option1" :value="FIRST_PLAYER_ID">{{ $t('message.SekiSettings.RPass') }}
                   </b-form-select-option>
                   <b-form-select-option id="option1" :value="SECOND_PLAYER_ID">{{ $t('message.SekiSettings.CPass') }}
