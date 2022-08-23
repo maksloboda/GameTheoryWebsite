@@ -105,7 +105,7 @@
         <label id="labelOfText1" for="bribes_weights" v-if="weighted_game && game_type === 'whistette'">{{ $t('message.SingleSuitSettings.BribeWeights') }}</label>
         <b-col v-for="i in Array(minMax(cards_number, 1, 100) / 2).keys()">
           <label id="labelOfText1" for="bribe_weight" v-if="weighted_game && game_type === 'whistette'">{{ i + 1 }}{{ $t('message.SingleSuitSettings.NthBribe') }}</label>
-          <b-form-input class="checked_w" id="weight_number" v-if="weighted_game && game_type === 'whistette'" v-model="weight_number" :value="1" type="number" :min="-99"
+          <b-form-input class="checked_w" id="weight_number" v-if="weighted_game && game_type === 'whistette'" v-model="weights_array[i]" :value="1" type="number" :min="-99"
             :max="99">
           </b-form-input>
         </b-col>
