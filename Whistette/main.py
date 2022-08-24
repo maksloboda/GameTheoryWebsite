@@ -78,7 +78,11 @@ def addEvent(gameinfo, pid, move_enc):
         winner = "FirstScore"
       else:
         winner = "SecondScore"
-    state[winner] += 1
+    
+    if state["Weights"] is not None and len(state["Weights"]) > 0:
+      state[winner] += state["Weights"].pop(0)
+    else:
+      state[winner] += 1
 
     processFinished(gameinfo, state)
     state["LastCard"] = None
