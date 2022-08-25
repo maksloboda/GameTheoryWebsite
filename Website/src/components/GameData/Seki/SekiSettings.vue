@@ -27,12 +27,12 @@
           <b-row id="secondContainer">
             <b-col cols=3 id="third">
               <b-form-group id="labelOfText" :label="$t('message.SekiSettings.OpponentChoice')">
-                <b-form-select id="choose-opponent-radio" button-variant="outline-primary" buttons>
-                  <b-form-select-option id="option1">{{ $t('message.SekiSettings.ComputerPerson') }}
+                <b-form-select id="choose-opponent-radio" button-variant="outline-primary" buttons v-model="game_mode">
+                  <b-form-select-option id="option1" value="c">{{ $t('message.SekiSettings.ComputerPerson') }}
                   </b-form-select-option>
-                  <b-form-select-option id="option1">{{ $t('message.SekiSettings.PersonPerson') }}
+                  <b-form-select-option id="option1" value="p">{{ $t('message.SekiSettings.PersonPerson') }}
                   </b-form-select-option>
-                  <b-form-select-option id="option1">{{ $t('message.SekiSettings.ComputerComputer') }}
+                  <b-form-select-option id="option1" value="cc">{{ $t('message.SekiSettings.ComputerComputer') }}
                   </b-form-select-option>
                 </b-form-select>
               </b-form-group>
@@ -46,7 +46,7 @@
                   <b-form-select-option id="option1" :value="SECOND_PLAYER_ID">{{ $t('message.SekiSettings.CPass') }}
                   </b-form-select-option>
                   <b-form-select-option id="option1" :value="FIRST_PLAYER_ID + SECOND_PLAYER_ID">{{ $t('message.SekiSettings.BothPass') }}</b-form-select-option>
-                  <b-form-select-option id="option1" :value="NOONE_PLAYERS_IDS">{{ $t('message.SekiSettings.NoOnePass') }}</b-form-select-option>
+                  <b-form-select-option id="option1" :value="[]">{{ $t('message.SekiSettings.NoOnePass') }}</b-form-select-option>
                 </b-form-select>
               </b-form-group>
             </b-col>
@@ -211,6 +211,7 @@ export default {
       MAX_CELL_VALUE: MAX_CELL_VALUE,
       unlimited_time: false,
       time_limit: 10,
+      game_mode: "c"
     }
   },
   methods: {
