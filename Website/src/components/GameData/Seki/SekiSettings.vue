@@ -45,9 +45,8 @@
                   </b-form-select-option>
                   <b-form-select-option id="option1" :value="SECOND_PLAYER_ID">{{ $t('message.SekiSettings.CPass') }}
                   </b-form-select-option>
-                  <b-form-select-option id="option1" :value="FIRST_PLAYER_ID + SECOND_PLAYER_ID">{{
-                      $t('message.SekiSettings.BothPass')
-                  }}</b-form-select-option>
+                  <b-form-select-option id="option1" :value="FIRST_PLAYER_ID + SECOND_PLAYER_ID">{{ $t('message.SekiSettings.BothPass') }}</b-form-select-option>
+                  <b-form-select-option id="option1" :value="NOONE_PLAYERS_IDS">{{ $t('message.SekiSettings.NoOnePass') }}</b-form-select-option>
                 </b-form-select>
               </b-form-group>
             </b-col>
