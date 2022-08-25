@@ -204,9 +204,13 @@ export default {
       this.pass_options = settings.pass_options
       this.field_width = settings.field_width
       this.field_height = settings.field_height
-      this.field = settings.field
       this.time_limit = settings.time_limit == null ? 10 : settings.time_limit
       this.unlimited_time = settings.time_limit == null
+      this.field = Array(MAX_FIELD_SIZE * MAX_FIELD_SIZE).fill(0)
+    
+      for (let i = 0; i < settings.field.length; i++) {
+        this.field[i] = settings.field[i]
+      }
     },
     getSettings() {
       let w = this.minMax(this.field_width, 1, MAX_FIELD_SIZE)
