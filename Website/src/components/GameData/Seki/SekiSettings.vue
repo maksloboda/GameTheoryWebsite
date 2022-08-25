@@ -193,6 +193,11 @@ import {
   MAX_CELL_VALUE
 } from "./"
 export default {
+  mounted() {
+    if (this.$cookies.isKey("seki-settings")) {
+      this.setSettings(this.$cookies.get("seki-settings"))
+    }
+  },
   data() {
     return {
       FIRST_PLAYER_ID: FIRST_PLAYER_ID,
@@ -210,6 +215,20 @@ export default {
     }
   },
   methods: {
+    setSettings(settings) {
+      this.first_player = settings.first_move
+      this.game_type = settings.game_type
+      this.pass_options = settings.pass_options
+      this.field_width = settings.field_width
+      this.field_height = settings.field_height
+      this.time_limit = settings.time_limit == null ? 10 : settings.time_limit
+      this.unlimited_time = settings.time_limit == null
+      this.field = Array(MAX_FIELD_SIZE * MAX_FIELD_SIZE).fill(0)
+    
+      for (let i = 0; i < settings.field.length; i++) {
+        this.field[i] = settings.field[i]
+      }
+    },
     getSettings() {
       let w = this.minMax(this.field_width, 1, MAX_FIELD_SIZE)
       let h = this.minMax(this.field_height, 1, MAX_FIELD_SIZE)
@@ -233,6 +252,10 @@ export default {
         field: f,
         time_limit: time_limit,
       };
+    },
+    saveSettings() {
+      let settings = this.getSettings()
+      this.$cookies.set("seki-settings", settings)
     },
     minMax(val, min, max) {
       if (parseInt(val) < min) { return min; }
