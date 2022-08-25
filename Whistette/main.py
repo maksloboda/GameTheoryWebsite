@@ -4,7 +4,10 @@ import json
 from solver.solver import find_optimal_move, EMPTY_FIELD, GameState
 
 def isStartStateValid(enc_state):
-  return True
+  state = json.loads(enc_state)
+  fps = state["FirstPlayerSet"]
+  sps = state["SecondPlayerSet"]
+  return len(fps) != 0 and len(sps) != 0 and len(fps) == len(sps)
 
 def joinGame(gameinfo, pid):
   players_joined = gameinfo["players_joined"]
