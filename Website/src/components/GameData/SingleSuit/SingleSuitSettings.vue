@@ -34,7 +34,7 @@
           <b-row id="secondContainer2">
             <b-col sm="3" id="third">
               <label id="labelOfText1" for="field-width">{{ $t('message.SingleSuitSettings.CardNumber') }}</label>
-              <b-form-input v-model="cards_number" id="cards-number" type="number" min="2" :max="8">
+              <b-form-input v-model="cards_number" id="cards-number" type="number" min="2" max="100">
               </b-form-input>
             </b-col>
             <b-col sm="3" id="forth">
@@ -102,13 +102,20 @@
         </b-col>
 
         <br>
-        <label id="labelOfText1" for="bribes_weights" v-if="weighted_game && game_type === 'whistette'">{{ $t('message.SingleSuitSettings.BribeWeights') }}</label>
-        <b-col v-for="i in Array(minMax(cards_number, 1, 100) / 2).keys()">
-          <label id="labelOfText1" for="bribe_weight" v-if="weighted_game && game_type === 'whistette'">{{ i + 1 }}{{ $t('message.SingleSuitSettings.NthBribe') }}</label>
-          <b-form-input class="checked_w" id="weight_number" v-if="weighted_game && game_type === 'whistette'" v-model="weights_array_whistette[i]" :value="1" type="number" :min="-99"
-            :max="99">
-          </b-form-input>
-        </b-col>
+        <b-container v-if="weighted_game && game_type === 'whistette'">
+          <label id="labelOfText1" for="bribes_weights">{{
+              $t('message.SingleSuitSettings.BribeWeights')
+          }}</label>
+          <b-row>
+            <b-col v-for="i in Array(minMax(cards_number, 1, 100) / 2).keys()">
+              <label id="labelOfText1" for="bribe_weight">{{ i + 1 }}{{ $t('message.SingleSuitSettings.NthBribe')
+              }}</label>
+              <b-form-input class="checked_w" id="weight_number" v-model="weights_array_whistette[i]" :value="1"
+                type="number" :min="-99" :max="99">
+              </b-form-input>
+            </b-col>
+          </b-row>
+        </b-container>
       </b-row>
 
     </b-form>
@@ -212,7 +219,7 @@ export default {
           this.weights_array_fool[i] = settings.fool_weights[i]
         }
       }
-      
+
       if (settings.whistette_weights != null && settings.whistette_weights.length === this.cards_number) {
         for (let i = 0; i < this.cards_number; i++) {
           this.weights_array_whistette[i] = settings.whistette_weights[i]
