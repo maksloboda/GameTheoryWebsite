@@ -521,7 +521,6 @@ export default {
           game_id: this.game_id,
         },
       }).then((response) => {
-            console.log(response.data.findOptimalMove)
             optimal_move = this.game_object.makeMoveFromEvent(JSON.parse(response.data.findOptimalMove))
           }
       ).catch((response) => {

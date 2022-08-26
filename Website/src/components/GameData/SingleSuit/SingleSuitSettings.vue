@@ -87,7 +87,7 @@
                   <b-form-radio-group v-model="card_array[i]" buttons class="w-100">
                     <b-form-radio :value="0"></b-form-radio>
                     <b-form-radio :value="1"></b-form-radio>
-                    <b-form-input class="checked_w" id="weight_number" v-model="weights_array[i]" :value="1"
+                    <b-form-input class="checked_w" id="weight_number" v-model="weights_array_fool[i]" :value="1"
                       type="number" :min="-99" :max="99"
                       v-if="weighted_game && game_type === 'singlesuit' || weighted_game && game_type === 'd-singlesuit'" />
                   </b-form-radio-group>
@@ -105,7 +105,7 @@
         <label id="labelOfText1" for="bribes_weights" v-if="weighted_game && game_type === 'whistette'">{{ $t('message.SingleSuitSettings.BribeWeights') }}</label>
         <b-col v-for="i in Array(minMax(cards_number, 1, 100) / 2).keys()">
           <label id="labelOfText1" for="bribe_weight" v-if="weighted_game && game_type === 'whistette'">{{ i + 1 }}{{ $t('message.SingleSuitSettings.NthBribe') }}</label>
-          <b-form-input class="checked_w" id="weight_number" v-if="weighted_game && game_type === 'whistette'" v-model="weights_array[i]" :value="1" type="number" :min="-99"
+          <b-form-input class="checked_w" id="weight_number" v-if="weighted_game && game_type === 'whistette'" v-model="weights_array_whistette[i]" :value="1" type="number" :min="-99"
             :max="99">
           </b-form-input>
         </b-col>
@@ -186,7 +186,8 @@ export default {
       unlimited_time: false,
       time_limit: 10,
       weighted_game: false,
-      weights_array: Array(100).fill(1),
+      weights_array_fool: Array(100).fill(1),
+      weights_array_whistette: Array(100).fill(1),
     }
   },
   methods: {
@@ -206,9 +207,15 @@ export default {
         }
       }
 
-      if (settings.weights != null && settings.weights.length > 0) {
+      if (settings.fool_weights != null && settings.fool_weights.length === this.cards_number) {
         for (let i = 0; i < this.cards_number; i++) {
-          this.weights_array[i] = settings.weights[i]
+          this.weights_array_fool[i] = settings.fool_weights[i]
+        }
+      }
+      
+      if (settings.whistette_weights != null && settings.whistette_weights.length === this.cards_number) {
+        for (let i = 0; i < this.cards_number; i++) {
+          this.weights_array_whistette[i] = settings.whistette_weights[i]
         }
       }
     },
@@ -224,8 +231,10 @@ export default {
           s.push(i + 1)
         }
 
-        if (this.weighted_game) {
-          w.push(parseInt(this.weights_array[i]))
+        if (this.weighted_game && (this.game_type === "singlesuit" || this.game_type === "d-singlesuit")) {
+          w.push(parseInt(this.weights_array_fool[i]))
+        } else if (this.weighted_game && this.game_type === "whistette") {
+          w.push(parseInt(this.weights_array_whistette[i]))
         }
       }
       let time_limit = null
@@ -244,7 +253,19 @@ export default {
     },
     saveSettings() {
       let settings = this.getSettings()
+
       settings.weighted_game = this.weighted_game
+
+      if (this.weighted_game && (this.game_type === "singlesuit" || this.game_type === "d-singlesuit")) {
+        settings.fool_weights = settings.weights
+        settings.whistette_weights = this.weights_array_whistette.slice(0, this.cards_number)
+      } else if (this.weighted_game && this.game_type === "whistette") {
+        settings.whistette_weights = settings.weights
+        settings.fool_weights = this.weights_array_fool.slice(0, this.cards_number)
+      }
+
+      delete settings.weights
+
       this.$cookies.set("singlesuit-settings", settings)
     },
     minMax(val, min, max) {
