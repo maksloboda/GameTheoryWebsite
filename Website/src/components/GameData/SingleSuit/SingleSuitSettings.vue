@@ -208,9 +208,9 @@ export default {
 
       for (let i = 0; i < this.cards_number; i++) {
         if (settings.first_player_array.includes(i + 1)) {
-          this.card_array[i] = 0
+          this.$set(this.card_array, i, 0)
         } else {
-          this.card_array[i] = 1
+          this.$set(this.card_array, i, 1)
         }
       }
 
