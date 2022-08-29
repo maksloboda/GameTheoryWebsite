@@ -62,7 +62,7 @@
             </b-row>
           </b-row>
 
-          <b-row id="fifthContainer2">
+          <b-row id="fifthContainer2" v-if="game_type === 'whistette'">
             <b-row sm="6">
               <b-form-checkbox id="labelOfText" v-model="scanty_version" :value="true" :unchecked-value="false">
                 {{ $t('message.SingleSuitSettings.ScantyVersion') }}
