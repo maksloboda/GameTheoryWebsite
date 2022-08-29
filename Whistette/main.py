@@ -32,11 +32,13 @@ def joinGame(gameinfo, pid):
 def processFinished(gameinfo, state):
   fps = state["FirstPlayerSet"]
   sps = state["SecondPlayerSet"]
+  is_tiny = state["Version"] == "tiny"
+
   if len(fps) == 0 and len(sps) == 0:
     if state["FirstScore"] > state["SecondScore"]:
-      gameinfo["winner"] = "A"
+      gameinfo["winner"] = "A" if not is_tiny else "B"
     elif state["FirstScore"] < state["SecondScore"]:
-      gameinfo["winner"] = "B"
+      gameinfo["winner"] = "B" if not is_tiny else "A"
     else:
       gameinfo["winner"] = ""
     gameinfo["is_finished"] = True
@@ -113,7 +115,8 @@ def findOptimalMove(gameinfo):
     state["SecondPlayerSet"],
     int(state["CurrentPlayer"] == "B"),
     EMPTY_FIELD if last_card is None else last_card,
-    state["Weights"]
+    state["Weights"],
+    state["Version"]
   )
   
   return {

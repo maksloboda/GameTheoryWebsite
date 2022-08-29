@@ -83,6 +83,7 @@ export default {
       FirstScore: 0,
       SecondScore: 0,
       Weights: settings.weights,
+      Version: settings.version,
     }
   },
   FIRST_PLAYER_ID: FIRST_PLAYER_ID,

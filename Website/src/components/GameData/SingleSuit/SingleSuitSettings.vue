@@ -62,6 +62,13 @@
             </b-row>
           </b-row>
 
+          <b-row id="fifthContainer2">
+            <b-row sm="6">
+              <b-form-checkbox id="labelOfText" v-model="scanty_version" :value="true" :unchecked-value="false">
+                {{ $t('message.SingleSuitSettings.ScantyVersion') }}
+              </b-form-checkbox>
+            </b-row>
+          </b-row>
           <br>
         </b-col>
 
@@ -195,6 +202,7 @@ export default {
       weighted_game: false,
       weights_array_fool: Array(100).fill(1),
       weights_array_whistette: Array(100).fill(1),
+      scanty_version: false,
     }
   },
   methods: {
@@ -205,6 +213,7 @@ export default {
       this.time_limit = settings.time_limit == null ? 10 : settings.time_limit
       this.unlimited_time = settings.time_limit == null
       this.weighted_game = settings.weighted_game
+      this.scanty_version = settings.version === "tiny"
 
       for (let i = 0; i < this.cards_number; i++) {
         if (settings.first_player_array.includes(i + 1)) {
@@ -256,6 +265,7 @@ export default {
         second_player_array: s,
         time_limit: time_limit,
         weights: w,
+        version: this.scanty_version ? "tiny" : "normal"
       };
     },
     saveSettings() {
