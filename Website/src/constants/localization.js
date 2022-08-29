@@ -43,6 +43,7 @@ export const messages = {
             BribeWeights: 'Weights of bribes',
             WeightedVersion: "Version with weights",
             Weights: "Weights",
+            ScantyVersion: "Scanty version",
         },
         SekiInterface: {
             NullGameStatus: 'Current game status is null',
@@ -202,6 +203,7 @@ export const messages = {
             BribeWeights: 'Веса взяток',
             WeightedVersion: "Версия с весами",
             Weights: "Веса",
+            ScantyVersion: "Мизерная версия",
         },
         SekiInterface: {
             NullGameStatus: 'Текущее состояние игры неизвестно',
