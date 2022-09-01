@@ -1,17 +1,17 @@
-import WhistetteInfo from "./WhistetteInfo.vue"
-import WhistetteSettings from "./WhistetteSettings.vue"
+import SingleSuitInfo from "../SingleSuitInfo.vue"
+import SingleSuitSettings from "../SingleSuitSettings.vue"
 import WhistetteInterface from "./WhistetteInterface.vue"
 
 export const FIRST_PLAYER_ID = "A"
 export const SECOND_PLAYER_ID = "B"
 
 export default {
-  getInfoComponent() {
-    return WhistetteInfo
-  },
-  getSettingsComponent() {
-    return WhistetteSettings
-  },
+  // getInfoComponent() {
+  //   return SingleSuitInfo
+  // },
+  // getSettingsComponent() {
+  //   return SingleSuitSettings
+  // },
   getInterfaceComponent() {
     return WhistetteInterface
   },

@@ -1,20 +1,19 @@
 import SingleSuitInfo from "./../SingleSuitInfo.vue"
 import SingleSuitSettings from "./../SingleSuitSettings.vue"
-import SingleSuitInterface from "./../SingleSuitInterface.vue"
-import { messages } from "./../../../../constants/localization"
+import FoolInterface from "./FoolInterface.vue"
 
 export const FIRST_PLAYER_ID = "A"
 export const SECOND_PLAYER_ID = "B"
 
 export default {
-  getInfoComponent() {
-    return SingleSuitInfo
-  },
-  getSettingsComponent() {
-    return SingleSuitSettings
-  },
+  // getInfoComponent() {
+  //   return SingleSuitInfo
+  // },
+  // getSettingsComponent() {
+  //   return SingleSuitSettings
+  // },
   getInterfaceComponent() {
-    return SingleSuitInterface
+    return FoolInterface
   },
   getInternalGameName() {
     return "singlesuit"
