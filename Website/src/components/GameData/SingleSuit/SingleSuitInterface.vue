@@ -46,6 +46,15 @@
                 >{{ c }}</b-button>
               </b-col>
             </b-row>
+            <b-row class="justify-content-md-center" style="height: 80px">
+              <b-col md="auto" v-for="c in game_state.weights_array">
+                <b-button 
+                  class="card-button"
+                  :disabled="!is_active || game_state.current_player == 'B' || (game_state.last_card != null && c < game_state.last_card)"
+                  @click="makeMoveInterface({type:'move', card: c, do_take:false})"
+                >{{ c }}</b-button>
+              </b-col>
+            </b-row>
             <button>AAAAA</button>
           </div>  
         </b-card>

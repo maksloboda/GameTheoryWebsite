@@ -62,13 +62,13 @@
             </b-row>
           </b-row>
 
-          <b-row id="fifthContainer2">
+          <!-- <b-row id="fifthContainer2">
             <b-row sm="6">
               <b-form-checkbox id="labelOfText" v-model="scanty_version" :value="true" :unchecked-value="false">
                 {{ $t('message.SingleSuitSettings.ScantyVersion') }}
               </b-form-checkbox>
             </b-row>
-          </b-row>
+          </b-row> -->
           <br>
         </b-col>
 
@@ -223,7 +223,7 @@ export default {
         first_player_array: f,
         second_player_array: s,
         time_limit: time_limit,
-        weights: w,
+        weights_array: w,
       };
     },
     minMax(val, min, max) {
