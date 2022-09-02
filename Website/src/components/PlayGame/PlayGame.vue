@@ -3,9 +3,7 @@
     <b-card>
       <b-row>
         <b-col sm="10" align="center" class="fs-3">
-          <b-div
-              ref="game_status"
-          >
+          <b-div ref="game_status">
             <div v-if="!is_ready">
               {{ $t('message.PlayGame.WaitPlayers') }}
             </div>
@@ -28,70 +26,34 @@
           </b-div>
         </b-col>
         <b-col>
-          <b-button
-              variant="outline-primary"
-              class="w-100"
-              @click="copyURL"
-          >
+          <b-button variant="outline-primary" class="w-100" @click="copyURL">
             {{ $t('message.PlayGame.CopyLink') }}
           </b-button>
         </b-col>
       </b-row>
     </b-card>
-    <b-card
-        class="mt-2"
-        v-if="!client_joined && !is_ready"
-    >
-      <b-row>
-        <b-form-group>
-          <b-form-radio-group
-              class="w-100"
-              button-variant="outline-primary"
-              id="btn-radios-1"
-              v-model="game_mode_"
-              :options="game_mode_options"
-              buttons
-          ></b-form-radio-group>
-        </b-form-group>
-      </b-row>
-      <br>
+    <b-card class="mt-2" v-if="!client_joined && !is_ready">
       <div>
         <b-row v-if="game_mode != MODE_SPECTATE">
           <b-col sm="6">
-            <b-button
-                class="w-100"
-                @click="joinLobby(FIRST_PLAYER_ID)"
-                variant="warning"
-                ref="join_first_button"
-                :disabled="players_joined.includes(FIRST_PLAYER_ID)"
-            >
+            <b-button class="w-100" @click="joinLobby(FIRST_PLAYER_ID)" variant="warning" ref="join_first_button"
+              :disabled="players_joined.includes(FIRST_PLAYER_ID)">
               <b> {{ $t('message.PlayGame.JoinAs') }} {{ FIRST_PLAYER_ID }} </b>
               <span v-if="current_player == FIRST_PLAYER_ID"> - {{ $t('message.PlayGame.FirstMove') }}</span>
               <span v-if="can_first_pass"> - {{ $t('message.PlayGame.CanPass') }}</span>
             </b-button>
           </b-col>
           <b-col sm="6">
-            <b-button
-                class="w-100"
-                @click="joinLobby(SECOND_PLAYER_ID)"
-                variant="warning"
-                ref="join_second_button"
-                :disabled="players_joined.includes(SECOND_PLAYER_ID)"
-            >
+            <b-button class="w-100" @click="joinLobby(SECOND_PLAYER_ID)" variant="warning" ref="join_second_button"
+              :disabled="players_joined.includes(SECOND_PLAYER_ID)">
               <b> {{ $t('message.PlayGame.JoinAs') }} {{ SECOND_PLAYER_ID }} </b>
               <span v-if="current_player == SECOND_PLAYER_ID"> - {{ $t('message.PlayGame.FirstMove') }}</span>
               <span v-if="can_second_pass"> - {{ $t('message.PlayGame.CanPass') }}</span>
             </b-button>
           </b-col>
         </b-row>
-        <b-button
-            v-else
-            class="w-100"
-            @click="joinLobby(null)"
-            variant="warning"
-            ref="join_first_button"
-            :disabled="players_joined.includes(FIRST_PLAYER_ID)"
-        >
+        <b-button v-else class="w-100" @click="joinLobby(null)" variant="warning" ref="join_first_button"
+          :disabled="players_joined.includes(FIRST_PLAYER_ID)">
           <b>{{ $t('message.PlayGame.Start') }} </b>
           <span> <b>{{ current_player }}</b> {{ $t('message.PlayGame.FirstMove') }}</span>
           <span v-if="can_first_pass">, <b>{{ FIRST_PLAYER_ID }}</b> {{ $t('message.PlayGame.CanPass') }}</span>
@@ -105,12 +67,8 @@
     <div v-else>
       <b-row class="mt-2">
         <b-col sm="9">
-          <component
-              :is="game_component"
-              ref="game_instance"
-              @component_ready="onGameComponentSpawned"
-              @move="onMoveMade"
-          ></component>
+          <component :is="game_component" ref="game_instance" @component_ready="onGameComponentSpawned"
+            @move="onMoveMade"></component>
         </b-col>
         <b-col sm="3" class="flex-grow-1" v-if="!unlimited_time">
           <b-card>
@@ -123,21 +81,13 @@
       <b-card v-if="is_ready" class="mt-2">
         <b-row>
           <b-col>
-            <b-button
-                @click="leaveGame"
-                variant="outline-danger"
-            >{{ $t('message.PlayGame.LeaveGame') }}
+            <b-button @click="leaveGame" variant="outline-danger">{{ $t('message.PlayGame.LeaveGame') }}
             </b-button>
           </b-col>
 
           <b-col>
-            <b-button
-                v-if="is_bot_button_visible"
-                :disabled="!is_ready || is_finished || current_player == player_id"
-                @click="makeBotMove"
-                variant="primary"
-                class="float-end"
-            >
+            <b-button v-if="is_bot_button_visible" :disabled="!is_ready || is_finished || current_player == player_id"
+              @click="makeBotMove" variant="primary" class="float-end">
               {{ $t('message.PlayGame.MakeMove') }}
             </b-button>
           </b-col>
@@ -182,8 +132,6 @@ export default {
         is_finished: false,
       },
 
-      game_mode_: MODE_VS_HUMAN, // vs human/comp/spectate
-
       player_tokens: [null, null], // vs human - one token, other modes - two
       player_id: "",
 
@@ -197,17 +145,14 @@ export default {
   },
 
   computed: {
-    game_mode: {
-      get() {
-        return this.$route.params.game_mode || this.game_mode_;
-      },
-      set(mode) {
-        this.game_mode = mode;
-      },
+    game_mode() {
+      return this.$route.params.game_mode;
     },
+
     is_bot_button_visible() {
       return this.game_mode == MODE_SPECTATE || this.game_mode == MODE_VS_COMP
     },
+
     player_token: {
       get() {
         return this.player_tokens[0];
@@ -216,6 +161,7 @@ export default {
         this.player_tokens[0] = token;
       },
     },
+
     bot_token: {
       get() {
         return this.player_tokens[1];
@@ -224,9 +170,11 @@ export default {
         this.player_tokens[1] = token;
       },
     },
+
     current_player() {
       return this.game_state.current_player
     },
+
     current_token() {
       if (this.game_mode == MODE_SPECTATE) {
         if (this.current_player == this.FIRST_PLAYER_ID) {
@@ -253,6 +201,7 @@ export default {
     FIRST_PLAYER_ID() {
       return this.game_object.FIRST_PLAYER_ID
     },
+
     SECOND_PLAYER_ID() {
       return this.game_object.SECOND_PLAYER_ID
     },
@@ -264,9 +213,11 @@ export default {
     game_type() {
       return this.game_state.game_type
     },
+
     pass_options() {
       return this.game_state.pass_options
     },
+
     can_first_pass() {
       try {
         return this.game_state.pass_options[this.FIRST_PLAYER_ID]
@@ -274,6 +225,7 @@ export default {
         return false
       }
     },
+
     can_second_pass() {
       try {
         return this.game_state.pass_options[this.SECOND_PLAYER_ID]
@@ -289,21 +241,17 @@ export default {
     players_joined() {
       return this.game_info.players_joined
     },
+
     is_finished() {
       return this.game_info.is_finished
     },
+
     is_ready() {
       return this.game_info.is_ready
     },
+
     winner() {
       return this.game_info.winner
-    },
-    game_mode_options() {
-      return [
-        {text: this.$t('message.PlayGame.AgainstHuman'), value: MODE_VS_HUMAN},
-        {text: this.$t('message.PlayGame.AgainstComputer'), value: MODE_VS_COMP},
-        {text: this.$t('message.PlayGame.Spectator'), value: MODE_SPECTATE}
-      ]
     },
 
     time_left: {
@@ -382,7 +330,7 @@ export default {
 
     leaveGame() {
       console.log("Game left")
-      this.$router.push({path: "/"})
+      this.$router.push({ path: "/" })
     },
 
     async joinGame(pid) {
@@ -394,11 +342,11 @@ export default {
           player_id: pid
         },
       }).then((response) => {
-            player_token = response.data.joinGame
-          }
+        player_token = response.data.joinGame
+      }
       ).catch((response) => {
-            console.log("Join game error", response)
-          }
+        console.log("Join game error", response)
+      }
       )
       return player_token
     },
@@ -411,11 +359,11 @@ export default {
           game_id: this.game_id,
         },
       }).then((response) => {
-            this.updateGame(response.data.gameInfo)
-          }
+        this.updateGame(response.data.gameInfo)
+      }
       ).catch((response) => {
-            console.error("Get info error", response)
-          }
+        console.error("Get info error", response)
+      }
       )
     },
 
@@ -428,13 +376,13 @@ export default {
           event: JSON.stringify(this.game_object.makeMoveEvent(move)),
         },
       }).then((response) => {
-            if (response.data.addEvent == false) {
-              console.log("Illegal Move")
-            }
-          }
+        if (response.data.addEvent == false) {
+          console.log("Illegal Move")
+        }
+      }
       ).catch((response) => {
-            console.log("Add event error", response)
-          }
+        console.log("Add event error", response)
+      }
       )
     },
 
@@ -484,7 +432,7 @@ export default {
       console.log("Update game", this.game_info, this.current_player, this.player_id, this.is_ready, this.is_finished)
       // Block interface
       if (this.current_player == this.player_id &&
-          this.is_ready && !this.is_finished) {
+        this.is_ready && !this.is_finished) {
         this.$refs["game_instance"].setIsActive(true)
       } else {
         this.$refs["game_instance"].setIsActive(false)
@@ -529,11 +477,11 @@ export default {
           game_id: this.game_id,
         },
       }).then((response) => {
-            optimal_move = this.game_object.makeMoveFromEvent(JSON.parse(response.data.findOptimalMove))
-          }
+        optimal_move = this.game_object.makeMoveFromEvent(JSON.parse(response.data.findOptimalMove))
+      }
       ).catch((response) => {
-            console.error("Find optimal move error:", response)
-          }
+        console.error("Find optimal move error:", response)
+      }
       )
       return optimal_move
     }

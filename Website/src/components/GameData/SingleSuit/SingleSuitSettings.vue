@@ -29,6 +29,21 @@
             </b-col>
           </b-row>
 
+          <b-row id="secondContainer">
+            <b-col cols=3 id="third">
+              <b-form-group id="labelOfText" :label="$t('message.SekiSettings.OpponentChoice')">
+                <b-form-select id="choose-opponent-radio" button-variant="outline-primary" buttons v-model="game_mode">
+                  <b-form-select-option id="option1" :value="MODE_VS_COMP">{{ $t('message.SekiSettings.ComputerPerson') }}
+                  </b-form-select-option>
+                  <b-form-select-option id="option1" :value="MODE_VS_HUMAN">{{ $t('message.SekiSettings.PersonPerson') }}
+                  </b-form-select-option>
+                  <b-form-select-option id="option1" :value="MODE_SPECTATE">{{ $t('message.SekiSettings.ComputerComputer') }}
+                  </b-form-select-option>
+                </b-form-select>
+              </b-form-group>
+            </b-col>
+          </b-row>
+
           <br>
 
           <b-row id="secondContainer2">
@@ -178,6 +193,12 @@ import {
   SECOND_PLAYER_ID
 } from "."
 
+import {
+  MODE_VS_COMP,
+  MODE_VS_HUMAN,
+  MODE_SPECTATE,
+} from "@/constants/constants"
+
 
 export default {
   mounted() {
@@ -199,6 +220,10 @@ export default {
       weights_array_fool: Array(100).fill(1),
       weights_array_whistette: Array(100).fill(1),
       scanty_version: false,
+      game_mode: MODE_VS_COMP,
+      MODE_VS_COMP: MODE_VS_COMP,
+      MODE_VS_HUMAN: MODE_VS_HUMAN,
+      MODE_SPECTATE: MODE_SPECTATE,
     }
   },
   methods: {
@@ -210,6 +235,7 @@ export default {
       this.unlimited_time = settings.time_limit == null
       this.weighted_game = settings.weighted_game
       this.scanty_version = settings.version === "tiny"
+      this.game_mode = settings.game_mode || MODE_VS_COMP
 
       for (let i = 0; i < this.cards_number; i++) {
         if (settings.first_player_array.includes(i + 1)) {
@@ -261,7 +287,8 @@ export default {
         second_player_array: s,
         time_limit: time_limit,
         weights: w,
-        version: this.scanty_version ? "tiny" : "normal"
+        version: this.scanty_version ? "tiny" : "normal",
+        game_mode: this.game_mode,
       };
     },
     saveSettings() {
