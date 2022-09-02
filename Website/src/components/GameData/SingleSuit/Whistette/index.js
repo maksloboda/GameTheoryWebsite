@@ -42,6 +42,7 @@ export default {
       game_type: state.Type,
       first_score: state.FirstScore,
       second_score: state.SecondScore,
+      weights: state.Weights,
     }
 
     return new_state

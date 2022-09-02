@@ -89,6 +89,9 @@ export default {
     }
   },
   methods: {
+    withWeights() {
+      return this.game_state.weights != null && this.game_state.weights.length > 0
+    },
     setState(state, game_type, player_id) {
       this.game_state = state
       this.game_type = game_type
@@ -98,6 +101,7 @@ export default {
       this.is_active = is_active
     },
     makeMoveInterface(move) {
+      console.log("with weights: ", this.withWeights())
       this.$emit("move", move);
     },
     applyMoveInterface(move) {

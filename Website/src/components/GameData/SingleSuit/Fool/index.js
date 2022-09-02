@@ -42,7 +42,8 @@ export default {
       first_player_set: state.FirstPlayerSet,
       second_player_set: state.SecondPlayerSet,
       last_card: state.LastCard,
-      game_type: state.Type
+      game_type: state.Type,
+      weights: state.Weights,
     }
 
     return new_state

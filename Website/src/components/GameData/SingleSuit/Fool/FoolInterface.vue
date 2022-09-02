@@ -78,6 +78,9 @@ export default {
     }
   },
   methods: {
+    withWeights() {
+      return this.game_state.weights != null && this.game_state.weights.length > 0
+    },
     subgameName() {
       if (this.game_state.game_type == "d-singlesuit") {
         return this.$t('message.SingleSuitInterface.DFool')
@@ -94,6 +97,7 @@ export default {
       this.is_active = is_active
     },
     makeMoveInterface(move) {
+      console.log("with weights: ", this.withWeights())
       this.$emit("move", move);
     },
     applyMoveInterface(move) {
