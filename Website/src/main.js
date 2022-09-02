@@ -28,7 +28,7 @@ const router = new VueRouter({
       component: GameSelector,
     },
     {
-      path: "/play/:game_uid",
+      path: "/play/:game_uid/:game_mode?",
       name: "play-page",
       component: PlayGame,
     }

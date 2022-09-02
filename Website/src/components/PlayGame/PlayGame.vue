@@ -10,7 +10,7 @@
               {{ $t('message.PlayGame.WaitPlayers') }}
             </div>
             <div v-else-if="!is_finished">
-              <div v-if="current_player === player_id">
+              <div v-if="current_player == player_id">
                 {{ current_player }} {{ $t('message.PlayGame.YourTurn') }}
               </div>
               <div v-else>
@@ -18,7 +18,7 @@
               </div>
             </div>
             <div v-else-if="is_finished">
-              <div v-if="winner === ''">
+              <div v-if="winner == ''">
                 {{ $t('message.PlayGame.Draw') }}
               </div>
               <div v-else>
@@ -66,7 +66,7 @@
                 :disabled="players_joined.includes(FIRST_PLAYER_ID)"
             >
               <b> {{ $t('message.PlayGame.JoinAs') }} {{ FIRST_PLAYER_ID }} </b>
-              <span v-if="current_player === FIRST_PLAYER_ID"> - {{ $t('message.PlayGame.FirstMove') }}</span>
+              <span v-if="current_player == FIRST_PLAYER_ID"> - {{ $t('message.PlayGame.FirstMove') }}</span>
               <span v-if="can_first_pass"> - {{ $t('message.PlayGame.CanPass') }}</span>
             </b-button>
           </b-col>
@@ -79,7 +79,7 @@
                 :disabled="players_joined.includes(SECOND_PLAYER_ID)"
             >
               <b> {{ $t('message.PlayGame.JoinAs') }} {{ SECOND_PLAYER_ID }} </b>
-              <span v-if="current_player === SECOND_PLAYER_ID"> - {{ $t('message.PlayGame.FirstMove') }}</span>
+              <span v-if="current_player == SECOND_PLAYER_ID"> - {{ $t('message.PlayGame.FirstMove') }}</span>
               <span v-if="can_second_pass"> - {{ $t('message.PlayGame.CanPass') }}</span>
             </b-button>
           </b-col>
@@ -133,7 +133,7 @@
           <b-col>
             <b-button
                 v-if="is_bot_button_visible"
-                :disabled="!is_ready || is_finished || current_player === player_id"
+                :disabled="!is_ready || is_finished || current_player == player_id"
                 @click="makeBotMove"
                 variant="primary"
                 class="float-end"
@@ -182,7 +182,7 @@ export default {
         is_finished: false,
       },
 
-      game_mode: MODE_VS_HUMAN, // vs human/comp/spectate
+      game_mode_: MODE_VS_HUMAN, // vs human/comp/spectate
 
       player_tokens: [null, null], // vs human - one token, other modes - two
       player_id: "",
@@ -197,8 +197,16 @@ export default {
   },
 
   computed: {
+    game_mode: {
+      get() {
+        return this.$route.params.game_mode || this.game_mode_;
+      },
+      set(mode) {
+        this.game_mode = mode;
+      },
+    },
     is_bot_button_visible() {
-      return this.game_mode === MODE_SPECTATE || this.game_mode === MODE_VS_COMP
+      return this.game_mode == MODE_SPECTATE || this.game_mode == MODE_VS_COMP
     },
     player_token: {
       get() {
@@ -220,21 +228,21 @@ export default {
       return this.game_state.current_player
     },
     current_token() {
-      if (this.game_mode === MODE_SPECTATE) {
-        if (this.current_player === this.FIRST_PLAYER_ID) {
+      if (this.game_mode == MODE_SPECTATE) {
+        if (this.current_player == this.FIRST_PLAYER_ID) {
           return this.player_tokens[0]
         } else {
           return this.player_tokens[1]
         }
       }
-      if (this.player_id === this.FIRST_PLAYER_ID) {
-        if (this.current_player === this.FIRST_PLAYER_ID) {
+      if (this.player_id == this.FIRST_PLAYER_ID) {
+        if (this.current_player == this.FIRST_PLAYER_ID) {
           return this.player_tokens[0]
         } else {
           return this.player_tokens[1]
         }
       } else {
-        if (this.current_player === this.FIRST_PLAYER_ID) {
+        if (this.current_player == this.FIRST_PLAYER_ID) {
           return this.player_tokens[1]
         } else {
           return this.player_tokens[0]
@@ -345,7 +353,7 @@ export default {
 
     async joinLobby(pid) {
       console.log(this.game_mode)
-      if (this.game_mode === MODE_SPECTATE) {
+      if (this.game_mode == MODE_SPECTATE) {
         this.player_tokens[0] = await this.joinGame(this.FIRST_PLAYER_ID)
         this.player_tokens[1] = await this.joinGame(this.SECOND_PLAYER_ID)
       } else {
@@ -354,9 +362,9 @@ export default {
         if (this.player_tokens[0] != 0) {
           this.client_joined = 1
         }
-        if (this.game_mode !== MODE_VS_HUMAN) {
+        if (this.game_mode != MODE_VS_HUMAN) {
           let bot_pid = this.FIRST_PLAYER_ID
-          if (pid === this.FIRST_PLAYER_ID) {
+          if (pid == this.FIRST_PLAYER_ID) {
             bot_pid = this.SECOND_PLAYER_ID
           }
           this.player_tokens[1] = await this.joinGame(bot_pid)
@@ -420,7 +428,7 @@ export default {
           event: JSON.stringify(this.game_object.makeMoveEvent(move)),
         },
       }).then((response) => {
-            if (response.data.addEvent === false) {
+            if (response.data.addEvent == false) {
               console.log("Illegal Move")
             }
           }
@@ -435,7 +443,7 @@ export default {
         if (this.time_left > 0) {
           this.time_left = this.time_left - 1;
         }
-        if (this.time_left === 0) {
+        if (this.time_left == 0) {
           this.advance()
         }
       }.bind(this), 1000);
@@ -459,7 +467,7 @@ export default {
 
       // Update game object
       for (const game of GameData.games) {
-        if (game.getInternalGameName() === this.game_name) {
+        if (game.getInternalGameName() == this.game_name) {
           this.game_object = game
           this.game_component = game.getInterfaceComponent()
           break
@@ -475,7 +483,7 @@ export default {
 
       console.log("Update game", this.game_info, this.current_player, this.player_id, this.is_ready, this.is_finished)
       // Block interface
-      if (this.current_player === this.player_id &&
+      if (this.current_player == this.player_id &&
           this.is_ready && !this.is_finished) {
         this.$refs["game_instance"].setIsActive(true)
       } else {

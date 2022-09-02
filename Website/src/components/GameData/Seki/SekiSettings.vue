@@ -28,11 +28,11 @@
             <b-col cols=3 id="third">
               <b-form-group id="labelOfText" :label="$t('message.SekiSettings.OpponentChoice')">
                 <b-form-select id="choose-opponent-radio" button-variant="outline-primary" buttons v-model="game_mode">
-                  <b-form-select-option id="option1" value="c">{{ $t('message.SekiSettings.ComputerPerson') }}
+                  <b-form-select-option id="option1" :value="MODE_VS_COMP">{{ $t('message.SekiSettings.ComputerPerson') }}
                   </b-form-select-option>
-                  <b-form-select-option id="option1" value="p">{{ $t('message.SekiSettings.PersonPerson') }}
+                  <b-form-select-option id="option1" :value="MODE_VS_HUMAN">{{ $t('message.SekiSettings.PersonPerson') }}
                   </b-form-select-option>
-                  <b-form-select-option id="option1" value="cc">{{ $t('message.SekiSettings.ComputerComputer') }}
+                  <b-form-select-option id="option1" :value="MODE_SPECTATE">{{ $t('message.SekiSettings.ComputerComputer') }}
                   </b-form-select-option>
                 </b-form-select>
               </b-form-group>
@@ -191,6 +191,13 @@ import {
   MAX_FIELD_SIZE,
   MAX_CELL_VALUE
 } from "./"
+
+import {
+  MODE_VS_COMP,
+  MODE_VS_HUMAN,
+  MODE_SPECTATE,
+} from "@/constants/constants"
+
 export default {
   mounted() {
     if (this.$cookies.isKey("seki-settings")) {
@@ -211,7 +218,10 @@ export default {
       MAX_CELL_VALUE: MAX_CELL_VALUE,
       unlimited_time: false,
       time_limit: 10,
-      game_mode: "c"
+      game_mode: MODE_VS_COMP,
+      MODE_VS_COMP: MODE_VS_COMP,
+      MODE_VS_HUMAN: MODE_VS_HUMAN,
+      MODE_SPECTATE: MODE_SPECTATE,
     }
   },
   methods: {
@@ -224,6 +234,7 @@ export default {
       this.time_limit = settings.time_limit == null ? 10 : settings.time_limit
       this.unlimited_time = settings.time_limit == null
       this.field = Array(MAX_FIELD_SIZE * MAX_FIELD_SIZE).fill(0)
+      this.game_mode = settings.game_mode || MODE_VS_COMP
     
       for (let i = 0; i < settings.field.length; i++) {
         this.field[i] = settings.field[i]
@@ -251,6 +262,7 @@ export default {
         field_height: h,
         field: f,
         time_limit: time_limit,
+        game_mode: this.game_mode,
       };
     },
     saveSettings() {
