@@ -154,7 +154,7 @@ export default {
               : settings.game_type.startsWith("d") ? settings.game_type.substring(2) : settings.game_type,
           this.game_object.initStateFromSettings(settings, settings.game_type),
           is_public,
-          settings.time_limit, settings.weights_array);
+          settings.time_limit);
     },
   },
 }

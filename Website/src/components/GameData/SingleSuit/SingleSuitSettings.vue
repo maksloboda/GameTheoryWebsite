@@ -69,7 +69,6 @@
               </b-form-checkbox>
             </b-row>
           </b-row> -->
-
           <br>
         </b-col>
 
@@ -224,7 +223,7 @@ export default {
         first_player_array: f,
         second_player_array: s,
         time_limit: time_limit,
-        weights_array: w,
+        weights: w,
       };
     },
     minMax(val, min, max) {

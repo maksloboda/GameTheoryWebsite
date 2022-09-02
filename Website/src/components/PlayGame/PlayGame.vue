@@ -115,12 +115,7 @@
         <b-col sm="3" class="flex-grow-1" v-if="!unlimited_time">
           <b-card>
             <b>{{ $t('message.TimeLeft') }}:</b> {{ time_left }} <br>
-            <b>{{ $t('message.TimeLimit') }}:</b> {{ time_limit }} <br>
-          </b-card>
-        </b-col>
-        <b-col sm="3" class="flex-grow-1" v-if="!unlimited_time">
-          <b-card>
-            <b>{{ $t('message.SingleSuitSettings.Weights') }}:</b> {{ weights_array }}
+            <b>{{ $t('message.TimeLimit') }}:</b> {{ time_limit }}
           </b-card>
         </b-col>
       </b-row>
@@ -198,8 +193,6 @@ export default {
       MODE_SPECTATE: MODE_SPECTATE,
 
       timer_interval: null,
-
-      weights_array: null,
     }
   },
 
@@ -280,9 +273,6 @@ export default {
         return false
       }
     },
-    weights_array() {
-      return this.game_state.weights_array
-    },
 
     game_name() {
       return this.game_info.game_name
@@ -333,7 +323,6 @@ export default {
 
     onGameComponentSpawned() {
       console.log("game type: ", this.game_type)
-      console.log("game type weights: ", this.game_state.weights_array)
       this.$refs["game_instance"].setState(this.game_state, this.game_type, this.player_id)
       this.$refs["game_instance"].setIsActive(false)
     },

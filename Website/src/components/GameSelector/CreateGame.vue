@@ -28,13 +28,12 @@ export default {
     }
   },
   methods: {
-    async createGame(game_name, start_state, is_public, time_limit, weights_array) {
+    async createGame(game_name, start_state, is_public, time_limit) {
       const data = {
         game_name: game_name,
         start_state: JSON.stringify(start_state),
         is_public: Boolean(is_public),
         time_limit: parseInt(time_limit),
-        weights_array: weights_array,
       }
       console.log("Create game:", data)
 
