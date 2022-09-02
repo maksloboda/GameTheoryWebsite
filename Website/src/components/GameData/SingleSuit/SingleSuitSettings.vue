@@ -99,10 +99,6 @@
                       v-if="weighted_game && game_type === 'singlesuit' || weighted_game && game_type === 'd-singlesuit'" />
                   </b-form-radio-group>
                 </b-form-group>
-                <!-- <b-form-group v-model="weights_array[i]" buttons class="w-100">
-                  <b-form-input v-model="weights_array[i]" :value="1" type="number" :min="-99" :max="99"
-                    v-if="weighted_game" />
-                </b-form-group> -->
               </b-col>
             </b-row>
           </b-card>
@@ -114,7 +110,7 @@
               $t('message.SingleSuitSettings.BribeWeights')
           }}</label>
           <b-row>
-            <b-col v-for="i in Array(minMax(cards_number, 1, 100) / 2).keys()">
+            <b-col v-for="i in Array(Math.floor(minMax(cards_number, 1, 100) / 2)).keys()">
               <label id="labelOfText1" for="bribe_weight">{{ i + 1 }}{{ $t('message.SingleSuitSettings.NthBribe')
               }}</label>
               <b-form-input class="checked_w" id="weight_number" v-model="weights_array_whistette[i]" :value="1"
