@@ -48,7 +48,7 @@
               class="w-100"
               button-variant="outline-primary"
               id="btn-radios-1"
-              v-model="game_mode"
+              v-model="game_mode_"
               :options="game_mode_options"
               buttons
           ></b-form-radio-group>
@@ -56,7 +56,7 @@
       </b-row>
       <br>
       <div>
-        <b-row v-if="game_mode !== MODE_SPECTATE">
+        <b-row v-if="game_mode != MODE_SPECTATE">
           <b-col sm="6">
             <b-button
                 class="w-100"
