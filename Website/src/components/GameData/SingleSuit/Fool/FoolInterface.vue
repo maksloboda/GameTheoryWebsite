@@ -2,20 +2,21 @@
   <b-container>
     <div v-if="game_state === null">
       <center>
-        {{$t('message.SingleSuitInterface.NullGameState')}}
+        {{ $t('message.SingleSuitInterface.NullGameState') }}
       </center>
     </div>
     <div v-else>
       <div class="container mt-2">
         <b-card class="text-center" :title="subgameName()">
-          <div class="mt-2"> 
+          <div class="mt-2">
             <b-row class="justify-content-md-center" style="min-height: 80px">
               <b-col md="auto" v-for="c in game_state.first_player_set">
-                <b-button 
-                  class="card-button"
+                <div v-if="game_state.weights.length != 0">
+                  {{ game_state.weights[c-1] }}
+                </div>
+                <b-button class="card-button"
                   :disabled="!is_active || game_state.current_player == 'B' || (game_state.last_card != null && c < game_state.last_card)"
-                  @click="makeMoveInterface({type:'move', card: c, do_take:false})"
-                >{{ c }}</b-button>
+                  @click="makeMoveInterface({ type: 'move', card: c, do_take: false })">{{ c }}</b-button>
               </b-col>
             </b-row>
 
@@ -25,11 +26,9 @@
             <br>
 
             <b-row class="justify-content-md-center" style="min-height: 80px">
-              <b-button class="card-button bg-secondary" variant="secondary"
-                v-if="null != game_state.last_card"
-                @click="makeMoveInterface({type:'move', card: game_state.last_card, do_take:true})"
-                >
-                  {{game_state.last_card}}
+              <b-button class="card-button bg-secondary" variant="secondary" v-if="null != game_state.last_card"
+                @click="makeMoveInterface({ type: 'move', card: game_state.last_card, do_take: true })">
+                {{ game_state.last_card }}
               </b-button>
             </b-row>
             <br>
@@ -39,11 +38,12 @@
 
             <b-row class="justify-content-md-center" style="min-height: 80px">
               <b-col md="auto" v-for="c in game_state.second_player_set">
-                <b-button 
-                  class="card-button"
-                  :disabled="!is_active || game_state.current_player == 'A' || (game_state.last_card != null && c < game_state.last_card)" 
-                  @click="makeMoveInterface({type:'move', card: c, do_take:false})"
-                >{{ c }}</b-button>
+                <b-button class="card-button"
+                  :disabled="!is_active || game_state.current_player == 'A' || (game_state.last_card != null && c < game_state.last_card)"
+                  @click="makeMoveInterface({ type: 'move', card: c, do_take: false })">{{ c }}</b-button>
+                  <div v-if="game_state.weights.length != 0">
+                  {{ game_state.weights[c-1] }}
+                </div>
               </b-col>
             </b-row>
 
@@ -52,23 +52,7 @@
               <b>{{  $t('message.SingleSuitSettings.Weights')  }}:</b> {{  game_state.weights  }}
             </b-container> <br> -->
             <br>
-
-            <b-card v-if="game_state.weights.length != 0">
-              <b-row class="justify-content-md-center">
-                <b-col md="auto">
-                  <b>{{ $t('message.SingleSuitSettings.Weights') }}:</b>
-                </b-col>
-                <b-col md="auto" v-for="(weight, index) in game_state.weights">
-                  <div v-if="current_bribe_number == index">
-                    <b>{{ weight }}</b>
-                  </div>
-                  <div v-else>
-                    {{ weight }}
-                  </div>
-                </b-col>
-              </b-row>
-            </b-card>
-          </div>  
+          </div>
         </b-card>
       </div>
     </div>
@@ -76,10 +60,10 @@
 </template>
 
 <style scoped>
-  .card-button {
-   width:55px;
-   height:80px;
-  }
+.card-button {
+  width: 55px;
+  height: 80px;
+}
 </style>
 
 <script>
