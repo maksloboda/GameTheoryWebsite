@@ -46,6 +46,28 @@
                 >{{ c }}</b-button>
               </b-col>
             </b-row>
+
+
+            <!-- <b-container id="containerForWeights" v-if="game_state.weights.length != 0">
+              <b>{{  $t('message.SingleSuitSettings.Weights')  }}:</b> {{  game_state.weights  }}
+            </b-container> <br> -->
+            <br>
+
+            <b-card v-if="game_state.weights.length != 0">
+              <b-row class="justify-content-md-center">
+                <b-col md="auto">
+                  <b>{{ $t('message.SingleSuitSettings.Weights') }}:</b>
+                </b-col>
+                <b-col md="auto" v-for="(weight, index) in game_state.weights">
+                  <div v-if="current_bribe_number == index">
+                    <b>{{ weight }}</b>
+                  </div>
+                  <div v-else>
+                    {{ weight }}
+                  </div>
+                </b-col>
+              </b-row>
+            </b-card>
           </div>  
         </b-card>
       </div>

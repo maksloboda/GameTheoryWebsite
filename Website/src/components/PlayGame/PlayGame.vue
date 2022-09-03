@@ -74,9 +74,9 @@
           <b-card>
             <b>{{  $t('message.TimeLeft')  }}:</b> {{  time_left  }} <br>
             <b>{{  $t('message.TimeLimit')  }}:</b> {{  time_limit  }} <br>
-            <b-container id="containerForWeights" v-if="game_state.weights.length != 0">
+            <!-- <b-container id="containerForWeights" v-if="game_state.weights.length != 0">
               <b>{{  $t('message.SingleSuitSettings.Weights')  }}:</b> {{  game_state.weights  }}
-            </b-container> <br>
+            </b-container> <br> -->
           </b-card>
         </b-col>
       </b-row>
