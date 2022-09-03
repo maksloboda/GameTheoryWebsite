@@ -28,7 +28,7 @@ export default {
     }
   },
   methods: {
-    async createGame(game_name, start_state, is_public, time_limit) {
+    async createGame(game_name, start_state, is_public, time_limit, game_mode) {
       const data = {
         game_name: game_name,
         start_state: JSON.stringify(start_state),
@@ -44,7 +44,11 @@ export default {
         },
       }).then((response) => {
         if (response.data.createGame !== "") {
-          this.$router.push({path: "play/" + response.data.createGame})
+          if (game_mode != null) {
+            this.$router.push({path: "play/" + response.data.createGame + "/" + game_mode})
+          } else {
+            this.$router.push({path: "play/" + response.data.createGame})
+          }
         }
       }).catch((response) => {
         console.error("Create game error", response)

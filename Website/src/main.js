@@ -13,7 +13,7 @@ import 'bootstrap-vue/dist/bootstrap-vue-icons.min.css'
 Vue.use(BootstrapVue)
 Vue.use(BootstrapVueIcons)
 Vue.use(VueRouter)
-Vue.use(VueCookies)
+Vue.use(VueCookies, { expire: '30d'})
 
 import GameSelector from './components/GameSelector/GameSelector.vue';
 import PlayGame from './components/PlayGame/PlayGame.vue';
@@ -28,7 +28,7 @@ const router = new VueRouter({
       component: GameSelector,
     },
     {
-      path: "/play/:game_uid",
+      path: "/play/:game_uid/:game_mode?",
       name: "play-page",
       component: PlayGame,
     }
